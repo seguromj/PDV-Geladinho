@@ -118,7 +118,7 @@ body {
 /* 4. LISTA DE PRODUTOS */
 .card-produto {
     background-color: #F5F3F0;
-    width:300px;
+    width:323px;
     border-radius: 10px;
     display: flex;
     justify-content: space-between;
