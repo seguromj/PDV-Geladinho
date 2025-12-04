@@ -191,38 +191,45 @@
 
 
 
-
-
-
-        /* Estilo Básico do Botão */
-.botao-cta {
-    /* Aparência */
-    display: inline-block; /* Permite definir largura e altura */
-    padding: 15px 30px;
-    background-color: #007bff; /* Azul, cor primária */
-    color: white; /* Cor do texto */
-    text-decoration: none; /* Remove o sublinhado do link */
-    font-size: 18px;
-    font-weight: bold;
-    border-radius: 8px; /* Cantos arredondados */
+    
+    /* Estilização básica do botão */
+.rotating-globe-button {
+    background: black;
     border: none;
-    transition: background-color 0.3s ease; /* Animação suave para o hover */
-
-    /* Posicionamento no rodapé (se for o caso) */
-    /* Se você quer que ele fique fixo, mude para:
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1000;
-    */
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 24px; /* Define o tamanho do botão (e do ícone) */
+    padding: 5px;
+    display: inline-flex; /* Permite centralizar o ícone */
+    align-items: center;
+    justify-content: center;
 }
 
-/* Efeito ao passar o mouse (Hover) */
-.botao-cta:hover {
-    background-color: #0056b3; /* Cor mais escura no hover */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para dar profundidade */
-    cursor: pointer; /* Mãozinha ao passar o mouse */
+/* Aplica a animação no ícone */
+.globe-icon {
+    /* Define o ponto de rotação no centro (padrão, mas bom ter) */
+    transform-origin: center; 
+    
+    /* Aplica a animação */
+    animation: spin 3s linear infinite; 
 }
+
+/* Define a animação de giro (keyframes) */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+    .criar-site {
+        color: white;
+        font-size: 12px;
+        text-align: center;
+    }
+
+
         
 
     </style>
@@ -324,10 +331,14 @@
             <a href="#">Localização</a>
         </p>
         <br>
-        <a class="botao-cta" href="https://wa.me/5562995679219?text=Ol%C3%A1!%0AEstou%20querendo%20saber%20como%20funciona%20para%20criar%20meu%20site" class="botao-whatsapp" target="_blank">
-    !!!Criar meu Site!!!
-        </a>
-        
+    
+        <button class="rotating-globe-button">
+    <span class="globe-icon">🌐</span>
+            <a href="https://wa.me/5562995679219?text=Ol%C3%A1!%0AEstou%20querendo%20saber%20como%20funciona%20para%20criar%20meu%20site">
+            <span class="criar-site">Criar meu site</span>
+            </a>
+    <span class="globe-icon">🌐</span>
+        </button>
         
     </footer>
 
