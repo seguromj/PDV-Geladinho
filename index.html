@@ -4,152 +4,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Pedidos - Spook Ice</title>
+    <title>Painel Spook Ice - Versão Corrigida</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; text-align: center; }
-        h1 { color: #333; }
-        
-        .nav-buttons { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .btn-link { 
-            text-decoration: none; 
-            background-color: #007bff; 
-            color: white; 
-            padding: 10px 15px; 
-            border-radius: 5px; 
-            font-weight: bold; 
-            font-size: 14px;
-            transition: background 0.3s;
-        }
-        .btn-link:hover { background-color: #0056b3; }
-        .btn-admin { background-color: #6c757d; }
-        .btn-pdf { background-color: #e67e22; border: none; cursor: pointer; }
-
-        #lista-pedidos { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 20px; }
-        .card { background: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px; width: 100%; max-width: 400px; border-left: 5px solid #25d366; text-align: left; position: relative; }
-        .card h3 { margin: 0 0 10px 0; color: #d32f2f; }
-        .btn-imprimir { background-color: #333; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
-        .btn-concluir { background-color: #ff4757; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; position: absolute; top: 10px; right: 10px; font-size: 12px; }
-        
-        #status { font-weight: bold; margin-bottom: 10px; }
-
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white; padding: 0; }
-            #cupom-print { display: block !important; width: 58mm; font-family: monospace; font-size: 10pt; text-align: left; }
-        }
+        body { font-family: sans-serif; background: #f4f4f9; padding: 20px; text-align: center; }
+        .nav-buttons { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .btn { text-decoration: none; background: #007bff; color: white; padding: 10px; border-radius: 5px; font-weight: bold; border: none; cursor: pointer; }
+        .card { background: white; border-radius: 10px; padding: 20px; margin: 10px auto; max-width: 400px; border-left: 5px solid #25d366; text-align: left; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .btn-imprimir { background: #333; color: white; width: 100%; padding: 10px; margin-top: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        #status { font-weight: bold; margin-bottom: 10px; color: blue; }
+        @media print { .no-print { display: none !important; } #cupom-print { display: block !important; width: 58mm; font-family: monospace; } }
     </style>
 </head>
 <body>
 
     <div class="no-print">
         <div class="nav-buttons">
-            <a href="#" target="_blank" class="btn-link">🖥️ Gestão 🖥️</a>
-            <a href="#" target="_blank" class="btn-link btn-admin">🧑‍💻 Admin 🧑‍💻</a>
-            <button onclick="gerarRelatorioPDF()" class="btn-link btn-pdf">📄 Finalizar Dia (PDF)</button>
+            <button class="btn">🖥️ Gestão</button>
+            <button class="btn" style="background:#6c757d">🧑‍💻 Admin</button>
         </div>
-
         <h1>Painel de Pedidos Spook Ice</h1>
-        <p>Os pedidos novos aparecerão aqui automaticamente.</p>
-        <div id="status">Iniciando...</div>
-        <button onclick="limparHistorico()" style="margin-top: 10px; font-size: 11px; color: #999; border: none; background: none; cursor: pointer;">[Ver todos os pedidos novamente]</button>
+        <div id="status">A ligar à planilha...</div>
     </div>
 
     <div id="lista-pedidos" class="no-print"></div>
     <div id="cupom-print" style="display: none;"></div>
 
     <script>
-        const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJs2mCWo_bv2C7OqYYzuhs_rh8CYfusDhR7UiS4Yj9sUw3C6hNcP6fFlXZOpmAlYZId-jAt8xAC5dM/pub?output=csv";
+        // LINK CSV ORIGINAL
+        const baseLink = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJs2mCWo_bv2C7OqYYzuhs_rh8CYfusDhR7UiS4Yj9sUw3C6hNcP6fFlXZOpmAlYZId-jAt8xAC5dM/pub?output=csv";
         
-        let pedidosConcluidos = JSON.parse(localStorage.getItem('spook_concluidos')) || [];
+        let concluidos = JSON.parse(localStorage.getItem('spook_concluidos')) || [];
 
-        async function carregarPedidos() {
-            const statusDiv = document.getElementById('status');
+        async function carregarDados() {
+            const status = document.getElementById('status');
             try {
-                const resposta = await fetch(urlCSV + "&t=" + new Date().getTime());
-                if (!resposta.ok) throw new Error();
-                const csvText = await resposta.text();
+                // Força o navegador a buscar dados novos (evita cache)
+                const response = await fetch(`${baseLink}&cache=${new Date().getTime()}`);
+                if (!response.ok) throw new Error("Erro ao acessar link");
                 
-                // Converte CSV para Array tratando aspas e vírgulas
-                const linhas = csvText.split(/\r?\n/).filter(l => l.trim() !== "").map(l => l.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/));
-                
-                const listaPedidosDiv = document.getElementById('lista-pedidos');
-                listaPedidosDiv.innerHTML = "";
+                const data = await response.text();
+                // Converte CSV para Array (limpa aspas e lida com vírgulas)
+                const rows = data.split(/\r?\n/).map(row => row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/));
 
-                // Começa da última linha para a primeira
-                for (let i = linhas.length - 1; i >= 1; i--) {
-                    let colunas = linhas[i];
-                    let pedidoConteudo = colunas[12]; // Coluna M
+                const container = document.getElementById('lista-pedidos');
+                container.innerHTML = "";
 
-                    if (pedidoConteudo && pedidoConteudo.replace(/"/g, '').trim() !== "") {
-                        pedidoConteudo = pedidoConteudo.replace(/"/g, '').trim();
+                if (rows.length < 2) {
+                    status.innerText = "Planilha conectada, mas sem dados nas linhas.";
+                    return;
+                }
+
+                // Começa da última linha para a primeira (pedidos mais recentes no topo)
+                for (let i = rows.length - 1; i >= 1; i--) {
+                    const col = rows[i];
+                    
+                    // COLUNA M é o índice 12. Vamos verificar se existe.
+                    let pedido = col[12] ? col[12].replace(/"/g, '').trim() : "";
+
+                    if (pedido !== "") {
+                        let id = btoa(pedido).substring(0, 15) + i;
                         
-                        // Criar um ID baseado na linha e conteúdo para evitar duplicados
-                        let idUnico = btoa(pedidoConteudo).substring(0, 15) + i;
+                        if (!concluidos.includes(id)) {
+                            let valor = col[1] ? col[1].replace(/"/g, '') : "0,00";
+                            let obs = col[3] ? col[3].replace(/"/g, '') : "";
 
-                        if (!pedidosConcluidos.includes(idUnico)) {
-                            let total = colunas[1] ? colunas[1].replace(/"/g, '') : '---';
-                            let info = colunas[3] ? colunas[3].replace(/"/g, '') : '-';
-
-                            const card = document.createElement('div');
-                            card.className = 'card';
-                            card.innerHTML = `
-                                <button class="btn-concluir" onclick="concluirPedido('${idUnico}')">Concluir ✅</button>
+                            const div = document.createElement('div');
+                            div.className = 'card';
+                            div.innerHTML = `
+                                <button onclick="finalizar('${id}')" style="float:right; background:red; color:white; border:none; border-radius:3px; cursor:pointer;">X</button>
                                 <h3>Novo Pedido</h3>
-                                <p><strong>Detalhes:</strong> ${pedidoConteudo}</p>
-                                <p><strong>Total:</strong> R$ ${total}</p>
-                                <button class="btn-imprimir" onclick="prepararImpressao('${pedidoConteudo.replace(/'/g, "\\'")}', '${total}', '${info.replace(/'/g, "\\'")}')">🖨️ IMPRIMIR CUPOM</button>
+                                <p><strong>Itens:</strong> ${pedido}</p>
+                                <p><strong>Total:</strong> R$ ${valor}</p>
+                                <button class="btn-imprimir" onclick="imprimir('${pedido}', '${valor}', '${obs}')">🖨️ IMPRIMIR</button>
                             `;
-                            listaPedidosDiv.appendChild(card);
+                            container.appendChild(div);
                         }
                     }
                 }
-                statusDiv.innerText = "Atualizado: " + new Date().toLocaleTimeString();
-                statusDiv.style.color = "green";
-            } catch (erro) {
-                statusDiv.innerText = "Erro ao carregar dados. Verifique a internet.";
-                statusDiv.style.color = "red";
+                status.innerText = "Última atualização: " + new Date().toLocaleTimeString();
+                status.style.color = "green";
+
+            } catch (err) {
+                status.innerText = "ERRO: O link da planilha pode estar offline ou bloqueado.";
+                status.style.color = "red";
             }
         }
 
-        function concluirPedido(id) {
-            pedidosConcluidos.push(id);
-            localStorage.setItem('spook_concluidos', JSON.stringify(pedidosConcluidos));
-            carregarPedidos();
+        function finalizar(id) {
+            concluidos.push(id);
+            localStorage.setItem('spook_concluidos', JSON.stringify(concluidos));
+            carregarDados();
         }
 
-        function prepararImpressao(conteudo, total, info) {
-            const areaPrint = document.getElementById('cupom-print');
-            areaPrint.innerHTML = `
-                <center>
-                    <strong>SPOOK ICE</strong><br>
-                    ---------------------------<br>
-                    <strong>CUPOM DE PEDIDO</strong><br>
-                    ---------------------------
-                </center>
-                ${conteudo}<br><br>
-                <strong>TOTAL: R$ ${total}</strong><br>
-                ---------------------------<br>
-                ${info}<br><br>
-                <center>Obrigado!</center>
-                <br>.
-            `;
+        function imprimir(p, v, o) {
+            const printArea = document.getElementById('cupom-print');
+            printArea.innerHTML = `<center><strong>SPOOK ICE</strong><br>------------------<br></center>${p}<br><br><strong>TOTAL: R$ ${v}</strong><br>------------------<br>${o}<br><br><center>Obrigado!</center><br>.`;
             window.print();
         }
 
-        function gerarRelatorioPDF() {
-            window.print(); // No modo Kiosk ou PDF, ele imprimirá a tela como está
-        }
-
-        function limparHistorico() {
-            if(confirm("Deseja ver os pedidos concluídos de novo?")) {
-                localStorage.removeItem('spook_concluidos');
-                pedidosConcluidos = [];
-                carregarPedidos();
-            }
-        }
-
-        setInterval(carregarPedidos, 20000);
-        carregarPedidos();
+        setInterval(carregarDados, 15000); // Atualiza a cada 15 segundos
+        carregarDados();
     </script>
 </body>
 </html>
