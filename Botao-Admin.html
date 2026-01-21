@@ -424,13 +424,13 @@
 
             const form = document.createElement('form');
             form.method = "POST";
-            // CORREÇÃO: URL alterada de viewform para formResponse
             form.action = "https://docs.google.com/forms/d/e/1FAIpQLSd7bkDqvd58K8aTaSUjTLAr9kaH6xYI9z1NNun76b3KJRocqQ/formResponse";
             form.target = "hidden_iframe";
 
             const dados = {
-                "entry.1135569222": String(statusId),   //ID Coluna B Para alterar o Status de aberto e fechado: ID 100
-                "entry.338449721": String(statusTxt)   //ID Coluna C : (Aberto: 00:00)(Fechado: 23:59)
+                "entry.1135569222": String(statusId),
+                "entry.338449721": String(statusTxt),
+                "entry.998216453": "STATUS_HORARIO" // Campo extra identificado na URL do seu formulário
             };
 
             for (let key in dados) {
@@ -602,7 +602,6 @@
 
             const form = document.createElement('form');
             form.method = "POST";
-            // CORREÇÃO: URL alterada para formResponse
             form.action = "https://docs.google.com/forms/d/e/1FAIpQLSd7bkDqvd58K8aTaSUjTLAr9kaH6xYI9z1NNun76b3KJRocqQ/formResponse";
             form.target = "hidden_iframe";
 
@@ -614,7 +613,8 @@
                 "entry.232575593": String(c5),
                 "entry.1304072559": String(valorG),
                 "entry.936724616": String(c7),
-                "entry.758849240": String(c8)
+                "entry.758849240": String(c8),
+                "entry.998216453": "DADOS_PRODUTO" // Novo campo adicionado com base na URL fornecida
             };
 
             for (let key in dados) {
@@ -672,7 +672,6 @@
                     ? `<button class="btn-status btn-sabores" onclick="abrirModalSabores('${p.nome}', '${p.sabores}')">ESCOLHER SABORES</button>`
                     : `<button class="btn-status btn-add">ADICIONAR</button>`;
 
-                // AQUI FOI ADICIONADO O PREÇO ANTIGO E O ML NO HTML DO CARD
                 const card = `
                     <div class="product-card">
                         <div class="edit-badge" onclick="editarProduto(${p.id})">✏️</div>
