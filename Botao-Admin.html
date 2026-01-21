@@ -424,12 +424,12 @@
 
             const form = document.createElement('form');
             form.method = "POST";
-            form.action = "https://docs.google.com/forms/d/e/1FAIpQLSfHpe7Idb8cekKYPyOOs8xn5sSfCQhWLKqUYwF4uXaz4QBX9w/formResponse";
+            form.action = "https://docs.google.com/forms/d/e/1FAIpQLSd7bkDqvd58K8aTaSUjTLAr9kaH6xYI9z1NNun76b3KJRocqQ/formResponse";
             form.target = "hidden_iframe";
 
             const dados = {
-                "entry.1183639703": String(statusId),
-                "entry.1305746237": String(statusTxt)
+                "entry.1135569222": String(statusId),   //ID Coluna 
+                "entry.1304072559": String(statusTxt)   //ID Coluna
             };
 
             for (let key in dados) {
