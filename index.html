@@ -4,106 +4,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Spook Ice - Versão Corrigida</title>
+    <title>Painel de Pedidos - Spook Ice</title>
     <style>
-        body { font-family: sans-serif; background: #f4f4f9; padding: 20px; text-align: center; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; text-align: center; }
+        h1 { color: #333; }
+        
+        /* ESTILO PARA OS NOVOS BOTÕES DE LINK */
         .nav-buttons { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-        .btn { text-decoration: none; background: #007bff; color: white; padding: 10px; border-radius: 5px; font-weight: bold; border: none; cursor: pointer; }
-        .card { background: white; border-radius: 10px; padding: 20px; margin: 10px auto; max-width: 400px; border-left: 5px solid #25d366; text-align: left; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .btn-imprimir { background: #333; color: white; width: 100%; padding: 10px; margin-top: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        #status { font-weight: bold; margin-bottom: 10px; color: blue; }
-        @media print { .no-print { display: none !important; } #cupom-print { display: block !important; width: 58mm; font-family: monospace; } }
+        .btn-link { 
+            text-decoration: none; 
+            background-color: #007bff; 
+            color: white; 
+            padding: 10px 15px; 
+            border-radius: 5px; 
+            font-weight: bold; 
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .btn-link:hover { background-color: #0056b3; }
+        .btn-admin { background-color: #6c757d; }
+        .btn-admin:hover { background-color: #495057; }
+
+        #lista-pedidos { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 20px; }
+        .card { background: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px; width: 100%; max-width: 400px; border-left: 5px solid #25d366; text-align: left; }
+        .card h3 { margin: 0 0 10px 0; color: #d32f2f; }
+        .btn-imprimir { background-color: #333; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        .btn-imprimir:hover { background-color: #555; }
+        
+        /* ÁREA DE IMPRESSÃO (O que vai para o papel) */
+        @media print {
+            body * { visibility: hidden; }
+            #cupom-print, #cupom-print * { visibility: visible; }
+            #cupom-print { position: absolute; left: 0; top: 0; width: 58mm; font-family: monospace; font-size: 10pt; line-height: 1.2; }
+            .no-print { display: none; }
+        }
     </style>
 </head>
 <body>
 
     <div class="no-print">
         <div class="nav-buttons">
-            <button class="btn">🖥️ Gestão</button>
-            <button class="btn" style="background:#6c757d">🧑‍💻 Admin</button>
+            <a href="COLOQUE_AQUI_O_LINK_DA_GESTAO" target="_blank" class="btn-link">🖥️ Gestão 🖥️</a>
+            <a href="COLOQUE_AQUI_O_LINK_DO_ADMIN" target="_blank" class="btn-link btn-admin">🧑‍💻 Admin 🧑‍💻</a>
         </div>
-        <h1>Painel de Pedidos Spook Ice</h1>
-        <div id="status">A ligar à planilha...</div>
+
+        <h1>Spook Ice</h1>
+        <p>?</p>
+        <div id="status">Verificando planilha...</div>
     </div>
 
-    <div id="lista-pedidos" class="no-print"></div>
-    <div id="cupom-print" style="display: none;"></div>
+    <div id="lista-pedidos"></div>
+
+    <div id="cupom-print"></div>
 
     <script>
-        // LINK CSV ORIGINAL
-        const baseLink = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJs2mCWo_bv2C7OqYYzuhs_rh8CYfusDhR7UiS4Yj9sUw3C6hNcP6fFlXZOpmAlYZId-jAt8xAC5dM/pub?output=csv";
-        
-        let concluidos = JSON.parse(localStorage.getItem('spook_concluidos')) || [];
+        const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJs2mCWo_bv2C7OqYYzuhs_rh8CYfusDhR7UiS4Yj9sUw3C6hNcP6fFlXZOpmAlYZId-jAt8xAC5dM/pub?output=csv";
+        let ultimoPedidoHash = "";
 
-        async function carregarDados() {
-            const status = document.getElementById('status');
+        async function carregarPedidos() {
             try {
-                // Força o navegador a buscar dados novos (evita cache)
-                const response = await fetch(`${baseLink}&cache=${new Date().getTime()}`);
-                if (!response.ok) throw new Error("Erro ao acessar link");
+                const resposta = await fetch(urlCSV + "&t=" + new Date().getTime());
+                const csvText = await resposta.text();
                 
-                const data = await response.text();
-                // Converte CSV para Array (limpa aspas e lida com vírgulas)
-                const rows = data.split(/\r?\n/).map(row => row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/));
+                // Transforma o CSV em linhas e colunas
+                const linhas = csvText.split('\n').map(linha => {
+                    // Expressão regular para lidar com vírgulas dentro de aspas no CSV
+                    return linha.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                });
+                
+                const listaPedidosDiv = document.getElementById('lista-pedidos');
+                listaPedidosDiv.innerHTML = "";
 
-                const container = document.getElementById('lista-pedidos');
-                container.innerHTML = "";
+                // Percorre as últimas 5 linhas da planilha
+                for (let i = linhas.length - 1; i >= 1; i--) {
+                    let pedidoConteudo = linhas[i][12]; // Coluna M
 
-                if (rows.length < 2) {
-                    status.innerText = "Planilha conectada, mas sem dados nas linhas.";
-                    return;
-                }
-
-                // Começa da última linha para a primeira (pedidos mais recentes no topo)
-                for (let i = rows.length - 1; i >= 1; i--) {
-                    const col = rows[i];
-                    
-                    // COLUNA M é o índice 12. Vamos verificar se existe.
-                    let pedido = col[12] ? col[12].replace(/"/g, '').trim() : "";
-
-                    if (pedido !== "") {
-                        let id = btoa(pedido).substring(0, 15) + i;
+                    if (pedidoConteudo && pedidoConteudo.trim() !== "") {
+                        // Limpa as aspas que o CSV as vezes coloca ao redor do texto
+                        pedidoConteudo = pedidoConteudo.replace(/"/g, '');
                         
-                        if (!concluidos.includes(id)) {
-                            let valor = col[1] ? col[1].replace(/"/g, '') : "0,00";
-                            let obs = col[3] ? col[3].replace(/"/g, '') : "";
+                        let total = linhas[i][1]; 
+                        let info = linhas[i][3];  
 
-                            const div = document.createElement('div');
-                            div.className = 'card';
-                            div.innerHTML = `
-                                <button onclick="finalizar('${id}')" style="float:right; background:red; color:white; border:none; border-radius:3px; cursor:pointer;">X</button>
-                                <h3>Novo Pedido</h3>
-                                <p><strong>Itens:</strong> ${pedido}</p>
-                                <p><strong>Total:</strong> R$ ${valor}</p>
-                                <button class="btn-imprimir" onclick="imprimir('${pedido}', '${valor}', '${obs}')">🖨️ IMPRIMIR</button>
-                            `;
-                            container.appendChild(div);
-                        }
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        card.innerHTML = `
+                            <h3>Novo Pedido</h3>
+                            <p><strong>Detalhes:</strong> ${pedidoConteudo}</p>
+                            <button class="btn-imprimir" onclick="imprimir('${pedidoConteudo.replace(/'/g, "\\'")}', '${total}', '${info}')">🖨️ IMPRIMIR CUPOM</button>
+                        `;
+                        listaPedidosDiv.appendChild(card);
                     }
                 }
-                status.innerText = "Última atualização: " + new Date().toLocaleTimeString();
-                status.style.color = "green";
-
-            } catch (err) {
-                status.innerText = "ERRO: O link da planilha pode estar offline ou bloqueado.";
-                status.style.color = "red";
+                document.getElementById('status').innerText = "Atualizado em: " + new Date().toLocaleTimeString();
+            } catch (erro) {
+                console.error("Erro ao ler planilha:", erro);
+                document.getElementById('status').innerText = "Erro ao conectar com a planilha.";
             }
         }
 
-        function finalizar(id) {
-            concluidos.push(id);
-            localStorage.setItem('spook_concluidos', JSON.stringify(concluidos));
-            carregarDados();
-        }
-
-        function imprimir(p, v, o) {
-            const printArea = document.getElementById('cupom-print');
-            printArea.innerHTML = `<center><strong>SPOOK ICE</strong><br>------------------<br></center>${p}<br><br><strong>TOTAL: R$ ${v}</strong><br>------------------<br>${o}<br><br><center>Obrigado!</center><br>.`;
+        function imprimir(conteudo, total, info) {
+            const areaPrint = document.getElementById('cupom-print');
+            areaPrint.innerHTML = `
+                <center>
+                    <strong>SPOOK ICE</strong><br>
+                    ---------------------------<br>
+                    <strong>CUPOM DE PEDIDO</strong><br>
+                    ---------------------------
+                </center>
+                ${conteudo}<br><br>
+                <strong>TOTAL: R$ ${total || '---'}</strong><br>
+                ---------------------------<br>
+                ${info || ''}<br><br>
+                <center>Obrigado!</center>
+                <br>.
+            `;
             window.print();
         }
 
-        setInterval(carregarDados, 15000); // Atualiza a cada 15 segundos
-        carregarDados();
+        // Verifica novos pedidos a cada 30 segundos
+        setInterval(carregarPedidos, 30000);
+        carregarPedidos();
     </script>
 </body>
 </html>
