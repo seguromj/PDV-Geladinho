@@ -25,18 +25,30 @@
         .btn-admin { background-color: #6c757d; }
         .btn-admin:hover { background-color: #495057; }
 
+        /* BOTÃO PDF */
+        .btn-pdf { background-color: #e67e22; border: none; cursor: pointer; }
+        .btn-pdf:hover { background-color: #d35400; }
+
         #lista-pedidos { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 20px; }
-        .card { background: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px; width: 100%; max-width: 400px; border-left: 5px solid #25d366; text-align: left; }
+        .card { background: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px; width: 100%; max-width: 400px; border-left: 5px solid #25d366; text-align: left; position: relative; }
         .card h3 { margin: 0 0 10px 0; color: #d32f2f; }
         .btn-imprimir { background-color: #333; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
         .btn-imprimir:hover { background-color: #555; }
-        
+
+        /* BOTÃO EXCLUIR */
+        .btn-excluir { position: absolute; top: 10px; right: 10px; background: #ff4757; color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 12px; }
+
         /* ÁREA DE IMPRESSÃO (O que vai para o papel) */
         @media print {
+            .no-print { display: none !important; }
             body * { visibility: hidden; }
             #cupom-print, #cupom-print * { visibility: visible; }
             #cupom-print { position: absolute; left: 0; top: 0; width: 58mm; font-family: monospace; font-size: 10pt; line-height: 1.2; }
-            .no-print { display: none; }
+            
+            /* Ajuste para PDF de todos os itens */
+            .print-all-mode #lista-pedidos, .print-all-mode #lista-pedidos * { visibility: visible; }
+            .print-all-mode .card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+            .print-all-mode .btn-imprimir, .print-all-mode .btn-excluir { display: none; }
         }
     </style>
 </head>
@@ -46,6 +58,7 @@
         <div class="nav-buttons">
             <a href="COLOQUE_AQUI_O_LINK_DA_GESTAO" target="_blank" class="btn-link">🖥️ Gestão 🖥️</a>
             <a href="COLOQUE_AQUI_O_LINK_DO_ADMIN" target="_blank" class="btn-link btn-admin">🧑‍💻 Admin 🧑‍💻</a>
+            <button onclick="baixarPDF()" class="btn-link btn-pdf">📄 Baixar Tudo PDF 📄</button>
         </div>
 
         <h1>Spook Ice</h1>
@@ -58,49 +71,69 @@
     <div id="cupom-print"></div>
 
     <script>
+        // Usei o seu link exato da planilha
         const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJs2mCWo_bv2C7OqYYzuhs_rh8CYfusDhR7UiS4Yj9sUw3C6hNcP6fFlXZOpmAlYZId-jAt8xAC5dM/pub?output=csv";
-        let ultimoPedidoHash = "";
+        
+        let excluidos = JSON.parse(localStorage.getItem('pedidos_excluidos')) || [];
 
         async function carregarPedidos() {
             try {
+                // Adicionado t= para evitar que o navegador use dados antigos (cache)
                 const resposta = await fetch(urlCSV + "&t=" + new Date().getTime());
                 const csvText = await resposta.text();
                 
-                // Transforma o CSV em linhas e colunas
-                const linhas = csvText.split('\n').map(linha => {
-                    // Expressão regular para lidar com vírgulas dentro de aspas no CSV
+                // Melhorado a separação de linhas para evitar erro se houver aspas
+                const linhas = csvText.split(/\r?\n/).map(linha => {
                     return linha.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                 });
                 
                 const listaPedidosDiv = document.getElementById('lista-pedidos');
                 listaPedidosDiv.innerHTML = "";
 
-                // Percorre as últimas 5 linhas da planilha
+                // Percorre da última para a primeira para ver os novos no topo
                 for (let i = linhas.length - 1; i >= 1; i--) {
-                    let pedidoConteudo = linhas[i][12]; // Coluna M
+                    if (!linhas[i][12]) continue;
 
-                    if (pedidoConteudo && pedidoConteudo.trim() !== "") {
-                        // Limpa as aspas que o CSV as vezes coloca ao redor do texto
-                        pedidoConteudo = pedidoConteudo.replace(/"/g, '');
-                        
-                        let total = linhas[i][1]; 
-                        let info = linhas[i][3];  
+                    let pedidoConteudo = linhas[i][12].replace(/"/g, '').trim(); 
 
-                        const card = document.createElement('div');
-                        card.className = 'card';
-                        card.innerHTML = `
-                            <h3>Novo Pedido</h3>
-                            <p><strong>Detalhes:</strong> ${pedidoConteudo}</p>
-                            <button class="btn-imprimir" onclick="imprimir('${pedidoConteudo.replace(/'/g, "\\'")}', '${total}', '${info}')">🖨️ IMPRIMIR CUPOM</button>
-                        `;
-                        listaPedidosDiv.appendChild(card);
+                    if (pedidoConteudo !== "") {
+                        let pedidoID = btoa(unescape(encodeURIComponent(pedidoConteudo))).substring(0, 16) + i;
+
+                        if (!excluidos.includes(pedidoID)) {
+                            let total = linhas[i][1] ? linhas[i][1].replace(/"/g, '') : '---'; 
+                            let info = linhas[i][3] ? linhas[i][3].replace(/"/g, '') : '';  
+
+                            const card = document.createElement('div');
+                            card.className = 'card';
+                            card.innerHTML = `
+                                <button class="btn-excluir" onclick="excluirPedido('${pedidoID}')">Excluir</button>
+                                <h3>Novo Pedido</h3>
+                                <p><strong>Detalhes:</strong> ${pedidoConteudo}</p>
+                                <button class="btn-imprimir" onclick="imprimir('${pedidoConteudo.replace(/'/g, "\\'")}', '${total}', '${info.replace(/'/g, "\\'")}')">🖨️ IMPRIMIR CUPOM</button>
+                            `;
+                            listaPedidosDiv.appendChild(card);
+                        }
                     }
                 }
                 document.getElementById('status').innerText = "Atualizado em: " + new Date().toLocaleTimeString();
             } catch (erro) {
                 console.error("Erro ao ler planilha:", erro);
-                document.getElementById('status').innerText = "Erro ao conectar com a planilha.";
+                document.getElementById('status').innerText = "Erro ao conectar. Verifique se a planilha está aberta para 'Qualquer um com o link'.";
             }
+        }
+
+        function excluirPedido(id) {
+            if(confirm("Deseja excluir este pedido da visualização?")) {
+                excluidos.push(id);
+                localStorage.setItem('pedidos_excluidos', JSON.stringify(excluidos));
+                carregarPedidos();
+            }
+        }
+
+        function baixarPDF() {
+            document.body.classList.add('print-all-mode');
+            window.print();
+            document.body.classList.remove('print-all-mode');
         }
 
         function imprimir(conteudo, total, info) {
@@ -122,7 +155,6 @@
             window.print();
         }
 
-        // Verifica novos pedidos a cada 30 segundos
         setInterval(carregarPedidos, 30000);
         carregarPedidos();
     </script>
