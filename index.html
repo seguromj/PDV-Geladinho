@@ -1,714 +1,219 @@
+
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barbearia Jhow Alves - Estilo e Inovação</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
-
+    <title>Sistema Geladinhos & Bombons</title>
     <style>
-        /* Variáveis de Cores */
-        :root {
+        :root { --p: #ff69b4; --s: #4b2c20; --bg: #f4f4f4; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; }
 
---cor-primaria: #1F3851; /*
-
-Azul Marinho Escuro (Fundo/Navbar) */
-
---cor-secundaria: #0055AA; /*
-
-Azul Destaque (Linhas/Acentos) */
-
---cor-fundo-claro: #F0F0F0; /
-
-* Cinza Muito Claro */
-
---cor-texto-escuro: #333333;
-
---cor-texto-claro: #FFFFFF;
-
---cor-cinza-claro: #CCCCCC;
-
--cor-cinza-medio: #666666;
-
---cor-botao-principal:
-
-#003366; /* Azul Marinho para Botões de Ação */}
-
-        /* Reset Básico */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            line-height: 1.6;
-            background-color: var(--cor-fundo-claro);
-            color: var(--cor-texto-escuro);
-        }
-
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: auto;
-            overflow: hidden;
-            padding: 0 10px;
-        }
-
-        /* Tipografia */
-        h1, h2 {
-            font-family: 'Oswald', sans-serif;
-            color: var(--cor-primaria);
-            margin-bottom: 15px;
-            text-transform: uppercase;
-        }
-
-        h2 {
-            text-align: center;
-            font-size: 2.8em;
-            margin-bottom: 50px;
-            letter-spacing: 2px;
-            border-bottom: 3px solid var(--cor-secundaria);
-            display: inline-block;
-            padding-bottom: 5px;
-            color: var(--cor-primaria);
-        }
-
-        h3 {
-            font-family: 'Oswald', sans-serif;
-            color: var(--cor-primaria);
-            margin-bottom: 10px;
-        }
-
-        /* --- Navbar --- */
-        .navbar {
-            background: var(--cor-primaria);
-            padding: 15px 0;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .navbar .container {
+        /* TELA DE ESCOLHA INICIAL */
+        #menu-inicial {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
-        }
-
-        .logo {
-            font-family: 'Oswald', sans-serif;
-            font-size: 2em;
-            font-weight: 700;
-            color: var(--cor-secundaria);
-            letter-spacing: 2px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        }
-
-        .navbar ul {
-            list-style: none;
-            display: flex;
-        }
-
-        .navbar ul li a {
-            color: var(--cor-texto-claro);
-            text-decoration: none;
-            padding: 0 18px;
-            transition: color 0.3s;
-            font-weight: 500;
-        }
-
-        .navbar ul li a:hover {
-            color: var(--cor-secundaria);
-        }
-
-        /* --- Hero Section --- */
-        .hero {
-            background: url('https://static.wixstatic.com/media/aff363_e32659d7e77a450cb9dc3b27cc62c4fb~mv2.png/v1/fill/w_568,h_650,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/aff363_e32659d7e77a450cb9dc3b27cc62c4fb~mv2.png') no-repeat center center/cover;
-            min-height: 80vh;
-            display: flex;
-            align-items: center;
-            text-align: center;
-            position: relative;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
-            z-index: 1;
-        }
-
-        .hero .container {
-            position: relative;
-            z-index: 2;
-            padding: 20px;
-        }
-
-        .hero h1 {
-            font-size: 4.5em;
-            margin-bottom: 10px;
-            color: var(--cor-secundaria);
-            text-shadow: 2px 2px 5px #000;
-            line-height: 1.1;
-        }
-
-        .hero p {
-            font-size: 1.6em;
-            margin-bottom: 40px;
-            color: var(--cor-cinza-claro);
-            text-shadow: 1px 1px 3px #000;
-        }
-
-        /* --- Botão Animado Agendamento --- */
-        .animated-btn-wrapper {
-            text-align: center;
-            margin-top: 30px;
-        }
-
-        .animated-button {
-            background-color: var(--cor-secundaria);
-            color: var(--cor-texto-claro);
-            font-family: 'Oswald', sans-serif;
-            font-size: 1.8em;
-            padding: 15px 40px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            overflow: hidden;
-            position: relative;
-            display: inline-block;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
-            transition: background-color 0.3s, transform 0.2s;
-        }
-
-        .animated-button:hover {
-            background-color: #CC9933;
-            transform: translateY(-3px);
-        }
-
-        .animated-button span {
-            display: inline-block;
-            animation: bounceText 2s infinite ease-in-out;
-            text-transform: uppercase; 
-        }
-
-        @keyframes bounceText {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-5px);
-            }
-        }
-        
-        /* --- Galeria de Cortes --- */
-        .section {
-            padding: 80px 0;
-            background-color: var(--cor-fundo-claro);
-        }
-
-        .section-dark {
-            background-color: var(--cor-primaria);
-            color: var(--cor-texto-claro);
-        }
-        
-        .section-dark h2 {
-            color: var(--cor-secundaria);
-            border-bottom-color: var(--cor-cinza-medio);
-        }
-        
-        .galeria-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            justify-content: center;
+            height: 100vh;
             gap: 20px;
-            justify-content: center;
-            padding: 0 20px;
-        }
-
-        .corte-item {
+            background: white;
             text-align: center;
-            background: var(--cor-texto-claro);
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
         }
 
-        .corte-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .corte-item img {
-            width: 120px;
-            height: 120px;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 3px solid var(--cor-secundaria);
-            margin-bottom: 10px;
-        }
-        
-        /* --- Modal (Card de Agendamento) --- */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1001;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.7);
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background-color: var(--cor-fundo-claro);
-            margin: auto;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 800px;
-            position: relative;
-        }
-
-        .close-button {
-            color: var(--cor-cinza-medio);
-            font-size: 30px;
+        /* BOTÕES EM FORMATO DE LINK <a> */
+        .link-menu {
+            display: block;
+            width: 80%;
+            max-width: 400px;
+            padding: 25px;
+            font-size: 1.5rem;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 15px;
             font-weight: bold;
-            position: absolute;
-            top: 10px;
-            right: 20px;
+            color: white;
+            transition: transform 0.2s, opacity 0.2s;
             cursor: pointer;
-            transition: color 0.3s;
         }
+        #link-pdv { background: var(--p); }
+        #link-index { background: var(--s); }
+        .link-menu:active { transform: scale(0.95); opacity: 0.9; }
 
-        .close-button:hover,
-        .close-button:focus {
-            color: var(--cor-primaria);
-            text-decoration: none;
-        }
+        /* ESTRUTURA DOS CONTEÚDOS */
+        #view-pdv, #view-index { display: none; height: 100vh; }
 
-        .modal-header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .modal-options {
-            display: flex;
-            justify-content: space-around;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .modal-option-btn {
-            flex: 1;
-            padding: 15px 20px;
-            border: 2px solid var(--cor-secundaria);
-            background-color: var(--cor-texto-claro);
-            color: var(--cor-primaria);
-            font-size: 1.1em;
-            font-weight: 600;
-            text-transform: uppercase;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .modal-option-btn:hover, .modal-option-btn.active {
-            background-color: var(--cor-secundaria);
-            color: var(--cor-texto-claro);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Formulários dentro do Modal */
-        .appointment-form {
-            display: none;
-            padding: 20px;
-            border: 1px solid var(--cor-cinza-claro);
-            border-radius: 8px;
-            background-color: #FDFDFD;
-        }
-
-        .appointment-form.active {
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: var(--cor-texto-escuro);
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--cor-cinza-claro);
-            border-radius: 5px;
-            font-size: 1em;
-            background-color: var(--cor-fundo-claro);
-            color: var(--cor-texto-escuro);
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-        }
+        /* ESTILOS DO PDV */
+        #container { display: flex; flex: 1; flex-direction: row; height: 100%; overflow: hidden; }
+        #sidebar { width: 350px; background: white; border-right: 2px solid #ddd; padding: 15px; display: flex; flex-direction: column; z-index: 10; }
+        #main { flex: 1; padding: 20px; overflow-y: auto; background: #fff; }
         
-        .form-submit-btn {
-            width: 100%;
-            padding: 12px;
-            background: var(--cor-primaria);
-            color: var(--cor-texto-claro);
-            border-radius: 5px;
-            transition: background-color 0.3s, transform 0.2s;
-            font-weight: 600;
-            text-transform: uppercase;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-            margin-top: 15px;
-        }
-
-        /* Responsividade */
         @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 3em;
-            }
-            .animated-button {
-                font-size: 1.4em;
-                padding: 12px 30px;
-            }
-            .navbar .container {
-                flex-direction: column;
-            }
-            .modal-options {
-                flex-direction: column;
-            }
+            #container { flex-direction: column; overflow-y: auto; }
+            #sidebar { width: 100%; border-right: none; border-bottom: 2px solid #ddd; order: 2; height: auto; }
+            #main { order: 1; flex: none; }
+            .grid { grid-template-columns: repeat(2, 1fr) !important; }
         }
 
-
-        .jhow-alves {
-            font-size: 15px;
-        }
+        .card { background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        h1, h2, h3 { color: var(--s); margin-top: 0; }
+        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
+        .pdv-button { cursor: pointer; background: var(--p); color: white; border: none; font-weight: bold; }
+        .btn-secondary { background: var(--s); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+        .prod-item { background: #fff; padding: 15px; border: 2px solid #f0f0f0; text-align: center; border-radius: 12px; cursor: pointer; }
+        #cart-list { flex: 1; overflow-y: auto; list-style: none; padding: 0; min-height: 150px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .btn-del { width: auto; background: #e74c3c; padding: 5px 10px; margin: 0; font-size: 12px; }
+        .total-box { font-size: 1.8em; font-weight: bold; color: #2c3e50; margin: 15px 0; text-align: center; background: #fdf2f7; border-radius: 8px; padding: 10px; }
+        
+        .btn-voltar { background: #7f8c8d; margin-bottom: 10px; width: auto; padding: 5px 15px; display: inline-block; text-decoration: none; color: white; border-radius: 5px; font-size: 14px;}
     </style>
 </head>
 <body>
 
-    <nav class="navbar">
-        <div class="container">
-            <span class="logo">LS</span>
-            <span class="logo">BARBEARIA</span>
-            <span class="logo jhow-alves">Jhow Alves</span>
-            <ul>
-                <li><a href="#hero">Início</a></li>
-                <li><a href="#cortes">Cortes</a></li>
-                <li><a href="#sobre">Sobre</a></li>
-                <li><a href="#" id="navAgendarBtn">Agendar</a></li>
-            </ul>
-        </div>
-    </nav>
+<div id="menu-inicial">
+    <h1>Olá! O que deseja fazer?</h1>
+    <a href="javascript:void(0)" id="link-pdv" class="link-menu" onclick="abrirPDV()">Acessar PDV</a>
+    <a href="Botao-Admin.html" id="link-index" class="link-menu" onclick="abrirIndex()">ADMIN</a>
+</div>
 
-    <header id="hero" class="hero">
-        <div class="container">
-            <h1>Barbearia Jhow Alves</h1>
-            <p>Seu estilo, nossa paixão. Cortes modernos e clássicos com excelência.</p>
-            <div class="animated-btn-wrapper">
-                <button class="animated-button" id="openAppointmentModal">
-                    Agende Seu Horário
-                </button>
+<div id="view-pdv">
+    <a href="javascript:void(0)" class="btn-voltar" onclick="voltarMenu()">← Menu Principal</a>
+    <div id="container">
+        <div id="sidebar">
+            <h2>🛒 Carrinho</h2>
+            <div id="cart-list"></div>
+            <div class="total-box">Total: R$ <span id="total-val">0.00</span></div>
+            <input type="number" id="desconto" placeholder="Desconto (R$)" oninput="atualizarTotal()">
+            <select id="pagamento">
+                <option>Dinheiro</option>
+                <option>Pix</option>
+                <option>Cartão</option>
+            </select>
+            <button class="pdv-button" onclick="finalizarVenda()">Finalizar Venda</button>
+            <button class="pdv-button btn-secondary" onclick="limparCarrinho()">Esvaziar Carrinho</button>
+        </div>
+
+        <div id="main">
+            <h1>Sistema de Vendas</h1>
+            <div class="card">
+                <h3>Cadastrar Produto</h3>
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
+                    <input type="text" id="nome-p" placeholder="Nome">
+                    <input type="number" id="preco-p" placeholder="R$">
+                </div>
+                <select id="cat-p">
+                    <option value="Geladinho">Geladinho</option>
+                    <option value="Bombom">Bombom</option>
+                </select>
+                <button class="pdv-button" onclick="adicionarProduto()">Salvar no Estoque</button>
             </div>
-        </div>
-    </header>
-
-    <section id="cortes" class="section">
-        <div class="container">
-            <h2>Nossos Estilos</h2>
-            <div class="galeria-grid">
-                
-                <div class="corte-item">
-                    <img src="https://static.wixstatic.com/media/aff363_e32659d7e77a450cb9dc3b27cc62c4fb~mv2.png/v1/fill/w_568,h_650,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/aff363_e32659d7e77a450cb9dc3b27cc62c4fb~mv2.png" alt="Corte Fade">
-                    <h3>Corte Degradê (Fade)</h3>
-                    <p>Modernidade e suavidade.</p>
-                </div>
-                <div class="corte-item">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwxK2SYeS6GBEI6hubW430ZLGPaYCZn7dxszCWIITKAPpi71HGrM759R8&s=10" alt="Corte Clássico">
-                    <h3>Corte Clássico</h3>
-                    <p>Elegância atemporal.</p>
-                </div>
-                <div class="corte-item">
-                    <img src="https://blog.cuecastore.com.br/wp-content/uploads/2020/08/barba-com-navalha.jpg" alt="Barba Navalha">
-                    <h3>Barba na Navalha</h3>
-                    <p>Precisão e cuidado.</p>
-                </div>
-                <div class="corte-item">
-                    <img src="https://studioenso.com.br/wp-content/uploads/2022/11/corte-undercut.jpg" alt="Corte Undercut">
-                    <h3>Undercut</h3>
-                    <p>Visual ousado e prático.</p>
-                </div>
-                <div class="corte-item">
-                    <img src="https://i.pinimg.com/236x/9b/ed/6c/9bed6c216f914f25a0706a2c691a015e.jpg" alt="Corte com Textura">
-                    <h3>Corte Texturizado</h3>
-                    <p>Volume e movimento.</p>
-                </div>
-                <div class="corte-item">
-                    <img src="https://i.pinimg.com/474x/75/82/e7/7582e706c05b51361b6e6a71a8de36a5.jpg" alt="Corte Infantil">
-                    <h3>Corte Infantil</h3>
-                    <p>Estilo para os pequenos.</p>
-                </div>
-
+            <div class="card">
+                <h3>Vitrine de Produtos</h3>
+                <div class="grid" id="vitrine"></div>
             </div>
-        </div>
-    </section>
-
-    <section id="sobre" class="section section-dark">
-        <div class="container">
-            <h2>Sobre a Barbearia</h2>
-            <div class="sobre-content">
-                <div class="sobre-text">
-                    <p>Na Barbearia Jhow Alves, cada cliente é único. Combinamos técnicas tradicionais com as últimas tendências em cortes e cuidados masculinos. Nossa missão é proporcionar não apenas um novo visual, mas uma experiência de bem-estar e confiança. Com Jhow Alves, você garante um atendimento personalizado e um resultado impecável.</p>
-                    <p>Venha nos visitar e transforme seu estilo em um ambiente moderno e acolhedor.</p>
-                </div>
-                <div class="sobre-image">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS-pDeI_W3jViIcpTfBp4M7xCrydOz3dXgNIBdaoxesg6H_B3qtieEJxcw&s=10" alt="Interior da Barbearia Jhow Alves">
+            <div class="card">
+                <h3>Gestão</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="pdv-button btn-secondary" onclick="verHistorico()">Vendas</button>
+                    <button class="pdv-button btn-secondary" onclick="verTotalDia()">Saldo</button>
+                    <button class="pdv-button btn-secondary" onclick="sangria()">Sangria</button>
+                    <button class="pdv-button" style="background:#7f8c8d" onclick="limparDados()">Reset</button>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <footer id="contato">
-        <div class="container">
-            <p>&copy; 2024 Barbearia Jhow Alves. Todos os direitos reservados. | Endereço: Rua da Inovação, 456, Centro | Telefone: <a href="#">+62 99303-9333</a></p>
-            <p>Siga-nos: <a href="LINK_INSTAGRAM" target="_blank">Instagram</a> | <a href="LINK_FACEBOOK" target="_blank">Facebook</a></p>
-        </div>
-    </footer>
-
-    <div id="appointmentModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <div class="modal-header">
-                <h3>Escolha seu tipo de Agendamento</h3>
-            </div>
-            
-            <div class="modal-options">
-                <button class="modal-option-btn active" data-form="formBarbearia">
-                    Agendamento na Barbearia
-                </button>
-                <button class="modal-option-btn" data-form="formDomicilio">
-                    Agendamento a Domicílio
-                </button>
-            </div>
-
-            <form id="formBarbearia" class="appointment-form active">
-                <div class="form-group">
-                    <label for="nomeBarbearia">Seu Nome:</label>
-                    <input type="text" id="nomeBarbearia" required>
-                </div>
-                <div class="form-group">
-                    <label for="corteBarbearia">Tipo de Corte:</label>
-                    <select id="corteBarbearia" required>
-                        <option value="">-- Selecione o Serviço --</option>
-                        <option value="Corte Degradê (Fade)">Corte Degradê (Fade)</option>
-                        <option value="Corte Clássico">Corte Clássico</option>
-                        <option value="Barba na Navalha">Barba na Navalha</option>
-                        <option value="Combo Corte + Barba">Combo Corte + Barba</option>
-                        <option value="Corte Infantil">Corte Infantil</option>
-                        <option value="Outro Serviço">Outro Serviço</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="barbeiroBarbearia">Barbeiro:</label>
-                    <input type="text" id="barbeiroBarbearia" value="Jhow Alves" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="dataBarbearia">Data Desejada:</label>
-                    <input type="date" id="dataBarbearia" required>
-                </div>
-                <div class="form-group">
-                    <label for="horaBarbearia">Horário Desejado:</label>
-                    <input type="time" id="horaBarbearia" required>
-                </div>
-                <button type="submit" class="form-submit-btn">SOLICITAR AGENDAMENTO NA BARBEARIA</button>
-            </form>
-
-            <form id="formDomicilio" class="appointment-form">
-                <div class="form-group">
-                    <label for="nomeDomicilio">Seu Nome:</label>
-                    <input type="text" id="nomeDomicilio" required>
-                </div>
-                <div class="form-group">
-                    <label for="corteDomicilio">Tipo de Corte:</label>
-                    <select id="corteDomicilio" required>
-                        <option value="">-- Selecione o Serviço --</option>
-                        <option value="Corte Degradê (Fade)">Corte Degradê (Fade)</option>
-                        <option value="Corte Clássico">Corte Clássico</option>
-                        <option value="Barba na Navalha">Barba na Navalha</option>
-                        <option value="Combo Corte + Barba">Combo Corte + Barba</option>
-                        <option value="Corte Infantil">Corte Infantil</option>
-                        <option value="Outro Serviço">Outro Serviço</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="barbeiroDomicilio">Barbeiro:</label>
-                    <input type="text" id="barbeiroDomicilio" value="Jhow Alves" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="dataDomicilio">Data Desejada:</label>
-                    <input type="date" id="dataDomicilio" required>
-                </div>
-                <div class="form-group">
-                    <label for="horaDomicilio">Horário Desejado:</label>
-                    <input type="time" id="horaDomicilio" required>
-                </div>
-                
-                <fieldset class="form-group" style="border: 1px solid var(--cor-cinza-claro); padding: 15px; border-radius: 5px; margin-top: 20px;">
-                    <legend style="color: var(--cor-primaria); font-weight: 600; padding: 0 5px;">Endereço Completo</legend>
-                    <div class="form-group">
-                        <label for="bairroDomicilio">Bairro:</label>
-                        <input type="text" id="bairroDomicilio" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="cepDomicilio">CEP:</label>
-                        <input type="text" id="cepDomicilio" placeholder="Ex: 00000-000" pattern="\d{5}-?\d{3}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="ruaDomicilio">Rua/Avenida:</label>
-                        <input type="text" id="ruaDomicilio" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="complementoDomicilio">Número e Complemento:</label>
-                        <textarea id="complementoDomicilio" rows="2" placeholder="Ex: N° 123, Apt 45, Bloco B"></textarea>
-                    </div>
-                </fieldset>
-                
-                <button type="submit" class="form-submit-btn">SOLICITAR AGENDAMENTO A DOMICÍLIO</button>
-            </form>
         </div>
     </div>
+</div>
 
-    <script>
-        // *** CONFIGURAÇÃO CRÍTICA: SUBSTITUA SEUNUMERO ***
-        const whatsappNumber = "556299303-9333"; 
+<div id="view-index" style="padding: 50px; text-align: center;">
+    <a href="javascript:void(0)" class="btn-voltar" onclick="voltarMenu()">← Voltar</a>
+    </div>
 
-        // --- Animação do Botão ---
-        const animatedButton = document.getElementById('openAppointmentModal');
-        const navAgendarBtn = document.getElementById('navAgendarBtn');
-        const buttonText = animatedButton.textContent.trim();
-        animatedButton.innerHTML = ''; 
+<script>
+    // FUNÇÕES DE NAVEGAÇÃO
+    function abrirPDV() {
+        document.getElementById('menu-inicial').style.display = 'none';
+        document.getElementById('view-pdv').style.display = 'block';
+        renderizar();
+    }
+    function abrirIndex() {
+        document.getElementById('menu-inicial').style.display = 'none';
+        document.getElementById('view-index').style.display = 'block';
+    }
+    function voltarMenu() {
+        document.getElementById('view-pdv').style.display = 'none';
+        document.getElementById('view-index').style.display = 'none';
+        document.getElementById('menu-inicial').style.display = 'flex';
+    }
 
-        for (let i = 0; i < buttonText.length; i++) {
-            const span = document.createElement('span');
-            span.textContent = buttonText[i] === ' ' ? '\u00A0' : buttonText[i]; // Mantém espaços
-            span.style.animationDelay = `${i * 0.1}s`;
-            animatedButton.appendChild(span);
-        }
+    // LÓGICA DO PDV (MANTIDA)
+    let produtos = JSON.parse(localStorage.getItem('produtos')) || [
+        {nome: "Geladinho Ninho", preco: 5.00, cat: "Geladinho"},
+        {nome: "Bombom Morango", preco: 4.00, cat: "Bombom"}
+    ];
+    let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+    let historico = JSON.parse(localStorage.getItem('historico')) || [];
+    let saldoCaixa = parseFloat(localStorage.getItem('saldoCaixa')) || 0;
 
-        // --- Lógica do Modal ---
-        const modal = document.getElementById("appointmentModal");
-        const openBtn = document.getElementById("openAppointmentModal");
-        const closeBtn = document.getElementsByClassName("close-button")[0];
-        const optionBtns = document.querySelectorAll(".modal-option-btn");
-        const forms = document.querySelectorAll(".appointment-form");
+    function salvar() {
+        localStorage.setItem('produtos', JSON.stringify(produtos));
+        localStorage.setItem('carrinho', JSON.stringify(carrinho));
+        localStorage.setItem('historico', JSON.stringify(historico));
+        localStorage.setItem('saldoCaixa', saldoCaixa.toString());
+        renderizar();
+    }
 
-        function openModal() {
-            modal.style.display = "flex";
-        }
-
-        function closeModal() {
-            modal.style.display = "none";
-        }
-
-        openBtn.onclick = openModal;
-        navAgendarBtn.onclick = openModal;
-        closeBtn.onclick = closeModal;
-
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                closeModal();
-            }
-        }
-
-        // Lógica de Alternância de Formulários
-        optionBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                optionBtns.forEach(b => b.classList.remove('active'));
-                forms.forEach(f => f.classList.remove('active'));
-
-                this.classList.add('active');
-
-                const targetFormId = this.dataset.form;
-                document.getElementById(targetFormId).classList.add('active');
-            });
+    function renderizar() {
+        const vitrine = document.getElementById('vitrine');
+        if(!vitrine) return;
+        vitrine.innerHTML = '';
+        produtos.forEach((p, index) => {
+            vitrine.innerHTML += `<div class="prod-item" onclick="addCarrinho(${index})"><strong>${p.nome}</strong><span>R$ ${p.preco.toFixed(2)}</span><br><small>${p.cat}</small></div>`;
         });
 
-        // --- FUNÇÃO AUXILIAR: Formatar Data ---
-        function formatarData(dataISO) {
-             try {
-                 const dataObj = new Date(dataISO + 'T00:00:00'); 
-                 return dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
-            } catch (error) {
-                 return dataISO;
-            }
+        const lista = document.getElementById('cart-list');
+        lista.innerHTML = '';
+        let total = 0;
+        carrinho.forEach((item, i) => {
+            total += item.preco;
+            lista.innerHTML += `<div class="cart-item"><div>${item.nome}</div><div>R$ ${item.preco.toFixed(2)} <button class="btn-del" onclick="removerItem(${i})">X</button></div></div>`;
+        });
+        
+        let desc = parseFloat(document.getElementById('desconto').value) || 0;
+        document.getElementById('total-val').innerText = (total - desc).toFixed(2);
+    }
+
+    function addCarrinho(index) { carrinho.push(produtos[index]); salvar(); }
+    function removerItem(index) { carrinho.splice(index, 1); salvar(); }
+    function adicionarProduto() {
+        const nome = document.getElementById('nome-p').value;
+        const preco = parseFloat(document.getElementById('preco-p').value);
+        const cat = document.getElementById('cat-p').value;
+        if(nome && preco) {
+            produtos.push({nome, preco, cat});
+            document.getElementById('nome-p').value = '';
+            document.getElementById('preco-p').value = '';
+            salvar();
         }
-
-        // --- Lógica de Envio para WhatsApp: FORMULÁRIO BARBEARIA ---
-        document.getElementById('formBarbearia').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const nome = document.getElementById('nomeBarbearia').value;
-            const corte = document.getElementById('corteBarbearia').value;
-            const barbeiro = document.getElementById('barbeiroBarbearia').value;
-            const data = document.getElementById('dataBarbearia').value;
-            const hora = document.getElementById('horaBarbearia').value;
-            
-            const dataFormatada = formatarData(data);
-
-            const mensagem = `*SOLICITAÇÃO DE AGENDAMENTO NA BARBEARIA JHOW ALVES*%0A%0ACliente: ${nome}%0AServiço: ${corte}%0ABarbeiro: ${barbeiro}%0ADia: ${dataFormatada}%0AHora: ${hora}%0A%0A*Aguardando Confirmação do Horário.*`;
-
-            const whatsappLink = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${mensagem}`;
-            window.open(whatsappLink, '_blank');
-            closeModal();
-        });
-
-        // --- Lógica de Envio para WhatsApp: FORMULÁRIO DOMICÍLIO ---
-        document.getElementById('formDomicilio').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const nome = document.getElementById('nomeDomicilio').value;
-            const corte = document.getElementById('corteDomicilio').value;
-            const barbeiro = document.getElementById('barbeiroDomicilio').value;
-            const data = document.getElementById('dataDomicilio').value;
-            const hora = document.getElementById('horaDomicilio').value;
-            
-            const bairro = document.getElementById('bairroDomicilio').value;
-            const cep = document.getElementById('cepDomicilio').value;
-            const rua = document.getElementById('ruaDomicilio').value;
-            const complemento = document.getElementById('complementoDomicilio').value;
-
-            const dataFormatada = formatarData(data);
-
-            const mensagem = `*SOLICITAÇÃO DE AGENDAMENTO A DOMICÍLIO*%0A%0ACliente: ${nome}%0AServiço: ${corte}%0ABarbeiro: ${barbeiro}%0A%0A*Detalhes do Agendamento:*%0ADia: ${dataFormatada}%0AHora: ${hora}%0A%0A*Endereço:*%0ABairro: ${bairro}%0ACEP: ${cep}%0ARua/Av: ${rua}%0AComplemento: ${complemento}%0A%0A*Aguardando Confirmação e Cálculo da Taxa.*`;
-
-            const whatsappLink = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${mensagem}`;
-            window.open(whatsappLink, '_blank');
-            closeModal();
-        });
-    </script>
+    }
+    function finalizarVenda() {
+        if(carrinho.length === 0) return alert("Vazio!");
+        let total = carrinho.reduce((a, b) => a + b.preco, 0) - (parseFloat(document.getElementById('desconto').value) || 0);
+        historico.push({ data: new Date().toLocaleString(), total: total });
+        saldoCaixa += total;
+        carrinho = [];
+        salvar();
+        alert("Sucesso!");
+    }
+    function limparCarrinho() { if(confirm("Limpar?")) { carrinho = []; salvar(); } }
+    function verHistorico() { alert(historico.slice(-5).map(v => `${v.data}: R$${v.total}`).join('\n') || "Vazio"); }
+    function verTotalDia() { alert(`Caixa: R$ ${saldoCaixa.toFixed(2)}`); }
+    function sangria() { let v = parseFloat(prompt("Valor:")); if(v) { saldoCaixa -= v; salvar(); } }
+    function limparDados() { if(confirm("Reset total?")) { localStorage.clear(); location.reload(); } }
+    function atualizarTotal() { renderizar(); }
+</script>
 
 </body>
 </html>
