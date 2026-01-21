@@ -4,214 +4,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Geladinhos & Bombons</title>
+    <title>Painel de Pedidos - Spook Ice</title>
     <style>
-        :root { --p: #ff69b4; --s: #4b2c20; --bg: #f4f4f4; }
-        * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; }
-
-        /* TELA DE ESCOLHA INICIAL */
-        #menu-inicial {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            gap: 20px;
-            background: white;
-            text-align: center;
-        }
-
-        /* BOTÕES EM FORMATO DE LINK <a> */
-        .link-menu {
-            display: block;
-            width: 80%;
-            max-width: 400px;
-            padding: 25px;
-            font-size: 1.5rem;
-            text-decoration: none;
-            text-align: center;
-            border-radius: 15px;
-            font-weight: bold;
-            color: white;
-            transition: transform 0.2s, opacity 0.2s;
-            cursor: pointer;
-        }
-        #link-pdv { background: var(--p); }
-        #link-index { background: var(--s); }
-        .link-menu:active { transform: scale(0.95); opacity: 0.9; }
-
-        /* ESTRUTURA DOS CONTEÚDOS */
-        #view-pdv, #view-index { display: none; height: 100vh; }
-
-        /* ESTILOS DO PDV */
-        #container { display: flex; flex: 1; flex-direction: row; height: 100%; overflow: hidden; }
-        #sidebar { width: 350px; background: white; border-right: 2px solid #ddd; padding: 15px; display: flex; flex-direction: column; z-index: 10; }
-        #main { flex: 1; padding: 20px; overflow-y: auto; background: #fff; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; text-align: center; }
+        h1 { color: #333; }
         
-        @media (max-width: 768px) {
-            #container { flex-direction: column; overflow-y: auto; }
-            #sidebar { width: 100%; border-right: none; border-bottom: 2px solid #ddd; order: 2; height: auto; }
-            #main { order: 1; flex: none; }
-            .grid { grid-template-columns: repeat(2, 1fr) !important; }
+        .nav-buttons { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .btn-link { 
+            text-decoration: none; 
+            background-color: #007bff; 
+            color: white; 
+            padding: 10px 15px; 
+            border-radius: 5px; 
+            font-weight: bold; 
+            font-size: 14px;
+            transition: background 0.3s;
         }
+        .btn-link:hover { background-color: #0056b3; }
+        .btn-admin { background-color: #6c757d; }
+        .btn-pdf { background-color: #e67e22; border: none; cursor: pointer; }
 
-        .card { background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        h1, h2, h3 { color: var(--s); margin-top: 0; }
-        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
-        .pdv-button { cursor: pointer; background: var(--p); color: white; border: none; font-weight: bold; }
-        .btn-secondary { background: var(--s); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
-        .prod-item { background: #fff; padding: 15px; border: 2px solid #f0f0f0; text-align: center; border-radius: 12px; cursor: pointer; }
-        #cart-list { flex: 1; overflow-y: auto; list-style: none; padding: 0; min-height: 150px; }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .btn-del { width: auto; background: #e74c3c; padding: 5px 10px; margin: 0; font-size: 12px; }
-        .total-box { font-size: 1.8em; font-weight: bold; color: #2c3e50; margin: 15px 0; text-align: center; background: #fdf2f7; border-radius: 8px; padding: 10px; }
+        #lista-pedidos { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 20px; }
+        .card { background: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px; width: 100%; max-width: 400px; border-left: 5px solid #25d366; text-align: left; position: relative; }
+        .card h3 { margin: 0 0 10px 0; color: #d32f2f; }
+        .btn-imprimir { background-color: #333; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        .btn-concluir { background-color: #ff4757; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; position: absolute; top: 10px; right: 10px; font-size: 12px; }
         
-        .btn-voltar { background: #7f8c8d; margin-bottom: 10px; width: auto; padding: 5px 15px; display: inline-block; text-decoration: none; color: white; border-radius: 5px; font-size: 14px;}
+        /* ÁREA DE IMPRESSÃO */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; padding: 0; }
+            #cupom-print { display: block !important; width: 58mm; font-family: monospace; font-size: 10pt; }
+            .card-pdf { border-bottom: 1px dashed #000; padding: 10px 0; page-break-inside: avoid; text-align: left; }
+        }
     </style>
 </head>
 <body>
 
-<div id="menu-inicial">
-    <h1>Olá! O que deseja fazer?</h1>
-    <a href="javascript:void(0)" id="link-pdv" class="link-menu" onclick="abrirPDV()">Acessar PDV</a>
-    <a href="Botao-Admin.html" id="link-index" class="link-menu" onclick="abrirIndex()">ADMIN</a>
-</div>
-
-<div id="view-pdv">
-    <a href="javascript:void(0)" class="btn-voltar" onclick="voltarMenu()">← Menu Principal</a>
-    <div id="container">
-        <div id="sidebar">
-            <h2>🛒 Carrinho</h2>
-            <div id="cart-list"></div>
-            <div class="total-box">Total: R$ <span id="total-val">0.00</span></div>
-            <input type="number" id="desconto" placeholder="Desconto (R$)" oninput="atualizarTotal()">
-            <select id="pagamento">
-                <option>Dinheiro</option>
-                <option>Pix</option>
-                <option>Cartão</option>
-            </select>
-            <button class="pdv-button" onclick="finalizarVenda()">Finalizar Venda</button>
-            <button class="pdv-button btn-secondary" onclick="limparCarrinho()">Esvaziar Carrinho</button>
+    <div class="no-print">
+        <div class="nav-buttons">
+            <a href="LINK_DA_SUA_PLANILHA_OU_GESTAO" target="_blank" class="btn-link">🖥️ Gestão 🖥️</a>
+            <a href="LINK_DO_SEU_ADMIN" target="_blank" class="btn-link btn-admin">🧑‍💻 Admin 🧑‍💻</a>
+            <button onclick="gerarRelatorioPDF()" class="btn-link btn-pdf">📄 Finalizar Dia (PDF)</button>
         </div>
 
-        <div id="main">
-            <h1>Sistema de Vendas</h1>
-            <div class="card">
-                <h3>Cadastrar Produto</h3>
-                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
-                    <input type="text" id="nome-p" placeholder="Nome">
-                    <input type="number" id="preco-p" placeholder="R$">
-                </div>
-                <select id="cat-p">
-                    <option value="Geladinho">Geladinho</option>
-                    <option value="Bombom">Bombom</option>
-                </select>
-                <button class="pdv-button" onclick="adicionarProduto()">Salvar no Estoque</button>
-            </div>
-            <div class="card">
-                <h3>Vitrine de Produtos</h3>
-                <div class="grid" id="vitrine"></div>
-            </div>
-            <div class="card">
-                <h3>Gestão</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <button class="pdv-button btn-secondary" onclick="verHistorico()">Vendas</button>
-                    <button class="pdv-button btn-secondary" onclick="verTotalDia()">Saldo</button>
-                    <button class="pdv-button btn-secondary" onclick="sangria()">Sangria</button>
-                    <button class="pdv-button" style="background:#7f8c8d" onclick="limparDados()">Reset</button>
-                </div>
-            </div>
-        </div>
+        <h1>Painel de Pedidos Spook Ice</h1>
+        <p>Os pedidos novos aparecerão aqui automaticamente.</p>
+        <div id="status">Verificando planilha...</div>
+        <button onclick="limparHistorico()" style="margin-top: 10px; font-size: 11px; color: #999; border: none; background: none; cursor: pointer;">[Ver todos os pedidos novamente]</button>
     </div>
-</div>
 
+    <div id="lista-pedidos" class="no-print"></div>
 
-<script>
-    // FUNÇÕES DE NAVEGAÇÃO
-    function abrirPDV() {
-        document.getElementById('menu-inicial').style.display = 'none';
-        document.getElementById('view-pdv').style.display = 'block';
-        renderizar();
-    }
-    function abrirIndex() {
-        document.getElementById('menu-inicial').style.display = 'none';
-        document.getElementById('view-index').style.display = 'block';
-    }
-    function voltarMenu() {
-        document.getElementById('view-pdv').style.display = 'none';
-        document.getElementById('view-index').style.display = 'none';
-        document.getElementById('menu-inicial').style.display = 'flex';
-    }
+    <div id="cupom-print" style="display: none;"></div>
 
-    // LÓGICA DO PDV (MANTIDA)
-    let produtos = JSON.parse(localStorage.getItem('produtos')) || [
-        {nome: "Geladinho Ninho", preco: 5.00, cat: "Geladinho"},
-        {nome: "Bombom Morango", preco: 4.00, cat: "Bombom"}
-    ];
-    let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
-    let historico = JSON.parse(localStorage.getItem('historico')) || [];
-    let saldoCaixa = parseFloat(localStorage.getItem('saldoCaixa')) || 0;
-
-    function salvar() {
-        localStorage.setItem('produtos', JSON.stringify(produtos));
-        localStorage.setItem('carrinho', JSON.stringify(carrinho));
-        localStorage.setItem('historico', JSON.stringify(historico));
-        localStorage.setItem('saldoCaixa', saldoCaixa.toString());
-        renderizar();
-    }
-
-    function renderizar() {
-        const vitrine = document.getElementById('vitrine');
-        if(!vitrine) return;
-        vitrine.innerHTML = '';
-        produtos.forEach((p, index) => {
-            vitrine.innerHTML += `<div class="prod-item" onclick="addCarrinho(${index})"><strong>${p.nome}</strong><span>R$ ${p.preco.toFixed(2)}</span><br><small>${p.cat}</small></div>`;
-        });
-
-        const lista = document.getElementById('cart-list');
-        lista.innerHTML = '';
-        let total = 0;
-        carrinho.forEach((item, i) => {
-            total += item.preco;
-            lista.innerHTML += `<div class="cart-item"><div>${item.nome}</div><div>R$ ${item.preco.toFixed(2)} <button class="btn-del" onclick="removerItem(${i})">X</button></div></div>`;
-        });
+    <script>
+        const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJs2mCWo_bv2C7OqYYzuhs_rh8CYfusDhR7UiS4Yj9sUw3C6hNcP6fFlXZOpmAlYZId-jAt8xAC5dM/pub?output=csv";
         
-        let desc = parseFloat(document.getElementById('desconto').value) || 0;
-        document.getElementById('total-val').innerText = (total - desc).toFixed(2);
-    }
+        // Memória para não repetir pedidos concluídos
+        let pedidosConcluidos = JSON.parse(localStorage.getItem('spook_concluidos')) || [];
 
-    function addCarrinho(index) { carrinho.push(produtos[index]); salvar(); }
-    function removerItem(index) { carrinho.splice(index, 1); salvar(); }
-    function adicionarProduto() {
-        const nome = document.getElementById('nome-p').value;
-        const preco = parseFloat(document.getElementById('preco-p').value);
-        const cat = document.getElementById('cat-p').value;
-        if(nome && preco) {
-            produtos.push({nome, preco, cat});
-            document.getElementById('nome-p').value = '';
-            document.getElementById('preco-p').value = '';
-            salvar();
+        async function carregarPedidos() {
+            try {
+                const resposta = await fetch(urlCSV + "&t=" + new Date().getTime());
+                const csvText = await resposta.text();
+                const linhas = csvText.split('\n').map(l => l.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/));
+                
+                const listaPedidosDiv = document.getElementById('lista-pedidos');
+                listaPedidosDiv.innerHTML = "";
+
+                // Percorre da última para a primeira
+                for (let i = linhas.length - 1; i >= 1; i--) {
+                    let pedidoConteudo = linhas[i][12]; // Coluna M
+                    if (!pedidoConteudo) continue;
+                    
+                    pedidoConteudo = pedidoConteudo.replace(/"/g, '').trim();
+                    let idUnico = btoa(pedidoConteudo).substring(0, 20); // Gera um ID pelo conteúdo
+
+                    if (pedidoConteudo !== "" && !pedidosConcluidos.includes(idUnico)) {
+                        let total = linhas[i][1] ? linhas[i][1].replace(/"/g, '') : '0,00';
+                        let info = linhas[i][3] ? linhas[i][3].replace(/"/g, '') : '-';
+
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        card.innerHTML = `
+                            <button class="btn-concluir" onclick="concluirPedido('${idUnico}')">Concluir ✅</button>
+                            <h3>Novo Pedido</h3>
+                            <p><strong>Detalhes:</strong> ${pedidoConteudo}</p>
+                            <p><strong>Total:</strong> R$ ${total}</p>
+                            <button class="btn-imprimir" onclick="imprimir('${pedidoConteudo}', '${total}', '${info}')">🖨️ IMPRIMIR CUPOM</button>
+                        `;
+                        listaPedidosDiv.appendChild(card);
+                    }
+                }
+                document.getElementById('status').innerText = "Atualizado em: " + new Date().toLocaleTimeString();
+            } catch (erro) {
+                document.getElementById('status').innerText = "Erro ao carregar dados.";
+            }
         }
-    }
-    function finalizarVenda() {
-        if(carrinho.length === 0) return alert("Vazio!");
-        let total = carrinho.reduce((a, b) => a + b.preco, 0) - (parseFloat(document.getElementById('desconto').value) || 0);
-        historico.push({ data: new Date().toLocaleString(), total: total });
-        saldoCaixa += total;
-        carrinho = [];
-        salvar();
-        alert("Sucesso!");
-    }
-    function limparCarrinho() { if(confirm("Limpar?")) { carrinho = []; salvar(); } }
-    function verHistorico() { alert(historico.slice(-5).map(v => `${v.data}: R$${v.total}`).join('\n') || "Vazio"); }
-    function verTotalDia() { alert(`Caixa: R$ ${saldoCaixa.toFixed(2)}`); }
-    function sangria() { let v = parseFloat(prompt("Valor:")); if(v) { saldoCaixa -= v; salvar(); } }
-    function limparDados() { if(confirm("Reset total?")) { localStorage.clear(); location.reload(); } }
-    function atualizarTotal() { renderizar(); }
-</script>
 
+        function concluirPedido(id) {
+            if(confirm("Deseja marcar como concluído? Ele sairá da tela mas continuará na planilha.")){
+                pedidosConcluidos.push(id);
+                localStorage.setItem('spook_concluidos', JSON.stringify(pedidosConcluidos));
+                carregarPedidos();
+            }
+        }
+
+        function limparHistorico() {
+            if(confirm("Isso mostrará todos os pedidos novamente. Deseja continuar?")){
+                localStorage.removeItem('spook_concluidos');
+                pedidosConcluidos = [];
+                carregarPedidos();
+            }
+        }
+
+        function imprimir(conteudo, total, info) {
+            const areaPrint = document.getElementById('cupom-print');
+            areaPrint.innerHTML = `
+                <center>
+                    <strong>SPOOK ICE</strong><br>
+                    ---------------------------<br>
+                    <strong>CUPOM DE PEDIDO</strong><br>
+                    ---------------------------
+                </center>
+                ${conteudo}<br><br>
+                <strong>TOTAL: R$ ${total}</strong><br>
+                ---------------------------<br>
+                ${info}<br><br>
+                <center>Obrigado!</center>
+                <br>.
+            `;
+            window.print();
+        }
+
+        function gerarRelatorioPDF() {
+            const pedidosVisiveis = document.getElementById('lista-pedidos').innerHTML;
+            if(!pedidosVisiveis) { alert("Não há pedidos na tela para gerar PDF."); return; }
+
+            const areaPrint = document.getElementById('cupom-print');
+            // Formata os cards da tela para um formato de relatório
+            areaPrint.innerHTML = `<h2>Relatório de Pedidos - Spook Ice</h2><hr>` + pedidosVisiveis;
+            
+            // Remove os botões do PDF para ficar limpo
+            const botoes = areaPrint.querySelectorAll('button');
+            botoes.forEach(b => b.remove());
+
+            window.print();
+            carregarPedidos(); // Reseta a visualização
+        }
+
+        setInterval(carregarPedidos, 30000); // 30 segundos
+        carregarPedidos();
+    </script>
 </body>
 </html>
-
