@@ -195,12 +195,24 @@
         .btn-edit-prod {
             position: absolute;
             top: 5px;
-            right: 5px;
+            right: 35px;
             background: var(--warning);
             border: none;
             border-radius: 4px;
             cursor: pointer;
             padding: 2px 5px;
+        }
+        .btn-del-prod {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 2px 6px;
+            font-weight: bold;
         }
         .baixa-container {
             margin-top: 5px;
@@ -331,19 +343,14 @@
         <div style="display:flex; flex-direction:column; align-items:center; gap:20px;">
             <h2>Gerar Novo ID</h2>
             
-            <div style="width: 100%; display: flex; flex-direction: column; gap: 10px; align-items: center;">
-                <input type="number" id="numID" style="width:80%; padding:18px; font-size:20px; border-radius:12px; border:none;" placeholder="Digite o ID manualmente">
-                <button class="btn-main btn-green" onclick="criarBarras()" style="width:80%">GERAR BARRAS DO ID ACIMA</button>
+            <div style="width: 80%; display: flex; flex-direction: column; gap: 10px;">
+                <input type="number" id="qtdDigitos" placeholder="Qtd de números no ID (ex: 8)" style="padding:12px; border-radius:8px; border:none;">
+                <button class="btn-main btn-blue" onclick="gerarIdAleatorio()" style="padding:15px; font-size: 14px;">GERAR NÚMERO ALEATÓRIO</button>
             </div>
 
-            <hr style="width: 80%; border: 0.5px solid #333;">
-
-            <div style="width: 100%; display: flex; flex-direction: column; gap: 10px; align-items: center;">
-                <input type="number" id="qtdGerar" style="width:80%; padding:12px; font-size:16px; border-radius:8px; border:none;" placeholder="Quantidade de IDs aleatórios">
-                <button class="btn-main btn-blue" onclick="gerarIdsAutomaticos()" style="width:80%; padding: 15px;">GERAR IDS ALEATÓRIOS</button>
-            </div>
-
-            <div id="container-barcodes-multi" style="background: white; padding: 20px; border-radius: 10px; width: 90%; display: flex; flex-direction: column; align-items: center; gap: 20px;">
+            <input type="number" id="numID" style="width:80%; padding:18px; font-size:20px; border-radius:12px; border:none;" placeholder="ID Gerado aparecerá aqui">
+            <button class="btn-main btn-green" onclick="criarBarras()" style="width:80%">GERAR BARRAS</button>
+            <div style="background: white; padding: 20px; border-radius: 10px;">
                 <svg id="barcode"></svg>
             </div>
         </div>
@@ -513,6 +520,7 @@
                 grid.innerHTML += `
                     <div class="produto-card">
                         <button class="btn-edit-prod" onclick="editarProduto(${i})">✏️</button>
+                        <button class="btn-del-prod" onclick="excluirProdutoPermanente(${i})">X</button>
                         <img src="${p.img}">
                         <div class="produto-info">
                             <b>ID: ${p.id}</b><br>
@@ -531,6 +539,14 @@
             document.getElementById('p-valor').value = p.valor;
             document.getElementById('p-qtd').value = p.qtd;
             document.getElementById('edit-index').value = i;
+        }
+
+        function excluirProdutoPermanente(i) {
+            if(confirm("Deseja excluir este produto permanentemente do catálogo?")) {
+                produtos.splice(i, 1);
+                localStorage.setItem('meus_produtos', JSON.stringify(produtos));
+                renderizarCatalogo();
+            }
         }
 
         function darBaixa(id, histIndex) {
@@ -595,8 +611,6 @@
         function criarBarras() {
             const v = document.getElementById('numID').value;
             if(v.length > 0) {
-                const container = document.getElementById('container-barcodes-multi');
-                container.innerHTML = '<svg id="barcode"></svg>';
                 JsBarcode("#barcode", v, { 
                     format: "CODE128", 
                     displayValue: true, 
@@ -609,41 +623,29 @@
             }
         }
 
-        function gerarIdsAutomaticos() {
-            const qtd = parseInt(document.getElementById('qtdGerar').value);
-            if(isNaN(qtd) || qtd <= 0) {
-                alert("Digite uma quantidade válida!");
+        function gerarIdAleatorio() {
+            const qtd = parseInt(document.getElementById('qtdDigitos').value);
+            if(!qtd || qtd <= 0) {
+                alert("Informe a quantidade de números desejada.");
                 return;
             }
 
-            const container = document.getElementById('container-barcodes-multi');
-            container.innerHTML = ""; // Limpa os anteriores
+            let novoId = "";
+            let tentativa = 0;
+            
+            // Tenta gerar um ID único que não exista no catálogo
+            do {
+                novoId = "";
+                for(let i=0; i<qtd; i++) {
+                    novoId += Math.floor(Math.random() * 10).toString();
+                }
+                tentativa++;
+            } while (produtos.some(p => p.id === novoId) && tentativa < 100);
 
-            for(let i = 0; i < qtd; i++) {
-                // Gera um ID baseado no tempo + um numero aleatorio para nunca repetir
-                // Mesmo se clicar no botão várias vezes rápido.
-                const novoId = Date.now().toString().slice(-8) + Math.floor(Math.random() * 1000);
-                
-                // Verifica se já existe no catálogo por segurança
-                const existe = produtos.some(p => p.id === novoId);
-                if(existe) { i--; continue; } // Se existir, tenta gerar outro na mesma rodada
-
-                const novoSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                novoSvg.id = "barcode-" + i;
-                container.appendChild(novoSvg);
-
-                JsBarcode("#" + novoSvg.id, novoId, {
-                    format: "CODE128",
-                    displayValue: true,
-                    fontSize: 18,
-                    width: 1.5,
-                    height: 80,
-                    flat: true,
-                    fontOptions: "bold"
-                });
-            }
+            document.getElementById('numID').value = novoId;
         }
+
+
     </script>
 </body>
 </html>
-
