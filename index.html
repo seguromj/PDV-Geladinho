@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -27,23 +26,40 @@
         .btn-pdf { background-color: #e67e22; border: none; cursor: pointer; }
         .btn-pdf:hover { background-color: #d35400; }
 
-        #lista-pedidos { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 20px; }
+        #lista-pedidos, #lista-arquivados { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 20px; }
+        
+        .titulo-pasta { margin-top: 50px; padding: 10px; background: #27ae60; color: white; border-radius: 5px; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto; cursor: pointer; }
+
         .card { background: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px; width: 100%; max-width: 400px; border-left: 5px solid #25d366; text-align: left; position: relative; }
         .card h3 { margin: 0 0 10px 0; color: #d32f2f; }
+        
+        .card-arquivado { border-left: 5px solid #7f8c8d; opacity: 0.8; }
+
         .btn-imprimir { background-color: #333; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
         .btn-imprimir:hover { background-color: #555; }
 
+        .btn-arquivar { background-color: #2ecc71; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 5px; }
+        .btn-arquivar:hover { background-color: #27ae60; }
+
         .btn-excluir { position: absolute; top: 10px; right: 10px; background: #ff4757; color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 12px; }
 
+        /* REGRAS DE IMPRESSÃO */
         @media print {
             .no-print { display: none !important; }
             body * { visibility: hidden; }
+            
+            /* Modo Cupom Único */
             #cupom-print, #cupom-print * { visibility: visible; }
             #cupom-print { position: absolute; left: 0; top: 0; width: 58mm; font-family: monospace; font-size: 10pt; line-height: 1.2; }
-            
+
+            /* Modo PDF (Impressão de Lista) */
+            .print-all-mode #cupom-print { display: none; }
             .print-all-mode #lista-pedidos, .print-all-mode #lista-pedidos * { visibility: visible; }
-            .print-all-mode .card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
-            .print-all-mode .btn-imprimir, .print-all-mode .btn-excluir { display: none; }
+            .print-all-mode .card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; margin-bottom: 10px; }
+            .print-all-mode .btn-imprimir, .print-all-mode .btn-excluir, .print-all-mode .btn-arquivar { display: none; }
+            
+            /* Garante que a pasta e títulos novos não saiam no PDF */
+            .print-all-mode #lista-arquivados, .print-all-mode .titulo-pasta, .print-all-mode h2 { display: none !important; }
         }
     </style>
 </head>
@@ -51,17 +67,25 @@
 
     <div class="no-print">
         <div class="nav-buttons">
-            <a href="COLOQUE_AQUI_O_LINK_DA_GESTAO" target="_blank" class="btn-link">🖥️ Gestão 🖥️</a>
-            <a href="COLOQUE_AQUI_O_LINK_DO_ADMIN" target="_blank" class="btn-link btn-admin">🧑‍💻 Admin 🧑‍💻</a>
-            <button onclick="baixarPDF()" class="btn-link btn-pdf">📄 Baixar Tudo PDF 📄</button>
+            <a href="COLOQUE_AQUI_O_LINK_DA_GESTAO" target="_blank" class="btn-link">🖥️ Gestão</a>
+            <a href="COLOQUE_AQUI_O_LINK_DO_ADMIN" target="_blank" class="btn-link btn-admin">🧑‍💻 Admin</a>
+            <button onclick="baixarPDF()" class="btn-link btn-pdf">📄 Baixar PDF</button>
+            <button onclick="limparPasta()" class="btn-link" style="background-color: #c0392b;">🗑️ Esvaziar Pasta</button>
         </div>
 
         <h1>Spook Ice</h1>
-        <p>?</p>
         <div id="status">Verificando planilha...</div>
     </div>
 
+    <h2 class="no-print">🚀 Novos Pedidos</h2>
     <div id="lista-pedidos"></div>
+
+    <hr class="no-print" style="margin-top: 50px; width: 80%;">
+
+    <div class="no-print titulo-pasta" onclick="togglePasta()">
+        📁 PASTA DE ARQUIVADOS (Clique para ver/esconder)
+    </div>
+    <div id="lista-arquivados" class="no-print" style="display: none;"></div>
 
     <div id="cupom-print"></div>
 
@@ -69,21 +93,42 @@
         const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJs2mCWo_bv2C7OqYYzuhs_rh8CYfusDhR7UiS4Yj9sUw3C6hNcP6fFlXZOpmAlYZId-jAt8xAC5dM/pub?output=csv";
         
         let excluidos = JSON.parse(localStorage.getItem('pedidos_excluidos')) || [];
+        let arquivadosIDs = JSON.parse(localStorage.getItem('pedidos_arquivados')) || [];
+        let impressosAutomaticamente = JSON.parse(localStorage.getItem('pedidos_impressos')) || [];
+
+        function tocarSom() {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.type = 'sine'; 
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.5);
+        }
+
+        function togglePasta() {
+            const pasta = document.getElementById('lista-arquivados');
+            pasta.style.display = pasta.style.display === 'none' ? 'flex' : 'none';
+        }
 
         async function carregarPedidos() {
             try {
                 const resposta = await fetch(urlCSV + "&t=" + new Date().getTime());
                 const csvText = await resposta.text();
-                
                 const linhas = csvText.split(/\r?\n/).map(linha => {
                     return linha.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                 });
                 
+                window.dadosPlanilha = linhas;
                 const listaPedidosDiv = document.getElementById('lista-pedidos');
+                const listaArquivadosDiv = document.getElementById('lista-arquivados');
+                
                 listaPedidosDiv.innerHTML = "";
+                listaArquivadosDiv.innerHTML = "";
 
-                // AJUSTADO CONFORME SEU PRINT:
-                // Coluna 0: Data | 1: Pedido | 2: Nome | 3: Tel | 4: CEP | 5: Bairro | 6: Rua | 7: Numero | 8: Entrega | 9: Valor Entrega | 10: Total | 11: Link Pagamento
                 const labels = ["Data", "Pedido", "Cliente", "Tel", "CEP", "Bairro", "Rua", "Nº", "Tipo", "Taxa", "Total", "Link Pagamento"];
 
                 for (let i = linhas.length - 1; i >= 1; i--) {
@@ -108,18 +153,36 @@
                         if (!excluidos.includes(pedidoID)) {
                             const card = document.createElement('div');
                             card.className = 'card';
-                            card.innerHTML = `
-                                <button class="btn-excluir" onclick="excluirPedido('${pedidoID}')">Excluir</button>
-                                <h3>Novo Pedido</h3>
-                                <div style="font-size: 14px; line-height: 1.6;">${pedidoHTML}</div>
-                                <button class="btn-imprimir" onclick="imprimirCard(${i})">🖨️ IMPRIMIR CUPOM</button>
-                            `;
-                            listaPedidosDiv.appendChild(card);
+                            
+                            if (arquivadosIDs.includes(pedidoID)) {
+                                card.classList.add('card-arquivado');
+                                card.innerHTML = `
+                                    <button class="btn-excluir" onclick="excluirPedido('${pedidoID}')">Excluir</button>
+                                    <h3>Pedido Arquivado</h3>
+                                    <div style="font-size: 14px; line-height: 1.6;">${pedidoHTML}</div>
+                                    <button class="btn-imprimir" onclick="imprimirCard(${i})">🖨️ REIMPRIMIR</button>
+                                `;
+                                listaArquivadosDiv.appendChild(card);
+                            } else {
+                                card.innerHTML = `
+                                    <button class="btn-excluir" onclick="excluirPedido('${pedidoID}')">Excluir</button>
+                                    <h3>Novo Pedido</h3>
+                                    <div style="font-size: 14px; line-height: 1.6;">${pedidoHTML}</div>
+                                    <button class="btn-imprimir" onclick="imprimirCard(${i})">🖨️ IMPRIMIR CUPOM</button>
+                                    <button class="btn-arquivar" onclick="arquivarPedido('${pedidoID}')">📁 ENVIAR PARA PASTA</button>
+                                `;
+                                listaPedidosDiv.appendChild(card);
+
+                                if (!impressosAutomaticamente.includes(pedidoID)) {
+                                    impressosAutomaticamente.push(pedidoID);
+                                    localStorage.setItem('pedidos_impressos', JSON.stringify(impressosAutomaticamente));
+                                    tocarSom();
+                                    setTimeout(() => { imprimirCard(i); }, 500);
+                                }
+                            }
                         }
                     }
                 }
-                
-                window.dadosPlanilha = linhas;
                 document.getElementById('status').innerText = "Atualizado em: " + new Date().toLocaleTimeString();
             } catch (erro) {
                 console.error("Erro ao ler planilha:", erro);
@@ -127,10 +190,24 @@
             }
         }
 
+        function arquivarPedido(id) {
+            arquivadosIDs.push(id);
+            localStorage.setItem('pedidos_arquivados', JSON.stringify(arquivadosIDs));
+            carregarPedidos();
+        }
+
+        function limparPasta() {
+            if(confirm("Deseja apagar permanentemente todos os pedidos da pasta?")) {
+                arquivadosIDs = [];
+                localStorage.setItem('pedidos_arquivados', JSON.stringify(arquivadosIDs));
+                carregarPedidos();
+            }
+        }
+
         function imprimirCard(index) {
             const linha = window.dadosPlanilha[index];
+            if (!linha) return;
             const labels = ["Data", "Pedido", "Cliente", "Tel", "CEP", "Bairro", "Rua", "Nº", "Tipo", "Taxa", "Total", "Link Pagamento"];
-            
             let conteudoCupom = "";
             for(let j=0; j<12; j++) {
                 if(linha[j]) {
@@ -140,27 +217,13 @@
                     }
                 }
             }
-
             const areaPrint = document.getElementById('cupom-print');
-            areaPrint.innerHTML = `
-                <center>
-                    <strong>SPOOK ICE</strong><br>
-                    ---------------------------<br>
-                    <strong>CUPOM DE PEDIDO</strong><br>
-                    ---------------------------
-                </center>
-                <div style="text-align:left; font-size: 9pt;">
-                    ${conteudoCupom}
-                </div>
-                ---------------------------<br>
-                <center>Obrigado!</center>
-                <br>.
-            `;
+            areaPrint.innerHTML = `<center><strong>SPOOK ICE</strong><br>---------------------------<br><strong>CUPOM DE PEDIDO</strong><br>---------------------------</center><div style="text-align:left; font-size: 9pt;">${conteudoCupom}</div>---------------------------<br><center>Obrigado!</center><br>.`;
             window.print();
         }
 
         function excluirPedido(id) {
-            if(confirm("Deseja excluir este pedido da visualização?")) {
+            if(confirm("Deseja excluir este pedido?")) {
                 excluidos.push(id);
                 localStorage.setItem('pedidos_excluidos', JSON.stringify(excluidos));
                 carregarPedidos();
@@ -168,8 +231,10 @@
         }
 
         function baixarPDF() {
+            // Adiciona a classe que configura o layout de PDF
             document.body.classList.add('print-all-mode');
             window.print();
+            // Remove a classe após a impressão para o app voltar ao normal
             document.body.classList.remove('print-all-mode');
         }
 
@@ -178,3 +243,4 @@
     </script>
 </body>
 </html>
+
