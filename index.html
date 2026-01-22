@@ -9,7 +9,6 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; text-align: center; }
         h1 { color: #333; }
         
-        /* ESTILO PARA OS NOVOS BOTÕES DE LINK */
         .nav-buttons { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
         .btn-link { 
             text-decoration: none; 
@@ -25,7 +24,6 @@
         .btn-admin { background-color: #6c757d; }
         .btn-admin:hover { background-color: #495057; }
 
-        /* BOTÃO PDF */
         .btn-pdf { background-color: #e67e22; border: none; cursor: pointer; }
         .btn-pdf:hover { background-color: #d35400; }
 
@@ -35,17 +33,14 @@
         .btn-imprimir { background-color: #333; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
         .btn-imprimir:hover { background-color: #555; }
 
-        /* BOTÃO EXCLUIR */
         .btn-excluir { position: absolute; top: 10px; right: 10px; background: #ff4757; color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 12px; }
 
-        /* ÁREA DE IMPRESSÃO (O que vai para o papel) */
         @media print {
             .no-print { display: none !important; }
             body * { visibility: hidden; }
             #cupom-print, #cupom-print * { visibility: visible; }
             #cupom-print { position: absolute; left: 0; top: 0; width: 58mm; font-family: monospace; font-size: 10pt; line-height: 1.2; }
             
-            /* Ajuste para PDF de todos os itens */
             .print-all-mode #lista-pedidos, .print-all-mode #lista-pedidos * { visibility: visible; }
             .print-all-mode .card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
             .print-all-mode .btn-imprimir, .print-all-mode .btn-excluir { display: none; }
@@ -71,18 +66,15 @@
     <div id="cupom-print"></div>
 
     <script>
-        // Usei o seu link exato da planilha
         const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJs2mCWo_bv2C7OqYYzuhs_rh8CYfusDhR7UiS4Yj9sUw3C6hNcP6fFlXZOpmAlYZId-jAt8xAC5dM/pub?output=csv";
         
         let excluidos = JSON.parse(localStorage.getItem('pedidos_excluidos')) || [];
 
         async function carregarPedidos() {
             try {
-                // Adicionado t= para evitar que o navegador use dados antigos (cache)
                 const resposta = await fetch(urlCSV + "&t=" + new Date().getTime());
                 const csvText = await resposta.text();
                 
-                // Melhorado a separação de linhas para evitar erro se houver aspas
                 const linhas = csvText.split(/\r?\n/).map(linha => {
                     return linha.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                 });
@@ -90,36 +82,81 @@
                 const listaPedidosDiv = document.getElementById('lista-pedidos');
                 listaPedidosDiv.innerHTML = "";
 
-                // Percorre da última para a primeira para ver os novos no topo
+                // AJUSTADO CONFORME SEU PRINT:
+                // Coluna 0: Data | 1: Pedido | 2: Nome | 3: Tel | 4: CEP | 5: Bairro | 6: Rua | 7: Numero | 8: Entrega | 9: Valor Entrega | 10: Total | 11: Link Pagamento
+                const labels = ["Data", "Pedido", "Cliente", "Tel", "CEP", "Bairro", "Rua", "Nº", "Tipo", "Taxa", "Total", "Link Pagamento"];
+
                 for (let i = linhas.length - 1; i >= 1; i--) {
-                    if (!linhas[i][12]) continue;
+                    let statusImpressao = linhas[i][12] ? linhas[i][12].replace(/"/g, '').trim().toUpperCase() : "";
 
-                    let pedidoConteudo = linhas[i][12].replace(/"/g, '').trim(); 
+                    if (statusImpressao === "IMPRIMIR") {
+                        let pedidoHTML = "";
+                        let identificadorUnico = ""; 
 
-                    if (pedidoConteudo !== "") {
-                        let pedidoID = btoa(unescape(encodeURIComponent(pedidoConteudo))).substring(0, 16) + i;
+                        for(let j=0; j<12; j++) {
+                            if(linhas[i][j]) {
+                                let valor = linhas[i][j].replace(/"/g, '').trim();
+                                if(valor !== "") {
+                                    pedidoHTML += `<strong>${labels[j]}:</strong> ${valor}<br>`;
+                                    identificadorUnico += valor;
+                                }
+                            }
+                        }
+
+                        let pedidoID = btoa(unescape(encodeURIComponent(identificadorUnico))).substring(0, 16) + i;
 
                         if (!excluidos.includes(pedidoID)) {
-                            let total = linhas[i][1] ? linhas[i][1].replace(/"/g, '') : '---'; 
-                            let info = linhas[i][3] ? linhas[i][3].replace(/"/g, '') : '';  
-
                             const card = document.createElement('div');
                             card.className = 'card';
                             card.innerHTML = `
                                 <button class="btn-excluir" onclick="excluirPedido('${pedidoID}')">Excluir</button>
                                 <h3>Novo Pedido</h3>
-                                <p><strong>Detalhes:</strong> ${pedidoConteudo}</p>
-                                <button class="btn-imprimir" onclick="imprimir('${pedidoConteudo.replace(/'/g, "\\'")}', '${total}', '${info.replace(/'/g, "\\'")}')">🖨️ IMPRIMIR CUPOM</button>
+                                <div style="font-size: 14px; line-height: 1.6;">${pedidoHTML}</div>
+                                <button class="btn-imprimir" onclick="imprimirCard(${i})">🖨️ IMPRIMIR CUPOM</button>
                             `;
                             listaPedidosDiv.appendChild(card);
                         }
                     }
                 }
+                
+                window.dadosPlanilha = linhas;
                 document.getElementById('status').innerText = "Atualizado em: " + new Date().toLocaleTimeString();
             } catch (erro) {
                 console.error("Erro ao ler planilha:", erro);
-                document.getElementById('status').innerText = "Erro ao conectar. Verifique se a planilha está aberta para 'Qualquer um com o link'.";
+                document.getElementById('status').innerText = "Erro ao conectar.";
             }
+        }
+
+        function imprimirCard(index) {
+            const linha = window.dadosPlanilha[index];
+            const labels = ["Data", "Pedido", "Cliente", "Tel", "CEP", "Bairro", "Rua", "Nº", "Tipo", "Taxa", "Total", "Link Pagamento"];
+            
+            let conteudoCupom = "";
+            for(let j=0; j<12; j++) {
+                if(linha[j]) {
+                    let valor = linha[j].replace(/"/g, '').trim();
+                    if(valor !== "") {
+                        conteudoCupom += `<strong>${labels[j]}:</strong> ${valor}<br>`;
+                    }
+                }
+            }
+
+            const areaPrint = document.getElementById('cupom-print');
+            areaPrint.innerHTML = `
+                <center>
+                    <strong>SPOOK ICE</strong><br>
+                    ---------------------------<br>
+                    <strong>CUPOM DE PEDIDO</strong><br>
+                    ---------------------------
+                </center>
+                <div style="text-align:left; font-size: 9pt;">
+                    ${conteudoCupom}
+                </div>
+                ---------------------------<br>
+                <center>Obrigado!</center>
+                <br>.
+            `;
+            window.print();
         }
 
         function excluirPedido(id) {
@@ -134,25 +171,6 @@
             document.body.classList.add('print-all-mode');
             window.print();
             document.body.classList.remove('print-all-mode');
-        }
-
-        function imprimir(conteudo, total, info) {
-            const areaPrint = document.getElementById('cupom-print');
-            areaPrint.innerHTML = `
-                <center>
-                    <strong>SPOOK ICE</strong><br>
-                    ---------------------------<br>
-                    <strong>CUPOM DE PEDIDO</strong><br>
-                    ---------------------------
-                </center>
-                ${conteudo}<br><br>
-                <strong>TOTAL: R$ ${total || '---'}</strong><br>
-                ---------------------------<br>
-                ${info || ''}<br><br>
-                <center>Obrigado!</center>
-                <br>.
-            `;
-            window.print();
         }
 
         setInterval(carregarPedidos, 30000);
