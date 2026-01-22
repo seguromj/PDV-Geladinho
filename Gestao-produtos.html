@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br">a
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -584,23 +584,26 @@
 
         function criarBarras() {
     const v = document.getElementById('numID').value;
-    // Novo limite que você sugeriu
-    if(v >= 1 && v <= 99999999999) {
+    
+    // O EAN-13 precisa de um número específico (geralmente 13 dígitos)
+    // Para números genéricos, o CODE128 é o mais seguro para leitura.
+    if(v.length > 0) {
         JsBarcode("#barcode", v, { 
-            format: "CODE128", 
+            format: "CODE128", // Mantemos CODE128 pela segurança de leitura
             displayValue: true, 
-            fontSize: 20,
-            // Ajuste automático: se o número for grande, as barras ficam mais finas
-            width: v.length > 6 ? 1.5 : 2, 
-            height: 60
+            fontSize: 22,
+            width: 2,
+            height: 100, // Aumentei a altura para ficar imponente como na foto
+            flat: true,  // Deixa o visual mais "limpo"
+            fontOptions: "bold"
         });
-    } else {
-        alert("Digite um número entre 1 e 99.999.999.999");
     }
 }
+
 
     </script>
 </body>
 </html>
+
 
 
