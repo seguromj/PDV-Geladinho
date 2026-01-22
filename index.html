@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -43,30 +44,11 @@
 
         .btn-excluir { position: absolute; top: 10px; right: 10px; background: #ff4757; color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 12px; }
 
-        /* REGRAS DE IMPRESSÃO */
         @media print {
             .no-print { display: none !important; }
-            
-            /* PADRÃO: Esconde tudo para imprimir apenas o cupom térmico */
             body * { visibility: hidden; }
-
-            /* Mostra o Cupom Térmico */
             #cupom-print, #cupom-print * { visibility: visible; }
             #cupom-print { position: absolute; left: 0; top: 0; width: 58mm; font-family: monospace; font-size: 10pt; line-height: 1.2; text-align: left; }
-
-            /* MODO PDF (Ajustado para não sair branco) */
-            body.print-all-mode * { visibility: hidden; }
-            body.print-all-mode #lista-pedidos, 
-            body.print-all-mode #lista-pedidos * { visibility: visible; }
-            
-            body.print-all-mode #lista-pedidos { position: absolute; left: 0; top: 0; width: 100%; display: block; }
-            body.print-all-mode .card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; margin-bottom: 20px; visibility: visible; }
-            body.print-all-mode .btn-imprimir, 
-            body.print-all-mode .btn-excluir, 
-            body.print-all-mode .btn-arquivar { display: none !important; }
-
-            /* Garante que o cupom térmico não apareça no meio do PDF */
-            body.print-all-mode #cupom-print { display: none !important; }
         }
     </style>
 </head>
@@ -229,20 +211,51 @@
             window.print();
         }
 
+        function baixarPDF() {
+            // Pegamos apenas o conteúdo da lista de pedidos NOVOS
+            const conteudoParaPDF = document.getElementById('lista-pedidos').innerHTML;
+            
+            if (!conteudoParaPDF || conteudoParaPDF.trim() === "") {
+                alert("Não há novos pedidos para gerar PDF.");
+                return;
+            }
+
+            // Abre uma nova janela para o PDF não sair em branco
+            const janelaPrint = window.open('', '', 'width=800,height=600');
+            janelaPrint.document.write(`
+                <html>
+                <head>
+                    <title>Relatório de Pedidos - Spook Ice</title>
+                    <style>
+                        body { font-family: sans-serif; padding: 20px; }
+                        .card { border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 5px; page-break-inside: avoid; }
+                        h3 { color: #d32f2f; margin-top: 0; }
+                        .btn-imprimir, .btn-excluir, .btn-arquivar { display: none; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Novos Pedidos - Spook Ice</h1>
+                    <hr>
+                    ${conteudoParaPDF}
+                </body>
+                </html>
+            `);
+            janelaPrint.document.close();
+            janelaPrint.focus();
+            
+            // Dispara a impressão na nova janela
+            setTimeout(() => {
+                janelaPrint.print();
+                janelaPrint.close();
+            }, 500);
+        }
+
         function excluirPedido(id) {
             if(confirm("Deseja excluir este pedido?")) {
                 excluidos.push(id);
                 localStorage.setItem('pedidos_excluidos', JSON.stringify(excluidos));
                 carregarPedidos();
             }
-        }
-
-        function baixarPDF() {
-            // Garante que o cupom único esteja vazio antes de gerar a lista
-            document.getElementById('cupom-print').innerHTML = "";
-            document.body.classList.add('print-all-mode');
-            window.print();
-            document.body.classList.remove('print-all-mode');
         }
 
         setInterval(carregarPedidos, 30000);
