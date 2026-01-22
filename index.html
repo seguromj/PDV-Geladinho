@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -25,20 +24,19 @@
         .btn-admin { background-color: #6c757d; }
         .btn-admin:hover { background-color: #495057; }
 
-        .btn-pdf { background-color: #e67e22; border: none; cursor: pointer; }
-        .btn-pdf:hover { background-color: #d35400; }
-
         #lista-pedidos, #lista-arquivados { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 20px; }
         
         .titulo-pasta { margin-top: 50px; padding: 10px; background: #27ae60; color: white; border-radius: 5px; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto; cursor: pointer; }
 
         .card { background: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px; width: 100%; max-width: 400px; border-left: 5px solid #25d366; text-align: left; position: relative; }
         
-        /* COR QUANDO O PRODUTO JÁ FOI IMPRESSO */
         .card-impresso { background-color: #e8f4fd; border-left: 5px solid #007bff; }
         
-        .card h3 { margin: 0 0 10px 0; color: #d32f2f; }
+        .card h3 { margin: 0 0 5px 0; color: #d32f2f; }
         
+        /* ESTILO DO ID ÚNICO NUMÉRICO */
+        .pedido-id-tag { font-size: 16px; font-weight: bold; color: white; background: #d32f2f; padding: 4px 10px; border-radius: 4px; display: inline-block; margin-bottom: 10px; }
+
         .card-arquivado { border-left: 5px solid #7f8c8d; opacity: 0.8; }
 
         .btn-imprimir { background-color: #333; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
@@ -141,13 +139,14 @@
                             }
                         }
 
-                        let pedidoID = btoa(unescape(encodeURIComponent(identificadorUnico))).substring(0, 16) + i;
+                        // GERADOR DE ID ÚNICO APENAS NÚMEROS (Máximo 6 dígitos)
+                        // Usa o número da linha preenchido com zeros à esquerda
+                        let pedidoID = i.toString().padStart(6, '0');
 
                         if (!excluidos.includes(pedidoID)) {
                             const card = document.createElement('div');
                             card.className = 'card';
                             
-                            // APLICA A COR DE IMPRESSO CASO JÁ TENHA SIDO PROCESSADO
                             if (impressosAutomaticamente.includes(pedidoID)) {
                                 card.classList.add('card-impresso');
                             }
@@ -156,6 +155,7 @@
                                 card.classList.add('card-arquivado');
                                 card.innerHTML = `
                                     <button class="btn-excluir" onclick="excluirPedido('${pedidoID}')">Excluir</button>
+                                    <span class="pedido-id-tag">PEDIDO #${pedidoID}</span>
                                     <h3>Pedido Arquivado</h3>
                                     <div style="font-size: 14px; line-height: 1.6;">${pedidoHTML}</div>
                                     <button class="btn-imprimir" onclick="imprimirCard(${i}, '${pedidoID}')">🖨️ REIMPRIMIR</button>
@@ -164,6 +164,7 @@
                             } else {
                                 card.innerHTML = `
                                     <button class="btn-excluir" onclick="excluirPedido('${pedidoID}')">Excluir</button>
+                                    <span class="pedido-id-tag">PEDIDO #${pedidoID}</span>
                                     <h3>${impressosAutomaticamente.includes(pedidoID) ? 'Pedido Impresso' : 'Novo Pedido'}</h3>
                                     <div style="font-size: 14px; line-height: 1.6;">${pedidoHTML}</div>
                                     <button class="btn-imprimir" onclick="imprimirCard(${i}, '${pedidoID}')">🖨️ IMPRIMIR CUPOM</button>
@@ -206,7 +207,6 @@
             const linha = window.dadosPlanilha[index];
             if (!linha) return;
 
-            // Se for uma reimpressão manual, garante que mude de cor se ainda não tiver mudado
             if (id && !impressosAutomaticamente.includes(id)) {
                 impressosAutomaticamente.push(id);
                 localStorage.setItem('pedidos_impressos', JSON.stringify(impressosAutomaticamente));
@@ -215,6 +215,7 @@
 
             const labels = ["Data", "Pedido", "Cliente", "Tel", "CEP", "Bairro", "Rua", "Nº", "Tipo", "Taxa", "Total", "Link Pagamento"];
             let conteudoCupom = "";
+            
             for(let j=0; j<12; j++) {
                 if(linha[j]) {
                     let valor = linha[j].replace(/"/g, '').trim();
@@ -224,7 +225,7 @@
                 }
             }
             const areaPrint = document.getElementById('cupom-print');
-            areaPrint.innerHTML = `<center><strong>SPOOK ICE</strong><br>---------------------------<br><strong>CUPOM DE PEDIDO</strong><br>---------------------------</center><div style="text-align:left; font-size: 9pt;">${conteudoCupom}</div>---------------------------<br><center>Obrigado!</center><br>.`;
+            areaPrint.innerHTML = `<center><strong>SPOOK ICE (#${id})</strong><br>---------------------------<br><strong>CUPOM DE PEDIDO</strong><br>---------------------------</center><div style="text-align:left; font-size: 9pt;">${conteudoCupom}</div>---------------------------<br><center>Obrigado!</center><br>.`;
             window.print();
         }
 
