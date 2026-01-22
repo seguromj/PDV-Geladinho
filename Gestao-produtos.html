@@ -1,7 +1,6 @@
 
-
 <!DOCTYPE html>
-<html lang="pt-br">a
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -331,9 +330,20 @@
         <button class="btn-voltar" onclick="fecharTudo()">⬅ VOLTAR</button>
         <div style="display:flex; flex-direction:column; align-items:center; gap:20px;">
             <h2>Gerar Novo ID</h2>
-            <input type="number" id="numID" style="width:80%; padding:18px; font-size:20px; border-radius:12px; border:none;" placeholder="Digite 1-800">
-            <button class="btn-main btn-green" onclick="criarBarras()" style="width:80%">GERAR BARRAS</button>
-            <div style="background: white; padding: 20px; border-radius: 10px;">
+            
+            <div style="width: 100%; display: flex; flex-direction: column; gap: 10px; align-items: center;">
+                <input type="number" id="numID" style="width:80%; padding:18px; font-size:20px; border-radius:12px; border:none;" placeholder="Digite o ID manualmente">
+                <button class="btn-main btn-green" onclick="criarBarras()" style="width:80%">GERAR BARRAS DO ID ACIMA</button>
+            </div>
+
+            <hr style="width: 80%; border: 0.5px solid #333;">
+
+            <div style="width: 100%; display: flex; flex-direction: column; gap: 10px; align-items: center;">
+                <input type="number" id="qtdGerar" style="width:80%; padding:12px; font-size:16px; border-radius:8px; border:none;" placeholder="Quantidade de IDs aleatórios">
+                <button class="btn-main btn-blue" onclick="gerarIdsAutomaticos()" style="width:80%; padding: 15px;">GERAR IDS ALEATÓRIOS</button>
+            </div>
+
+            <div id="container-barcodes-multi" style="background: white; padding: 20px; border-radius: 10px; width: 90%; display: flex; flex-direction: column; align-items: center; gap: 20px;">
                 <svg id="barcode"></svg>
             </div>
         </div>
@@ -583,27 +593,57 @@
         }
 
         function criarBarras() {
-    const v = document.getElementById('numID').value;
-    
-    // O EAN-13 precisa de um número específico (geralmente 13 dígitos)
-    // Para números genéricos, o CODE128 é o mais seguro para leitura.
-    if(v.length > 0) {
-        JsBarcode("#barcode", v, { 
-            format: "CODE128", // Mantemos CODE128 pela segurança de leitura
-            displayValue: true, 
-            fontSize: 22,
-            width: 2,
-            height: 100, // Aumentei a altura para ficar imponente como na foto
-            flat: true,  // Deixa o visual mais "limpo"
-            fontOptions: "bold"
-        });
-    }
-}
+            const v = document.getElementById('numID').value;
+            if(v.length > 0) {
+                const container = document.getElementById('container-barcodes-multi');
+                container.innerHTML = '<svg id="barcode"></svg>';
+                JsBarcode("#barcode", v, { 
+                    format: "CODE128", 
+                    displayValue: true, 
+                    fontSize: 22,
+                    width: 2,
+                    height: 100, 
+                    flat: true,  
+                    fontOptions: "bold"
+                });
+            }
+        }
 
+        function gerarIdsAutomaticos() {
+            const qtd = parseInt(document.getElementById('qtdGerar').value);
+            if(isNaN(qtd) || qtd <= 0) {
+                alert("Digite uma quantidade válida!");
+                return;
+            }
 
+            const container = document.getElementById('container-barcodes-multi');
+            container.innerHTML = ""; // Limpa os anteriores
+
+            for(let i = 0; i < qtd; i++) {
+                // Gera um ID baseado no tempo + um numero aleatorio para nunca repetir
+                // Mesmo se clicar no botão várias vezes rápido.
+                const novoId = Date.now().toString().slice(-8) + Math.floor(Math.random() * 1000);
+                
+                // Verifica se já existe no catálogo por segurança
+                const existe = produtos.some(p => p.id === novoId);
+                if(existe) { i--; continue; } // Se existir, tenta gerar outro na mesma rodada
+
+                const novoSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                novoSvg.id = "barcode-" + i;
+                container.appendChild(novoSvg);
+
+                JsBarcode("#" + novoSvg.id, novoId, {
+                    format: "CODE128",
+                    displayValue: true,
+                    fontSize: 18,
+                    width: 1.5,
+                    height: 80,
+                    flat: true,
+                    fontOptions: "bold"
+                });
+            }
+        }
     </script>
 </body>
 </html>
-
-
 
