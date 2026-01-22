@@ -261,7 +261,7 @@
 
     <div id="tela-bloqueio">
         <div class="auth-container">
-            <div class="auth-logo">NUANCE</div>
+            <div class="auth-logo">Spook Ice</div>
             <div class="form-group">
                 <label>Chave de Acesso Admin</label>
                 <input type="password" id="senha-acesso" onkeydown="if(event.key==='Enter') verificarAcesso()">
@@ -273,7 +273,7 @@
     <div id="admin-content">
         <div class="admin-container">
             <header class="header">
-                <h1>NUANCE ADMIN</h1>
+                <h1>Spook Ice ADMIN</h1>
                 <div class="backup-btns">
                     <button class="btn btn-util" onclick="exportarBackup()">📥 EXPORTAR BACKUP</button>
                     <button class="btn btn-util" onclick="document.getElementById('importInput').click()">📤 IMPORTAR BACKUP</button>
@@ -341,15 +341,15 @@
 
             <div id="carrosséis-container">
                 <div class="carousel-wrapper">
-                    <label style="color: var(--accent); font-weight: 800; font-size: 11px;">🍸 DRINKS C/ ÁLCOOL (1-199)</label>
+                    <label style="color: var(--accent); font-weight: 800; font-size: 11px;">🍦 Geladinhos (1-199)</label>
                     <div id="carousel-1" class="carousel-container"></div>
                 </div>
                 <div class="carousel-wrapper">
-                    <label style="color: var(--accent); font-weight: 800; font-size: 11px;">🥤 DRINKS S/ ÁLCOOL (200-299)</label>
+                    <label style="color: var(--accent); font-weight: 800; font-size: 11px;">🍨 Geladinho GG (200-299)</label>
                     <div id="carousel-2" class="carousel-container"></div>
                 </div>
                 <div class="carousel-wrapper">
-                    <label style="color: var(--accent); font-weight: 800; font-size: 11px;">🍹 COPÕES (300-399)</label>
+                    <label style="color: var(--accent); font-weight: 800; font-size: 11px;">🍬 Bombons (300-399)</label>
                     <div id="carousel-3" class="carousel-container"></div>
                 </div>
                 <div class="carousel-wrapper">
@@ -377,7 +377,7 @@
         }
 
         function verificarAcesso() {
-            if (document.getElementById('senha-acesso').value === "MJ-NUANCE") { //🚨🚨Senha🚨🚨
+            if (document.getElementById('senha-acesso').value === "spook") { //🚨🚨Senha🚨🚨
                 document.getElementById('tela-bloqueio').style.display = 'none';
                 document.getElementById('admin-content').style.display = 'block';
                 carregarCatalogo();
