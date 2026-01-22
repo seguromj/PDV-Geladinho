@@ -46,20 +46,27 @@
         /* REGRAS DE IMPRESSÃO */
         @media print {
             .no-print { display: none !important; }
+            
+            /* PADRÃO: Esconde tudo para imprimir apenas o cupom térmico */
             body * { visibility: hidden; }
-            
-            /* Modo Cupom Único */
-            #cupom-print, #cupom-print * { visibility: visible; }
-            #cupom-print { position: absolute; left: 0; top: 0; width: 58mm; font-family: monospace; font-size: 10pt; line-height: 1.2; }
 
-            /* Modo PDF (Impressão de Lista) */
-            .print-all-mode #cupom-print { display: none; }
-            .print-all-mode #lista-pedidos, .print-all-mode #lista-pedidos * { visibility: visible; }
-            .print-all-mode .card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; margin-bottom: 10px; }
-            .print-all-mode .btn-imprimir, .print-all-mode .btn-excluir, .print-all-mode .btn-arquivar { display: none; }
+            /* Mostra o Cupom Térmico */
+            #cupom-print, #cupom-print * { visibility: visible; }
+            #cupom-print { position: absolute; left: 0; top: 0; width: 58mm; font-family: monospace; font-size: 10pt; line-height: 1.2; text-align: left; }
+
+            /* MODO PDF (Ajustado para não sair branco) */
+            body.print-all-mode * { visibility: hidden; }
+            body.print-all-mode #lista-pedidos, 
+            body.print-all-mode #lista-pedidos * { visibility: visible; }
             
-            /* Garante que a pasta e títulos novos não saiam no PDF */
-            .print-all-mode #lista-arquivados, .print-all-mode .titulo-pasta, .print-all-mode h2 { display: none !important; }
+            body.print-all-mode #lista-pedidos { position: absolute; left: 0; top: 0; width: 100%; display: block; }
+            body.print-all-mode .card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; margin-bottom: 20px; visibility: visible; }
+            body.print-all-mode .btn-imprimir, 
+            body.print-all-mode .btn-excluir, 
+            body.print-all-mode .btn-arquivar { display: none !important; }
+
+            /* Garante que o cupom térmico não apareça no meio do PDF */
+            body.print-all-mode #cupom-print { display: none !important; }
         }
     </style>
 </head>
@@ -67,9 +74,9 @@
 
     <div class="no-print">
         <div class="nav-buttons">
-            <a href="COLOQUE_AQUI_O_LINK_DA_GESTAO" target="_blank" class="btn-link">🖥️ Gestão</a>
-            <a href="COLOQUE_AQUI_O_LINK_DO_ADMIN" target="_blank" class="btn-link btn-admin">🧑‍💻 Admin</a>
-            <button onclick="baixarPDF()" class="btn-link btn-pdf">📄 Baixar PDF</button>
+            <a href="COLOQUE_AQUI_O_LINK_DA_GESTAO" target="_blank" class="btn-link">🖥️ Gestão 🖥️</a>
+            <a href="COLOQUE_AQUI_O_LINK_DO_ADMIN" target="_blank" class="btn-link btn-admin">🧑‍💻 Admin 🧑‍💻</a>
+            <button onclick="baixarPDF()" class="btn-link btn-pdf">📄 Baixar Tudo PDF 📄</button>
             <button onclick="limparPasta()" class="btn-link" style="background-color: #c0392b;">🗑️ Esvaziar Pasta</button>
         </div>
 
@@ -231,10 +238,10 @@
         }
 
         function baixarPDF() {
-            // Adiciona a classe que configura o layout de PDF
+            // Garante que o cupom único esteja vazio antes de gerar a lista
+            document.getElementById('cupom-print').innerHTML = "";
             document.body.classList.add('print-all-mode');
             window.print();
-            // Remove a classe após a impressão para o app voltar ao normal
             document.body.classList.remove('print-all-mode');
         }
 
