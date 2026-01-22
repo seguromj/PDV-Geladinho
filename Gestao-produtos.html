@@ -583,12 +583,24 @@
         }
 
         function criarBarras() {
-            const v = document.getElementById('numID').value;
-            if(v >= 1 && v <= 800) {
-                JsBarcode("#barcode", v, { format: "CODE128", displayValue: true, fontSize: 20 });
-            }
-        }
+    const v = document.getElementById('numID').value;
+    // Novo limite que você sugeriu
+    if(v >= 1 && v <= 99999999999) {
+        JsBarcode("#barcode", v, { 
+            format: "CODE128", 
+            displayValue: true, 
+            fontSize: 20,
+            // Ajuste automático: se o número for grande, as barras ficam mais finas
+            width: v.length > 6 ? 1.5 : 2, 
+            height: 60
+        });
+    } else {
+        alert("Digite um número entre 1 e 99.999.999.999");
+    }
+}
+
     </script>
 </body>
 </html>
+
 
