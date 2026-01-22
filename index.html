@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -32,6 +33,10 @@
         .titulo-pasta { margin-top: 50px; padding: 10px; background: #27ae60; color: white; border-radius: 5px; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto; cursor: pointer; }
 
         .card { background: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px; width: 100%; max-width: 400px; border-left: 5px solid #25d366; text-align: left; position: relative; }
+        
+        /* COR QUANDO O PRODUTO JÁ FOI IMPRESSO */
+        .card-impresso { background-color: #e8f4fd; border-left: 5px solid #007bff; }
+        
         .card h3 { margin: 0 0 10px 0; color: #d32f2f; }
         
         .card-arquivado { border-left: 5px solid #7f8c8d; opacity: 0.8; }
@@ -48,7 +53,7 @@
             .no-print { display: none !important; }
             body * { visibility: hidden; }
             #cupom-print, #cupom-print * { visibility: visible; }
-            #cupom-print { position: absolute; left: 0; top: 0; width: 58mm; font-family: monospace; font-size: 10pt; line-height: 1.2; text-align: left; }
+            #cupom-print { position: absolute; left: 0; top: 0; width: 58mm; font-family: monospace; font-size: 10pt; line-height: 1.2; }
         }
     </style>
 </head>
@@ -56,9 +61,8 @@
 
     <div class="no-print">
         <div class="nav-buttons">
-            <a href="COLOQUE_AQUI_O_LINK_DA_GESTAO" target="_blank" class="btn-link">🖥️ Gestão 🖥️</a>
-            <a href="COLOQUE_AQUI_O_LINK_DO_ADMIN" target="_blank" class="btn-link btn-admin">🧑‍💻 Admin 🧑‍💻</a>
-            <button onclick="baixarPDF()" class="btn-link btn-pdf">📄 Baixar Tudo PDF 📄</button>
+            <a href="COLOQUE_AQUI_O_LINK_DA_GESTAO" target="_blank" class="btn-link">🖥️ Gestão</a>
+            <a href="COLOQUE_AQUI_O_LINK_DO_ADMIN" target="_blank" class="btn-link btn-admin">🧑‍💻 Admin</a>
             <button onclick="limparPasta()" class="btn-link" style="background-color: #c0392b;">🗑️ Esvaziar Pasta</button>
         </div>
 
@@ -143,21 +147,26 @@
                             const card = document.createElement('div');
                             card.className = 'card';
                             
+                            // APLICA A COR DE IMPRESSO CASO JÁ TENHA SIDO PROCESSADO
+                            if (impressosAutomaticamente.includes(pedidoID)) {
+                                card.classList.add('card-impresso');
+                            }
+
                             if (arquivadosIDs.includes(pedidoID)) {
                                 card.classList.add('card-arquivado');
                                 card.innerHTML = `
                                     <button class="btn-excluir" onclick="excluirPedido('${pedidoID}')">Excluir</button>
                                     <h3>Pedido Arquivado</h3>
                                     <div style="font-size: 14px; line-height: 1.6;">${pedidoHTML}</div>
-                                    <button class="btn-imprimir" onclick="imprimirCard(${i})">🖨️ REIMPRIMIR</button>
+                                    <button class="btn-imprimir" onclick="imprimirCard(${i}, '${pedidoID}')">🖨️ REIMPRIMIR</button>
                                 `;
                                 listaArquivadosDiv.appendChild(card);
                             } else {
                                 card.innerHTML = `
                                     <button class="btn-excluir" onclick="excluirPedido('${pedidoID}')">Excluir</button>
-                                    <h3>Novo Pedido</h3>
+                                    <h3>${impressosAutomaticamente.includes(pedidoID) ? 'Pedido Impresso' : 'Novo Pedido'}</h3>
                                     <div style="font-size: 14px; line-height: 1.6;">${pedidoHTML}</div>
-                                    <button class="btn-imprimir" onclick="imprimirCard(${i})">🖨️ IMPRIMIR CUPOM</button>
+                                    <button class="btn-imprimir" onclick="imprimirCard(${i}, '${pedidoID}')">🖨️ IMPRIMIR CUPOM</button>
                                     <button class="btn-arquivar" onclick="arquivarPedido('${pedidoID}')">📁 ENVIAR PARA PASTA</button>
                                 `;
                                 listaPedidosDiv.appendChild(card);
@@ -166,7 +175,7 @@
                                     impressosAutomaticamente.push(pedidoID);
                                     localStorage.setItem('pedidos_impressos', JSON.stringify(impressosAutomaticamente));
                                     tocarSom();
-                                    setTimeout(() => { imprimirCard(i); }, 500);
+                                    setTimeout(() => { imprimirCard(i, pedidoID); }, 500);
                                 }
                             }
                         }
@@ -193,9 +202,17 @@
             }
         }
 
-        function imprimirCard(index) {
+        function imprimirCard(index, id) {
             const linha = window.dadosPlanilha[index];
             if (!linha) return;
+
+            // Se for uma reimpressão manual, garante que mude de cor se ainda não tiver mudado
+            if (id && !impressosAutomaticamente.includes(id)) {
+                impressosAutomaticamente.push(id);
+                localStorage.setItem('pedidos_impressos', JSON.stringify(impressosAutomaticamente));
+                setTimeout(carregarPedidos, 1000); 
+            }
+
             const labels = ["Data", "Pedido", "Cliente", "Tel", "CEP", "Bairro", "Rua", "Nº", "Tipo", "Taxa", "Total", "Link Pagamento"];
             let conteudoCupom = "";
             for(let j=0; j<12; j++) {
@@ -211,45 +228,6 @@
             window.print();
         }
 
-        function baixarPDF() {
-            // Pegamos apenas o conteúdo da lista de pedidos NOVOS
-            const conteudoParaPDF = document.getElementById('lista-pedidos').innerHTML;
-            
-            if (!conteudoParaPDF || conteudoParaPDF.trim() === "") {
-                alert("Não há novos pedidos para gerar PDF.");
-                return;
-            }
-
-            // Abre uma nova janela para o PDF não sair em branco
-            const janelaPrint = window.open('', '', 'width=800,height=600');
-            janelaPrint.document.write(`
-                <html>
-                <head>
-                    <title>Relatório de Pedidos - Spook Ice</title>
-                    <style>
-                        body { font-family: sans-serif; padding: 20px; }
-                        .card { border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 5px; page-break-inside: avoid; }
-                        h3 { color: #d32f2f; margin-top: 0; }
-                        .btn-imprimir, .btn-excluir, .btn-arquivar { display: none; }
-                    </style>
-                </head>
-                <body>
-                    <h1>Novos Pedidos - Spook Ice</h1>
-                    <hr>
-                    ${conteudoParaPDF}
-                </body>
-                </html>
-            `);
-            janelaPrint.document.close();
-            janelaPrint.focus();
-            
-            // Dispara a impressão na nova janela
-            setTimeout(() => {
-                janelaPrint.print();
-                janelaPrint.close();
-            }, 500);
-        }
-
         function excluirPedido(id) {
             if(confirm("Deseja excluir este pedido?")) {
                 excluidos.push(id);
@@ -263,4 +241,3 @@
     </script>
 </body>
 </html>
-
