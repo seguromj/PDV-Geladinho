@@ -16,6 +16,7 @@
             --card: #1e1e1e;
             --text: #ffffff;
             --warning: #ffc107;
+            --laranja: #B5300E;
         }
 
         body {
@@ -53,6 +54,7 @@
         .btn-blue { background: var(--primary); color: white; }
         .btn-green { background: var(--success); color: white; }
         .btn-orange { background: var(--warning); color: #000; }
+        .btn-laranja { background: var(--laranja); color: #000; }
         .btn-main:active { transform: scale(0.95); }
 
         .modal {
@@ -286,15 +288,16 @@
 
     <audio id="beep" src="https://assets.mixkit.co/active_storage/sfx/766/766-preview.mp3"></audio>
 
+    <a href="index.html">
+    <button class="btn-voltar">⬅ VOLTAR</button></a>
+        
     <div id="home" class="menu-principal">
         <h1 style="text-align:center">📦 Sistema de IDs</h1>
+        
         <button class="btn-main btn-blue" onclick="abrirSist()">ENTRAR NO SISTEMA</button>
         <button class="btn-main btn-orange" onclick="abrirCadastro()">🛍️ CADASTRAR PRODUTOS</button>
         <button class="btn-main btn-green" onclick="abrirGerador()">GERAR CÓDIGO</button>
-        <a class="btn-main"
-            href="Botao-Admin.html">
-            Admin
-        </a>
+        <a class="btn-main btn-laranja" href="Botao-Admin.html">Admin</a>
     </div>
 
     <div id="modalSist" class="modal">
@@ -649,3 +652,4 @@
     </script>
 </body>
 </html>
+
