@@ -92,6 +92,75 @@
 
     <div id="cupom-print"></div>
 
+
+
+
+    <!--==========Instalador para aplicativo==========================================================-->
+
+<div id="container-instalacao" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; max-width: 300px; background: rgba(0,0,0,0.95); padding: 30px 20px; text-align: center; border: 1px solid #d4af37; border-radius: 15px; z-index: 10000; box-shadow: 0 0 20px rgba(0,0,0,0.8);">
+    <p style="color: #fff; margin: 0 0 20px 0; font-family: sans-serif; font-size: 16px; line-height: 1.5;">Leve o <strong>ALBATROZ</strong> no seu bolso! <br>Instale nosso App 🦅</p>
+    
+    <button id="btnInstalarApp" style="width: 100%; background-color: #fff; color: #000; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 12px; margin-bottom: 10px;">
+        Instalar Agora
+    </button>
+    
+    <button id="btnRecusarApp" style="width: 100%; background-color: transparent; color: #aaa; border: none; padding: 10px; cursor: pointer; text-decoration: underline; font-size: 11px;">
+        Agora não
+    </button>
+</div>
+
+<script>
+  let promptDeInstalacao;
+  const areaInstalacao = document.getElementById('container-instalacao');
+  const botaoInstalar = document.getElementById('btnInstalarApp');
+  const botaoRecusar = document.getElementById('btnRecusarApp');
+
+  // Captura o evento do navegador
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    promptDeInstalacao = e;
+
+    // Se o app não estiver instalado, mostra em 5 segundos
+    iniciarContadorAparecer(5000);
+  });
+
+  function iniciarContadorAparecer(tempo) {
+    setTimeout(() => {
+      // Verifica se o usuário já instalou ou se já está no app antes de mostrar
+      const modoApp = window.matchMedia('(display-mode: standalone)').matches;
+      if (!modoApp) {
+        areaInstalacao.style.display = 'block';
+      }
+    }, tempo);
+  }
+
+  botaoInstalar.addEventListener('click', () => {
+    if (promptDeInstalacao) {
+      promptDeInstalacao.prompt();
+      promptDeInstalacao.userChoice.then((escolha) => {
+        if (escolha.outcome === 'accepted') {
+          areaInstalacao.style.display = 'none';
+        }
+      });
+    }
+  });
+
+  botaoRecusar.addEventListener('click', () => {
+    // Esconde o botão imediatamente
+    areaInstalacao.style.display = 'none';
+
+    // Agenda para aparecer novamente em 10 minutos (600.000 ms) 
+    // caso ele não atualize a página
+    iniciarContadorAparecer(600000);
+  });
+
+  window.addEventListener('appinstalled', () => {
+    areaInstalacao.style.display = 'none';
+  });
+</script>
+
+    <!--============================-->
+
     <script>
         const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJs2mCWo_bv2C7OqYYzuhs_rh8CYfusDhR7UiS4Yj9sUw3C6hNcP6fFlXZOpmAlYZId-jAt8xAC5dM/pub?output=csv";
         
