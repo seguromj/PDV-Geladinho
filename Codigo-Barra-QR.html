@@ -67,7 +67,6 @@
             position: relative;
         }
 
-        /* Estilo para as cores no input */
         #color-display {
             position: absolute;
             left: 11px;
@@ -89,7 +88,6 @@
             box-sizing: border-box;
         }
 
-        /* Esconde o texto real do input para mostrar as cores por baixo */
         #barcodeValue.colored {
             color: transparent;
             caret-color: white;
@@ -303,7 +301,7 @@
         if (type === 'QR') {
             svg.style.display = 'none'; qrDiv.style.display = 'block';
             qrDiv.innerHTML = "";
-            new QRCode(qrDiv, { text: value, width: 256, height: 256 }); // Dobro da resolução
+            new QRCode(qrDiv, { text: value, width: 256, height: 256 });
         } else {
             qrDiv.style.display = 'none'; svg.style.display = 'block';
             try {
@@ -316,7 +314,7 @@
                     width: 2, 
                     height: 60,
                     margin: 15,
-                    flat: false
+                    flat: false 
                 };
 
                 if (type === 'CODE128') {
@@ -325,7 +323,7 @@
                 }
 
                 if (type === 'EAN13') {
-                    options.flat = false;
+                    options.flat = false; 
                     options.fontSize = 24;
                     options.textMargin = 0;
                 }
@@ -354,7 +352,8 @@
         let dataUrl = "";
 
         if (type === 'QR') {
-            dataUrl = document.querySelector('#qrcode-canvas canvas').toDataURL("image/png");
+            const qrCanvas = document.querySelector('#qrcode-canvas canvas');
+            dataUrl = qrCanvas.toDataURL("image/png");
         } else {
             const svg = document.getElementById('barcode-svg');
             const canvas = document.getElementById('hidden-canvas');
@@ -366,19 +365,15 @@
             
             await new Promise((resolve) => {
                 img.onload = () => {
-                    // AQUI ESTÁ O SEGREDO: Aumentar a escala para 4x para ter alta definição
-                    const scale = 4;
+                    // Aumento de escala (3x) para alta definição no PDF
+                    const scale = 3;
                     canvas.width = img.width * scale; 
                     canvas.height = img.height * scale;
-                    
                     ctx.fillStyle = "white"; 
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    
-                    // Melhora a renderização do texto e barras
-                    ctx.imageSmoothingEnabled = false; 
-                    
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    dataUrl = canvas.toDataURL("image/png", 1.0);
+                    ctx.scale(scale, scale);
+                    ctx.drawImage(img, 0, 0);
+                    dataUrl = canvas.toDataURL("image/png");
                     resolve();
                 };
                 img.src = 'data:image/svg+xml;base64,' + svg64;
@@ -412,20 +407,32 @@
         if (savedBarcodes.length === 0) return alert("Adicione códigos primeiro!");
         
         const doc = new jsPDF();
-        let yPosition = 10;
+        let xPos = 10;
+        let yPos = 10;
+        const imgWidth = 85; 
+        const imgHeight = 45;
+        const margin = 10;
 
         savedBarcodes.forEach((item, index) => {
-            if (yPosition > 250) {
+            // Verifica se precisa de nova página
+            if (yPos > 240) {
                 doc.addPage();
-                yPosition = 10;
+                yPos = 10;
+                xPos = 10;
             }
             
-            // Inserindo a imagem com alta densidade no PDF
-            doc.addImage(item.dataUrl, 'PNG', 10, yPosition, 80, 40, undefined, 'FAST');
-            yPosition += 50;
+            doc.addImage(item.dataUrl, 'PNG', xPos, yPos, imgWidth, imgHeight);
+            
+            // Alterna entre duas colunas
+            if (xPos === 10) {
+                xPos = 105; // Vai para a segunda coluna
+            } else {
+                xPos = 10; // Volta para a primeira coluna
+                yPos += imgHeight + margin; // Pula para a próxima linha
+            }
         });
 
-        doc.save("codigos_organizados.pdf");
+        doc.save("codigos_alta_definicao.pdf");
     }
 </script>
 
