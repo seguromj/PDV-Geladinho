@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -31,12 +32,60 @@
             min-height: 100vh;
         }
 
+        /* --- NOVOS ESTILOS PARA ORGANIZAÇÃO E VISUALIZAÇÃO --- */
+        .container-topo {
+            width: 90%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .divisor {
+            width: 100%;
+            height: 2px;
+            background: #333;
+            margin: 20px 0;
+        }
+
+        .secao-disponiveis {
+            width: 90%;
+            max-width: 400px;
+            background: var(--card);
+            border-radius: 15px;
+            padding: 15px;
+            box-sizing: border-box;
+            margin-bottom: 30px;
+        }
+
+        .card-disponivel {
+            background: #2a2a2a;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--success);
+        }
+
+        .alerta-estoque {
+            border-left-color: var(--danger) !important;
+            animation: piscar-vermelho 1s infinite alternate;
+        }
+
+        @keyframes piscar-vermelho {
+            from { box-shadow: 0 0 0px var(--danger); }
+            to { box-shadow: 0 0 10px var(--danger); background: #421010; }
+        }
+        /* --------------------------------------------------- */
+
         .menu-principal {
             display: flex;
             flex-direction: column;
             gap: 20px;
-            width: 90%;
-            max-width: 400px;
+            width: 100%;
         }
 
         .btn-main {
@@ -321,19 +370,28 @@
 
     <div id="aviso-erro">PRODUTO NÃO EXISTE</div>
 
-    <a href="index.html" target="_self">
-    <button class="btn-voltar">⬅ VOLTAR</button>
-    </a>
+    <div class="container-topo" id="home">
+        <a href="index.html" target="_self">
+            <button class="btn-voltar">⬅ VOLTAR</button>
+        </a>
         
-    <div id="home" class="menu-principal">
-        <h1 style="text-align:center">📦 Sistema de IDs</h1>
-        
-        <button class="btn-main btn-blue" onclick="abrirSist()">ENTRAR NO SISTEMA</button>
-        <button class="btn-main btn-orange" onclick="abrirCadastro()">🛍️ CADASTRAR PRODUTOS</button>
-        <button class="btn-main btn-green" onclick="abrirGerador()">GERAR CÓDIGO</button>
-        <a class="btn-main btn-laranja" href="Botao-Admin.html" target="_self">Admin</a>
-        <a class="btn-main btn-laranja" href="Codigo-Barra-QR.html" target="_self">Gerar Baras ou QR</a>
-        
+        <div class="menu-principal">
+            <h1 style="text-align:center; margin: 10px 0;">📦 Sistema de IDs</h1>
+            
+            <button class="btn-main btn-blue" onclick="abrirSist()">ENTRAR NO SISTEMA</button>
+            <button class="btn-main btn-orange" onclick="abrirCadastro()">🛍️ CADASTRAR PRODUTOS</button>
+            <button class="btn-main btn-green" onclick="abrirGerador()">GERAR CÓDIGO</button>
+            <a class="btn-main btn-laranja" href="Botao-Admin.html" target="_self">Admin</a>
+            <a class="btn-main btn-laranja" href="Codigo-Barra-QR.html" target="_self">Gerar Baras ou QR</a>
+        </div>
+
+        <div class="divisor"></div>
+
+        <div class="secao-disponiveis">
+            <h3 style="margin-top:0; text-align:center; color:var(--warning)">📦 PRODUTOS DISPONÍVEIS</h3>
+            <div id="lista-disponiveis">
+                </div>
+        </div>
     </div>
 
     <div id="modalSist" class="modal">
@@ -366,7 +424,7 @@
         <div class="form-cadastro">
             <h3 style="margin:0">Cadastrar/Editar</h3>
             <input type="hidden" id="edit-index">
-            <input type="text" id="p-id" placeholder="ID do Produto">
+            <input type="text" id="p-nome" placeholder="Nome do Produto"> <input type="text" id="p-id" placeholder="ID do Produto">
             <input type="text" id="p-img" placeholder="Link da Imagem">
             <input type="number" id="p-valor" placeholder="Valor (R$)">
             <input type="number" id="p-qtd" placeholder="Quantidade em Estoque">
@@ -440,7 +498,32 @@
 
         window.onload = () => {
             if(historico.length > 0) atualizarLista();
+            atualizarVisualizacaoHome(); // Atualiza a lista da tela inicial ao carregar
         };
+
+        // --- NOVA FUNÇÃO PARA LISTAR PRODUTOS NA HOME ---
+        function atualizarVisualizacaoHome() {
+            const container = document.getElementById('lista-disponiveis');
+            container.innerHTML = "";
+            
+            if (produtos.length === 0) {
+                container.innerHTML = "<p style='text-align:center; color:#666'>Nenhum produto cadastrado.</p>";
+                return;
+            }
+
+            produtos.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'card-disponivel';
+                if (parseInt(p.qtd) <= 5) {
+                    div.classList.add('alerta-estoque');
+                }
+                div.innerHTML = `
+                    <span style="font-weight:bold">${p.nome || 'Sem Nome'}</span>
+                    <span style="color:var(--warning)">Qtd: ${p.qtd}</span>
+                `;
+                container.appendChild(div);
+            });
+        }
 
         async function abrirSist() {
             document.getElementById('modalSist').style.display = 'flex';
@@ -491,7 +574,7 @@
             
             const itemObj = {
                 id: id,
-                nome: produtoEncontrado ? "Produto Localizado" : "ID Não Cadastrado",
+                nome: produtoEncontrado ? (produtoEncontrado.nome || "Produto Localizado") : "ID Não Cadastrado",
                 img: produtoEncontrado ? produtoEncontrado.img : "https://via.placeholder.com/50",
                 valor: produtoEncontrado ? produtoEncontrado.valor : 0,
                 timestamp: new Date().toLocaleTimeString()
@@ -584,6 +667,7 @@
         function salvarProduto() {
             const index = document.getElementById('edit-index').value;
             const p = {
+                nome: document.getElementById('p-nome').value, // SALVANDO NOME
                 id: document.getElementById('p-id').value,
                 img: document.getElementById('p-img').value || "https://via.placeholder.com/150",
                 valor: document.getElementById('p-valor').value,
@@ -600,6 +684,7 @@
             localStorage.setItem('meus_produtos', JSON.stringify(produtos));
             limparFormProd();
             renderizarCatalogo();
+            atualizarVisualizacaoHome(); // Sincroniza a home
         }
 
         function renderizarCatalogo() {
@@ -612,7 +697,8 @@
                         <button class="btn-del-prod" onclick="excluirProdutoPermanente(${i})">X</button>
                         <img src="${p.img}">
                         <div class="produto-info">
-                            <b>ID: ${p.id}</b><br>
+                            <b>${p.nome || 'Sem Nome'}</b><br>
+                            <small>ID: ${p.id}</small><br>
                             R$ ${p.valor}<br>
                             <span style="color:var(--success)">Estoque: ${p.qtd}</span>
                         </div>
@@ -623,6 +709,7 @@
 
         function editarProduto(i) {
             const p = produtos[i];
+            document.getElementById('p-nome').value = p.nome || "";
             document.getElementById('p-id').value = p.id;
             document.getElementById('p-img').value = p.img;
             document.getElementById('p-valor').value = p.valor;
@@ -635,6 +722,7 @@
                 produtos.splice(i, 1);
                 localStorage.setItem('meus_produtos', JSON.stringify(produtos));
                 renderizarCatalogo();
+                atualizarVisualizacaoHome(); // Sincroniza a home
             }
         }
 
@@ -648,6 +736,7 @@
                     localStorage.setItem('meus_produtos', JSON.stringify(produtos));
                     alert(`Baixa de ${qtdBaixa} unidades no ID ${id} realizada!`);
                     renderizarCatalogo();
+                    atualizarVisualizacaoHome(); // Sincroniza a home
                 } else {
                     alert("Estoque insuficiente!");
                 }
@@ -673,10 +762,12 @@
             
             document.getElementById('valor-recebido').value = "";
             atualizarLista();
+            atualizarVisualizacaoHome(); // Sincroniza a home
             alert("Baixa geral concluída!");
         }
 
         function limparFormProd() {
+            document.getElementById('p-nome').value = "";
             document.getElementById('p-id').value = "";
             document.getElementById('p-img').value = "";
             document.getElementById('p-valor').value = "";
@@ -694,6 +785,7 @@
             if (scanner) {
                 scanner.stop().catch(err => console.log("Erro ao parar scanner:", err));
             }
+            atualizarVisualizacaoHome(); // Garante que a home esteja atualizada ao fechar modais
         }
 
         function criarBarras() {
@@ -759,6 +851,7 @@
                         localStorage.setItem('meus_produtos', JSON.stringify(produtos));
                         localStorage.setItem('meu_historico', JSON.stringify(historico));
                         renderizarCatalogo();
+                        atualizarVisualizacaoHome(); // Sincroniza a home
                         alert("Dados importados com sucesso!");
                     }
                 } catch (err) {
