@@ -341,12 +341,7 @@
         const label = document.getElementById('barcodeLabel').value;
         if (!value) return;
 
-        const isDuplicate = savedBarcodes.some(item => item.value === value && item.label === label);
-        
-        if (isDuplicate) {
-            alert("Este conteúdo e legenda já foram usados. Por favor, crie um código diferente.");
-            return;
-        }
+        // A trava de duplicidade foi removida para permitir repetições.
 
         const type = document.getElementById('barcodeType').value;
         let dataUrl = "";
@@ -365,7 +360,6 @@
             
             await new Promise((resolve) => {
                 img.onload = () => {
-                    // Aumento de escala (3x) para alta definição no PDF
                     const scale = 3;
                     canvas.width = img.width * scale; 
                     canvas.height = img.height * scale;
@@ -414,7 +408,6 @@
         const margin = 10;
 
         savedBarcodes.forEach((item, index) => {
-            // Verifica se precisa de nova página
             if (yPos > 240) {
                 doc.addPage();
                 yPos = 10;
@@ -423,12 +416,11 @@
             
             doc.addImage(item.dataUrl, 'PNG', xPos, yPos, imgWidth, imgHeight);
             
-            // Alterna entre duas colunas
             if (xPos === 10) {
-                xPos = 105; // Vai para a segunda coluna
+                xPos = 105; 
             } else {
-                xPos = 10; // Volta para a primeira coluna
-                yPos += imgHeight + margin; // Pula para a próxima linha
+                xPos = 10; 
+                yPos += imgHeight + margin; 
             }
         });
 
