@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -377,8 +378,12 @@
 
                 if (e.key === "Enter") {
                     if (barcodeBuffer.length > 0) {
-                        document.getElementById('beep').play();
-                        adicionarNaLista(barcodeBuffer);
+                        // Verifica se o produto existe antes de bipar
+                        const existe = produtos.some(p => p.id === barcodeBuffer);
+                        if (existe) {
+                            document.getElementById('beep').play();
+                            adicionarNaLista(barcodeBuffer);
+                        }
                         barcodeBuffer = "";
                     }
                 } else {
@@ -413,14 +418,24 @@
             scanner = new Html5Qrcode("reader");
             scanner.start(id, { fps: 15, qrbox: 180 }, (text) => {
                 if (!aguardandoReset) {
-                    document.getElementById('beep').play();
-                    adicionarNaLista(text);
-                    aguardandoReset = true;
-                    document.getElementById('status-leitura').innerText = "Aguarde... ✅";
-                    setTimeout(() => {
-                        aguardandoReset = false;
-                        document.getElementById('status-leitura').innerText = "Pronto para próxima leitura";
-                    }, 2000); 
+                    // VERIFICAÇÃO DE ID CADASTRADO
+                    const existeNoCatalogo = produtos.some(p => p.id === text);
+                    
+                    if (existeNoCatalogo) {
+                        document.getElementById('beep').play();
+                        adicionarNaLista(text);
+                        aguardandoReset = true;
+                        document.getElementById('status-leitura').innerText = "Aguarde... ✅";
+                        setTimeout(() => {
+                            aguardandoReset = false;
+                            document.getElementById('status-leitura').innerText = "Pronto para próxima leitura";
+                        }, 2000); 
+                    } else {
+                        document.getElementById('status-leitura').innerText = "ID não cadastrado ❌";
+                        setTimeout(() => {
+                            document.getElementById('status-leitura').innerText = "Pronto para próxima leitura";
+                        }, 1000);
+                    }
                 }
             });
         }
