@@ -1,7 +1,7 @@
 {
-  "name": "NUANCE - Barman Darwin",
-  "short_name": "NUANCE",
-  "description": "Drinks exclusivos preparados pelo Barman Darwin",
+  "name": "ALBATROZ: (62) 9 9567-9219",
+  "short_name": "ALBATROZ",
+  "description": "ALBATROZ: (62) 9 9567-9219",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#000000",
