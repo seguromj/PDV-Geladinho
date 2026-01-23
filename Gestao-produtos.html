@@ -54,7 +54,7 @@
         .btn-blue { background: var(--primary); color: white; }
         .btn-green { background: var(--success); color: white; }
         .btn-orange { background: var(--warning); color: #000; }
-        .btn-laranja { background: var(--laranja); color: #000; text-aling: center; }
+        .btn-laranja { background: var(--laranja); color: #000; text-align: center; }
         .btn-main:active { transform: scale(0.95); }
 
         .modal {
@@ -70,10 +70,9 @@
             overflow-y: auto;
         }
 
-        /* Câmera menor conforme solicitado */
         #reader {
             width: 100%;
-            max-width: 300px; /* Reduzi de 500 para 300 */
+            max-width: 300px;
             margin: 0 auto;
             border-radius: 10px;
             overflow: hidden;
@@ -92,7 +91,7 @@
         }
 
         .btn-circle {
-            width: 40px; /* Menor */
+            width: 40px;
             height: 40px;
             border-radius: 50%;
             border: none;
@@ -108,14 +107,13 @@
             margin: 10px auto;
             display: flex;
             flex-direction: column;
-            gap: 8px; /* Gap menor */
+            gap: 8px;
             overflow-y: auto; 
         }
 
-        /* Itens da lista bem menores */
         .item-lista {
             background: var(--card);
-            padding: 8px 12px; /* Reduzi o padding */
+            padding: 8px 12px;
             border-radius: 8px;
             display: flex;
             justify-content: space-between;
@@ -124,7 +122,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        .id-text { font-size: 16px; font-weight: bold; color: var(--primary); } /* Fonte menor */
+        .id-text { font-size: 16px; font-weight: bold; color: var(--primary); }
 
         .btn-delete {
             background: var(--danger);
@@ -228,7 +226,6 @@
             text-align: center;
         }
         
-        /* Botão DAR BAIXA EM TUDO menor */
         .btn-baixa-geral {
             background: var(--warning);
             color: black;
@@ -241,7 +238,6 @@
             cursor: pointer;
         }
 
-        /* NOVO ESTILO PARA O TOTAL E TROCO */
         .campo-total {
             background: #333;
             color: var(--warning);
@@ -355,7 +351,7 @@
             </div>
 
             <input type="number" id="numID" style="width:80%; padding:18px; font-size:20px; border-radius:12px; border:none;" placeholder="ID Gerado aparecerá aqui">
-            <button class="btn-main btn-green" onclick="criarBarras()" style="width:80%">GERAR BARRAS</button>
+            <button class="btn-main btn-green" onclick="criarBarras()">GERAR BARRAS</button>
             <div style="background: white; padding: 20px; border-radius: 10px;">
                 <svg id="barcode"></svg>
             </div>
@@ -369,7 +365,34 @@
         let historico = JSON.parse(localStorage.getItem('meu_historico')) || [];
         let produtos = JSON.parse(localStorage.getItem('meus_produtos')) || [];
         let aguardandoReset = false;
-        let valorTotalVenda = 0; // Variável global para auxiliar o troco
+        let valorTotalVenda = 0;
+        
+        // --- LOGICA PARA LEITOR DE CÓDIGO DE BARRAS FÍSICO ---
+        let barcodeBuffer = "";
+        window.addEventListener("keydown", (e) => {
+            // Verifica se o modal do sistema está aberto
+            if (document.getElementById('modalSist').style.display === 'flex') {
+                // Ignora se o foco estiver no campo de "valor recebido"
+                if (document.activeElement.id === 'valor-recebido') return;
+
+                if (e.key === "Enter") {
+                    if (barcodeBuffer.length > 0) {
+                        document.getElementById('beep').play();
+                        adicionarNaLista(barcodeBuffer);
+                        barcodeBuffer = "";
+                    }
+                } else {
+                    // Evita capturar teclas de função, shift, etc.
+                    if (e.key.length === 1) {
+                        barcodeBuffer += e.key;
+                    }
+                }
+                
+                // Limpa o buffer se demorar muito (proteção contra digitação manual lenta)
+                setTimeout(() => { barcodeBuffer = ""; }, 200);
+            }
+        });
+        // ------------------------------------------------------
 
         window.onload = () => {
             if(historico.length > 0) atualizarLista();
@@ -388,7 +411,7 @@
         function startCamera(id) {
             if (scanner) scanner.stop();
             scanner = new Html5Qrcode("reader");
-            scanner.start(id, { fps: 15, qrbox: 180 }, (text) => { // qrbox menor
+            scanner.start(id, { fps: 15, qrbox: 180 }, (text) => {
                 if (!aguardandoReset) {
                     document.getElementById('beep').play();
                     adicionarNaLista(text);
@@ -468,10 +491,9 @@
 
             valorTotalVenda = somaTotal;
             campoTotal.innerText = `Total: R$ ${somaTotal.toFixed(2)}`;
-            calcularTroco(); // Atualiza o troco se o total mudar
+            calcularTroco();
         }
 
-        // NOVA FUNÇÃO PARA CALCULAR O TROCO
         function calcularTroco() {
             const recebido = parseFloat(document.getElementById('valor-recebido').value) || 0;
             const troco = recebido - valorTotalVenda;
@@ -588,7 +610,6 @@
             historico = [];
             localStorage.setItem('meu_historico', JSON.stringify(historico));
             
-            // Limpa o campo de troco ao finalizar
             document.getElementById('valor-recebido').value = "";
             atualizarLista();
             alert("Baixa geral concluída!");
@@ -639,7 +660,6 @@
             let novoId = "";
             let tentativa = 0;
             
-            // Tenta gerar um ID único que não exista no catálogo
             do {
                 novoId = "";
                 for(let i=0; i<qtd; i++) {
@@ -650,11 +670,6 @@
 
             document.getElementById('numID').value = novoId;
         }
-
-
     </script>
 </body>
 </html>
-
-
-
