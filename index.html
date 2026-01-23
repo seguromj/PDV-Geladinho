@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 
-   <!--👇 Código de fazer instalação do aplicativo  👇-->
-<link rel="manifest" href="manifest.json">
+   <link rel="manifest" href="manifest.json">
 
 <script>
   if ('serviceWorker' in navigator) {
@@ -16,10 +15,7 @@
   }
 </script>
     
-   <!--☝️ Códigow de fazer instalação do aplicativo  ☝️ -->
-
-    
-    <title>Painel de Pedidos - Spook Ice</title>
+   <title>Painel de Pedidos - Spook Ice</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; text-align: center; }
         h1 { color: #333; }
@@ -80,9 +76,33 @@
             #cupom-print, #cupom-print * { visibility: visible; }
             #cupom-print { position: absolute; left: 0; top: 0; width: 58mm; font-family: monospace; font-size: 10pt; line-height: 1.2; }
         }
+
+        /* ESTILO DA TELA DE BLOQUEIO */
+        #tela-bloqueio {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            z-index: 99999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #tela-bloqueio input { margin: 10px; padding: 10px; border-radius: 5px; border: none; width: 250px; }
+        #tela-bloqueio button { padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
+
+    <div id="tela-bloqueio">
+        <h2>Acesso Bloqueado</h2>
+        <p>Por favor, insira suas credenciais para continuar.</p>
+        <input type="text" id="login-id" placeholder="ID de Acesso">
+        <input type="password" id="login-senha" placeholder="Senha">
+        <button onclick="verificarAcesso()">Liberar Acesso</button>
+        <p id="erro-login" style="color: #ff4757; margin-top: 10px;"></p>
+    </div>
 
     <div class="no-print">
         <div class="nav-buttons">
@@ -110,8 +130,7 @@
 
 
 
-    <!--==========Instalador para aplicativo==========================================================-->
-   <div id="container-instalacao" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; max-width: 300px; background: rgba(0,0,0,0.95); padding: 30px 20px; text-align: center; border: 1px solid #d4af37; border-radius: 15px; z-index: 10000; box-shadow: 0 0 20px rgba(0,0,0,0.8);">
+    <div id="container-instalacao" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; max-width: 300px; background: rgba(0,0,0,0.95); padding: 30px 20px; text-align: center; border: 1px solid #d4af37; border-radius: 15px; z-index: 10000; box-shadow: 0 0 20px rgba(0,0,0,0.8);">
     <p style="color: #fff; margin: 0 0 20px 0; font-family: sans-serif; font-size: 16px; line-height: 1.5;">Leve o <strong>ALBATROZ</strong> no seu bolso! <br>Instale nosso App 🦅</p>
     
     <button id="btnInstalarApp" style="width: 100%; background-color: #fff; color: #000; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 12px; margin-bottom: 10px;">
@@ -174,14 +193,57 @@
   });
 </script>
 
-    <!--============================-->
-
     <script>
         const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJs2mCWo_bv2C7OqYYzuhs_rh8CYfusDhR7UiS4Yj9sUw3C6hNcP6fFlXZOpmAlYZId-jAt8xAC5dM/pub?output=csv";
         
         let excluidos = JSON.parse(localStorage.getItem('pedidos_excluidos')) || [];
         let arquivadosIDs = JSON.parse(localStorage.getItem('pedidos_arquivados')) || [];
         let impressosAutomaticamente = JSON.parse(localStorage.getItem('pedidos_impressos')) || [];
+
+        // LÓGICA DE BLOQUEIO
+        function iniciarCronometroBloqueio() {
+            if (localStorage.getItem('app_bloqueado') === 'true') {
+                document.getElementById('tela-bloqueio').style.display = 'flex';
+            } else {
+                setTimeout(() => {
+                    localStorage.setItem('app_bloqueado', 'true');
+                    document.getElementById('tela-bloqueio').style.display = 'flex';
+                }, 120000); // 2 minutos (120000 ms)
+            }
+        }
+
+        async function verificarAcesso() {
+            const idDigitado = document.getElementById('login-id').value.trim();
+            const senhaDigitada = document.getElementById('login-senha').value.trim();
+            const erroMsg = document.getElementById('erro-login');
+
+            if (!window.dadosPlanilha) return;
+
+            let acessoPermitido = false;
+            // Percorre as linhas para achar ID (coluna N=13) e Senha (coluna O=14)
+            for (let i = 1; i < window.dadosPlanilha.length; i++) {
+                let idPlanilha = window.dadosPlanilha[i][13] ? window.dadosPlanilha[i][13].replace(/"/g, '').trim() : "";
+                let senhaPlanilha = window.dadosPlanilha[i][14] ? window.dadosPlanilha[i][14].replace(/"/g, '').trim() : "";
+
+                if (idDigitado === idPlanilha && senhaDigitada === senhaPlanilha && idDigitado !== "") {
+                    acessoPermitido = true;
+                    break;
+                }
+            }
+
+            if (acessoPermitido) {
+                localStorage.setItem('app_bloqueado', 'false');
+                document.getElementById('tela-bloqueio').style.display = 'none';
+                erroMsg.innerText = "";
+                // Reinicia o contador para bloquear novamente em 2 min
+                setTimeout(() => {
+                    localStorage.setItem('app_bloqueado', 'true');
+                    document.getElementById('tela-bloqueio').style.display = 'flex';
+                }, 120000);
+            } else {
+                erroMsg.innerText = "ID ou Senha incorretos!";
+            }
+        }
 
         function tocarSom() {
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -333,6 +395,7 @@
 
         setInterval(carregarPedidos, 30000);
         carregarPedidos();
+        iniciarCronometroBloqueio();
     </script>
 </body>
 </html>
