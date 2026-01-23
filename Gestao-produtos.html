@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -279,11 +278,29 @@
             text-align: center;
             font-size: 16px;
         }
+
+        /* Aviso Flutuante */
+        #aviso-erro {
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--danger);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            z-index: 2000;
+            display: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
     </style>
 </head>
 <body>
 
     <audio id="beep" src="https://assets.mixkit.co/active_storage/sfx/766/766-preview.mp3"></audio>
+
+    <div id="aviso-erro">PRODUTO NÃO EXISTE</div>
 
     <a href="index.html" target="_self">
     <button class="btn-voltar">⬅ VOLTAR</button>
@@ -371,29 +388,26 @@
         // --- LOGICA PARA LEITOR DE CÓDIGO DE BARRAS FÍSICO ---
         let barcodeBuffer = "";
         window.addEventListener("keydown", (e) => {
-            // Verifica se o modal do sistema está aberto
             if (document.getElementById('modalSist').style.display === 'flex') {
-                // Ignora se o foco estiver no campo de "valor recebido"
                 if (document.activeElement.id === 'valor-recebido') return;
 
                 if (e.key === "Enter") {
                     if (barcodeBuffer.length > 0) {
-                        // Verifica se o produto existe antes de bipar
+                        // Só bipa e adiciona se o produto existir
                         const existe = produtos.some(p => p.id === barcodeBuffer);
                         if (existe) {
                             document.getElementById('beep').play();
                             adicionarNaLista(barcodeBuffer);
+                        } else {
+                            mostrarAvisoErro();
                         }
                         barcodeBuffer = "";
                     }
                 } else {
-                    // Evita capturar teclas de função, shift, etc.
                     if (e.key.length === 1) {
                         barcodeBuffer += e.key;
                     }
                 }
-                
-                // Limpa o buffer se demorar muito (proteção contra digitação manual lenta)
                 setTimeout(() => { barcodeBuffer = ""; }, 200);
             }
         });
@@ -418,10 +432,10 @@
             scanner = new Html5Qrcode("reader");
             scanner.start(id, { fps: 15, qrbox: 180 }, (text) => {
                 if (!aguardandoReset) {
-                    // VERIFICAÇÃO DE ID CADASTRADO
-                    const existeNoCatalogo = produtos.some(p => p.id === text);
+                    // Só bipa e processa se o produto existir no catálogo
+                    const existe = produtos.some(p => p.id === text);
                     
-                    if (existeNoCatalogo) {
+                    if (existe) {
                         document.getElementById('beep').play();
                         adicionarNaLista(text);
                         aguardandoReset = true;
@@ -431,13 +445,20 @@
                             document.getElementById('status-leitura').innerText = "Pronto para próxima leitura";
                         }, 2000); 
                     } else {
-                        document.getElementById('status-leitura').innerText = "ID não cadastrado ❌";
-                        setTimeout(() => {
-                            document.getElementById('status-leitura').innerText = "Pronto para próxima leitura";
-                        }, 1000);
+                        mostrarAvisoErro();
+                        aguardandoReset = true;
+                        setTimeout(() => { aguardandoReset = false; }, 1000);
                     }
                 }
             });
+        }
+
+        function mostrarAvisoErro() {
+            const aviso = document.getElementById('aviso-erro');
+            aviso.style.display = 'block';
+            setTimeout(() => {
+                aviso.style.display = 'none';
+            }, 1500);
         }
 
         function adicionarNaLista(id) {
@@ -688,3 +709,4 @@
     </script>
 </body>
 </html>
+
