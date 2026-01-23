@@ -250,7 +250,6 @@
     const { jsPDF } = window.jspdf;
     let savedBarcodes = [];
 
-    // Função para colorir os números no campo de entrada
     function updateColorInput() {
         const input = document.getElementById('barcodeValue');
         const display = document.getElementById('color-display');
@@ -266,11 +265,11 @@
 
         for (let i = 0; i < val.length; i++) {
             if (i === 0) {
-                coloredText += `<span style="color: #2ecc71;">${val[i]}</span>`; // Verde
+                coloredText += `<span style="color: #2ecc71;">${val[i]}</span>`;
             } else if (i >= 1 && i <= 3) {
-                coloredText += `<span style="color: #e74c3c;">${val[i]}</span>`; // Vermelho
+                coloredText += `<span style="color: #e74c3c;">${val[i]}</span>`;
             } else {
-                coloredText += `<span style="color: #3498db;">${val[i]}</span>`; // Azul
+                coloredText += `<span style="color: #3498db;">${val[i]}</span>`;
             }
         }
         display.innerHTML = coloredText;
@@ -278,7 +277,6 @@
 
     function generateRandomValue() {
         let randomNum = "";
-        // Para EAN13 funcionar sem mudar o numero visualmente, geramos 12 digitos
         for (let i = 0; i < 12; i++) {
             randomNum += Math.floor(Math.random() * 10);
         }
@@ -305,7 +303,7 @@
         if (type === 'QR') {
             svg.style.display = 'none'; qrDiv.style.display = 'block';
             qrDiv.innerHTML = "";
-            new QRCode(qrDiv, { text: value, width: 128, height: 128 });
+            new QRCode(qrDiv, { text: value, width: 256, height: 256 }); // Dobro da resolução
         } else {
             qrDiv.style.display = 'none'; svg.style.display = 'block';
             try {
@@ -318,18 +316,16 @@
                     width: 2, 
                     height: 60,
                     margin: 15,
-                    flat: false // Faz com que as barras laterais fiquem maiores
+                    flat: false
                 };
 
-                // Configuração para o CODE128 imitar a aparência do EAN13
                 if (type === 'CODE128') {
                     options.fontSize = 22;
                     options.textMargin = 0;
                 }
 
-                // Configuração específica para o estilo da imagem (EAN-13 clássico)
                 if (type === 'EAN13') {
-                    options.flat = false; // Permite as barras de proteção mais longas
+                    options.flat = false;
                     options.fontSize = 24;
                     options.textMargin = 0;
                 }
@@ -337,7 +333,6 @@
                 JsBarcode("#barcode-svg", value, options);
             } catch (e) { 
                 console.error(e);
-                // Fallback simples caso ocorra erro de validação
                 JsBarcode("#barcode-svg", value, {format: "CODE128", displayValue: true, flat: false});
             }
         }
@@ -345,7 +340,15 @@
 
     async function saveToFolder() {
         const value = document.getElementById('barcodeValue').value;
+        const label = document.getElementById('barcodeLabel').value;
         if (!value) return;
+
+        const isDuplicate = savedBarcodes.some(item => item.value === value && item.label === label);
+        
+        if (isDuplicate) {
+            alert("Este conteúdo e legenda já foram usados. Por favor, crie um código diferente.");
+            return;
+        }
 
         const type = document.getElementById('barcodeType').value;
         let dataUrl = "";
@@ -356,23 +359,33 @@
             const svg = document.getElementById('barcode-svg');
             const canvas = document.getElementById('hidden-canvas');
             const ctx = canvas.getContext('2d');
+            
             const xml = new XMLSerializer().serializeToString(svg);
             const svg64 = btoa(unescape(encodeURIComponent(xml)));
             const img = new Image();
             
             await new Promise((resolve) => {
                 img.onload = () => {
-                    canvas.width = img.width; canvas.height = img.height;
-                    ctx.fillStyle = "white"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, 0, 0);
-                    dataUrl = canvas.toDataURL("image/png");
+                    // AQUI ESTÁ O SEGREDO: Aumentar a escala para 4x para ter alta definição
+                    const scale = 4;
+                    canvas.width = img.width * scale; 
+                    canvas.height = img.height * scale;
+                    
+                    ctx.fillStyle = "white"; 
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Melhora a renderização do texto e barras
+                    ctx.imageSmoothingEnabled = false; 
+                    
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    dataUrl = canvas.toDataURL("image/png", 1.0);
                     resolve();
                 };
                 img.src = 'data:image/svg+xml;base64,' + svg64;
             });
         }
 
-        savedBarcodes.push({ id: Date.now(), dataUrl });
+        savedBarcodes.push({ id: Date.now(), dataUrl, value: value, label: label });
         renderFolder();
     }
 
@@ -407,7 +420,8 @@
                 yPosition = 10;
             }
             
-            doc.addImage(item.dataUrl, 'PNG', 10, yPosition, 80, 40);
+            // Inserindo a imagem com alta densidade no PDF
+            doc.addImage(item.dataUrl, 'PNG', 10, yPosition, 80, 40, undefined, 'FAST');
             yPosition += 50;
         });
 
