@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -63,6 +64,19 @@
         .input-with-button {
             display: flex;
             gap: 5px;
+            position: relative;
+        }
+
+        /* Estilo para as cores no input */
+        #color-display {
+            position: absolute;
+            left: 11px;
+            top: 11px;
+            pointer-events: none;
+            font-family: monospace;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            display: none;
         }
 
         input, select {
@@ -73,6 +87,13 @@
             border-radius: 4px;
             color: white;
             box-sizing: border-box;
+        }
+
+        /* Esconde o texto real do input para mostrar as cores por baixo */
+        #barcodeValue.colored {
+            color: transparent;
+            caret-color: white;
+            font-family: monospace;
         }
 
         .btn-random {
@@ -194,7 +215,8 @@
         <div class="form-group">
             <label>Conteúdo</label>
             <div class="input-with-button">
-                <input type="text" id="barcodeValue" placeholder="valor aqui" oninput="generateBarcode()">
+                <div id="color-display"></div>
+                <input type="text" id="barcodeValue" class="colored" placeholder="valor aqui" oninput="updateColorInput(); generateBarcode()">
                 <button class="btn-random" onclick="generateRandomValue()" title="Gerar valor aleatório">⇄</button>
             </div>
         </div>
@@ -228,12 +250,40 @@
     const { jsPDF } = window.jspdf;
     let savedBarcodes = [];
 
+    // Função para colorir os números no campo de entrada
+    function updateColorInput() {
+        const input = document.getElementById('barcodeValue');
+        const display = document.getElementById('color-display');
+        const val = input.value;
+
+        if (!val) {
+            display.style.display = 'none';
+            return;
+        }
+
+        display.style.display = 'block';
+        let coloredText = '';
+
+        for (let i = 0; i < val.length; i++) {
+            if (i === 0) {
+                coloredText += `<span style="color: #2ecc71;">${val[i]}</span>`; // Verde
+            } else if (i >= 1 && i <= 3) {
+                coloredText += `<span style="color: #e74c3c;">${val[i]}</span>`; // Vermelho
+            } else {
+                coloredText += `<span style="color: #3498db;">${val[i]}</span>`; // Azul
+            }
+        }
+        display.innerHTML = coloredText;
+    }
+
     function generateRandomValue() {
         let randomNum = "";
-        for (let i = 0; i < 11; i++) {
+        // Para EAN13 funcionar sem mudar o numero visualmente, geramos 12 digitos
+        for (let i = 0; i < 12; i++) {
             randomNum += Math.floor(Math.random() * 10);
         }
         document.getElementById('barcodeValue').value = randomNum;
+        updateColorInput();
         generateBarcode();
     }
 
@@ -259,11 +309,37 @@
         } else {
             qrDiv.style.display = 'none'; svg.style.display = 'block';
             try {
-                JsBarcode("#barcode-svg", value, {
-                    format: type, text: label || value, displayValue: true,
-                    fontSize: 20, background: "#ffffff", width: 2, height: 60
-                });
-            } catch (e) { console.error(e); }
+                let options = {
+                    format: type, 
+                    text: label || undefined,
+                    displayValue: true,
+                    fontSize: 22, 
+                    background: "#ffffff", 
+                    width: 2, 
+                    height: 60,
+                    margin: 15,
+                    flat: false // Faz com que as barras laterais fiquem maiores
+                };
+
+                // Configuração para o CODE128 imitar a aparência do EAN13
+                if (type === 'CODE128') {
+                    options.fontSize = 22;
+                    options.textMargin = 0;
+                }
+
+                // Configuração específica para o estilo da imagem (EAN-13 clássico)
+                if (type === 'EAN13') {
+                    options.flat = false; // Permite as barras de proteção mais longas
+                    options.fontSize = 24;
+                    options.textMargin = 0;
+                }
+
+                JsBarcode("#barcode-svg", value, options);
+            } catch (e) { 
+                console.error(e);
+                // Fallback simples caso ocorra erro de validação
+                JsBarcode("#barcode-svg", value, {format: "CODE128", displayValue: true, flat: false});
+            }
         }
     }
 
@@ -296,12 +372,10 @@
             });
         }
 
-        // Adiciona um ID único para facilitar a remoção
         savedBarcodes.push({ id: Date.now(), dataUrl });
         renderFolder();
     }
 
-    // Função para remover um item específico
     function removeItem(id) {
         savedBarcodes = savedBarcodes.filter(item => item.id !== id);
         renderFolder();
@@ -333,8 +407,8 @@
                 yPosition = 10;
             }
             
-            doc.addImage(item.dataUrl, 'PNG', 10, yPosition, 60, 30);
-            yPosition += 40;
+            doc.addImage(item.dataUrl, 'PNG', 10, yPosition, 80, 40);
+            yPosition += 50;
         });
 
         doc.save("codigos_organizados.pdf");
