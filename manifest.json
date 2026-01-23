@@ -1,7 +1,7 @@
 {
-  "name": "NUANCE",
-  "short_name": "NUANCE",
-  "description": "Drinks exclusivos preparados pelo Barman Darwin",
+  "name": "ALBATROZ",
+  "short_name": "ALBATROZ",
+  "description": "ALBATROZ o sistema mais usado",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#000000",
