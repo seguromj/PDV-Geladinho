@@ -294,6 +294,25 @@
             display: none;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
+
+        .container-backup {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .btn-backup {
+            flex: 1;
+            padding: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background: #444;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -352,6 +371,12 @@
             <input type="number" id="p-valor" placeholder="Valor (R$)">
             <input type="number" id="p-qtd" placeholder="Quantidade em Estoque">
             <button class="btn-main btn-green" style="padding:15px" onclick="salvarProduto()">SALVAR NO CATÁLOGO</button>
+            
+            <div class="container-backup">
+                <button class="btn-backup" onclick="exportarDados()">📤 EXPORTAR DADOS</button>
+                <button class="btn-backup" onclick="document.getElementById('input-import').click()">📥 IMPORTAR DADOS</button>
+                <input type="file" id="input-import" style="display:none" accept=".json" onchange="importarDados(event)">
+            </div>
         </div>
 
         <div class="grid-produtos" id="grid-produtos">
@@ -706,7 +731,42 @@
 
             document.getElementById('numID').value = novoId;
         }
+
+        function exportarDados() {
+            const dados = {
+                produtos: produtos,
+                historico: historico
+            };
+            const blob = new Blob([JSON.stringify(dados)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'backup_estoque.json';
+            a.click();
+        }
+
+        function importarDados(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const dados = JSON.parse(e.target.result);
+                    if (dados.produtos) {
+                        produtos = dados.produtos;
+                        historico = dados.historico || [];
+                        localStorage.setItem('meus_produtos', JSON.stringify(produtos));
+                        localStorage.setItem('meu_historico', JSON.stringify(historico));
+                        renderizarCatalogo();
+                        alert("Dados importados com sucesso!");
+                    }
+                } catch (err) {
+                    alert("Erro ao ler o arquivo de backup.");
+                }
+            };
+            reader.readAsText(file);
+        }
     </script>
 </body>
 </html>
-
