@@ -262,11 +262,14 @@
         let coloredText = '';
 
         for (let i = 0; i < val.length; i++) {
-            if (i === 0) {
+            if (i < 3) {
+                // Primeiros 3 números: Verde (Identificador Brasil)
                 coloredText += `<span style="color: #2ecc71;">${val[i]}</span>`;
-            } else if (i >= 1 && i <= 3) {
+            } else if (i >= val.length - 3) {
+                // Últimos 3 números: Vermelho
                 coloredText += `<span style="color: #e74c3c;">${val[i]}</span>`;
             } else {
+                // Números do meio: Azul
                 coloredText += `<span style="color: #3498db;">${val[i]}</span>`;
             }
         }
@@ -274,8 +277,10 @@
     }
 
     function generateRandomValue() {
-        let randomNum = "";
-        for (let i = 0; i < 12; i++) {
+        // Código identificador do Brasil: 789
+        let randomNum = "789";
+        // Gera o restante até completar 12 dígitos (para EAN13 aceitar)
+        for (let i = 0; i < 9; i++) {
             randomNum += Math.floor(Math.random() * 10);
         }
         document.getElementById('barcodeValue').value = randomNum;
