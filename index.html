@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -502,6 +503,24 @@
             text-align: center;
         }
 
+        /* Estilo para o olho da senha */
+        .container-senha {
+            position: relative;
+            width: 100%;
+        }
+        .btn-toggle-senha {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 10;
+        }
+
         @media (max-width: 800px) {
             .container-topo { flex-direction: column; align-items: center; }
             .menu-principal { grid-template-columns: 1fr; }
@@ -526,7 +545,12 @@
         <p id="msg-login">Verificando credenciais...</p>
         <div id="campos-login" style="display:none; flex-direction:column; gap:10px; width: 80%; max-width:300px;">
             <input type="text" id="login-id" placeholder="ID de Usuário" style="padding:15px; border-radius:8px; border:none;">
-            <input type="password" id="login-senha" placeholder="Senha" style="padding:15px; border-radius:8px; border:none;">
+            
+            <div class="container-senha">
+                <input type="password" id="login-senha" placeholder="Senha" style="padding:15px; border-radius:8px; border:none; width:100%; box-sizing:border-box;">
+                <button type="button" class="btn-toggle-senha" onclick="toggleSenha()">👁️</button>
+            </div>
+
             <button class="btn-main btn-green" id="btn-validar-acesso" onclick="validarAcessoManual()">ENTRAR</button>
             <button class="btn-voltar" style="width:100%; margin:0" onclick="window.location.reload()">VOLTAR</button>
             <a href="https://wa.me/5562995679219?text=Olá, eu esqueci a senha para entrar no sistema Albatroz" class="btn-suporte">SUPORTE</a>
@@ -609,8 +633,8 @@
             <input type="number" id="p-qtd" placeholder="Quantidade em Estoque">
             <button class="btn-main btn-green" style="padding:15px; width: 100%;" onclick="salvarProduto()">SALVAR NO CATÁLOGO</button>
             <div class="container-backup">
-                <button class="btn-backup" onclick="exportarDados()">📤 EXPORTAR DADOS</button>
-                <button class="btn-backup" onclick="document.getElementById('input-import').click()">📥 IMPORTAR DADOS</button>
+                <button class="btn-backup" onclick="exportarDados()">📤 EXPORTAR BACKUP GERAL</button>
+                <button class="btn-backup" onclick="document.getElementById('input-import').click()">📥 IMPORTAR BACKUP GERAL</button>
                 <input type="file" id="input-import" style="display:none" accept=".json" onchange="importarDados(event)">
             </div>
         </div>
@@ -761,19 +785,34 @@
             return `${idGerado} (${os} | ${width}x${height})`;
         }
 
+        // FUNÇÃO PARA MOSTRAR/OCULTAR SENHA
+        function toggleSenha() {
+            const campo = document.getElementById('login-senha');
+            const btn = document.querySelector('.btn-toggle-senha');
+            if (campo.type === 'password') {
+                campo.type = 'text';
+                btn.innerText = '🔒';
+            } else {
+                campo.type = 'password';
+                btn.innerText = '👁️';
+            }
+        }
+
         function enviarLogParaGoogleForms(usuarioId) {
             const formURL = "https://docs.google.com/forms/d/e/1FAIpQLScvNN2ww22ZPmF_WCp1pUdS3sxzgtCEpfNUHRlREF8cBAMp2g/formResponse";
             const infoAparelho = obterInfoTecnicaAparelho();
-            const formData = new FormData();
             
-            // Envia o ID Gerado + Info Técnica para a coluna solicitada
-            formData.append('entry.865836184', infoAparelho); 
+            // AGORA ENVIA TAMBÉM O ID DO USUÁRIO QUE ACESSOU
+            const infoCompleta = `USUÁRIO: ${usuarioId} | APARELHO: ${infoAparelho}`;
+            
+            const formData = new FormData();
+            formData.append('entry.865836184', infoCompleta); 
 
             fetch(formURL, {
                 method: 'POST',
                 mode: 'no-cors',
                 body: formData
-            }).then(() => console.log("Dados do aparelho enviados: " + infoAparelho))
+            }).then(() => console.log("Log enviado: " + infoCompleta))
               .catch(e => console.error("Erro ao enviar log", e));
         }
 
@@ -831,7 +870,7 @@
                     localStorage.setItem('login_albatroz_id', id);
                     localStorage.setItem('login_albatroz_pass', pass);
                     
-                    // ENVIO DAS INFORMAÇÕES TÉCNICAS NO LOGIN
+                    // ENVIO DAS INFORMAÇÕES TÉCNICAS NO LOGIN (COM ID DO USUÁRIO)
                     enviarLogParaGoogleForms(id);
                 }
                 liberarAcesso();
@@ -1290,22 +1329,52 @@
         }
 
         function exportarDados() {
-            const blob = new Blob([JSON.stringify({produtos, historico, vendas: vendasRealizadas})], {type: 'application/json'});
+            const backupCompleto = {
+                produtos: produtos,
+                historico: historico,
+                vendas: vendasRealizadas,
+                idDispositivo: localStorage.getItem('albatroz_device_id')
+            };
+            const blob = new Blob([JSON.stringify(backupCompleto)], {type: 'application/json'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'backup_estoque.json';
+            a.download = 'backup_albatroz_completo_' + new Date().toLocaleDateString().replace(/\//g, '-') + '.json';
             a.click();
         }
 
         function importarDados(event) {
+            if(!confirm("Isso irá substituir todos os dados atuais (Estoque, Vendas e Carrinho). Deseja continuar?")) return;
             const reader = new FileReader();
             reader.onload = (e) => {
-                const dados = JSON.parse(e.target.result);
-                produtos = dados.produtos;
-                localStorage.setItem('meus_produtos', JSON.stringify(produtos));
-                renderizarCatalogo();
-                atualizarVisualizacaoHome();
-                alert("Importado!");
+                try {
+                    const dados = JSON.parse(e.target.result);
+                    
+                    // Restaurar Produtos
+                    if(dados.produtos) {
+                        produtos = dados.produtos;
+                        localStorage.setItem('meus_produtos', JSON.stringify(produtos));
+                    }
+                    
+                    // Restaurar Vendas
+                    if(dados.vendas) {
+                        vendasRealizadas = dados.vendas;
+                        localStorage.setItem('historico_vendas', JSON.stringify(vendasRealizadas));
+                    }
+
+                    // Restaurar Carrinho/Historico de leitura
+                    if(dados.historico) {
+                        historico = dados.historico;
+                        localStorage.setItem('meu_historico', JSON.stringify(historico));
+                    }
+
+                    renderizarCatalogo();
+                    atualizarVisualizacaoHome();
+                    atualizarLista();
+                    alert("Backup Geral importado com sucesso!");
+                } catch(err) {
+                    alert("Erro ao ler o arquivo de backup.");
+                    console.error(err);
+                }
             };
             reader.readAsText(event.target.files[0]);
         }
