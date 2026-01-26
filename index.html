@@ -1,20 +1,23 @@
 
+
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <link rel="manifest" href="manifest.json">
 
- <link rel="manifest" href="manifest.json">
-
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-      .then(() => console.log("ALBATROZ, App configurado com sucesso!"));
-  }
-</script>
-
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log("ALBATROZ, App configurado com sucesso!", reg))
+            .catch(err => console.log("Erro ao registrar SW:", err));
+        });
+      }
+    </script>
     
     <title>Sistema Albatroz</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
@@ -45,22 +48,42 @@
             min-height: 100vh;
         }
 
-        /* --- NOVOS ESTILOS PARA ORGANIZAÇÃO E VISUALIZAÇÃO --- */
+        /* Estilo do Banner de Instalação PWA */
+        #container-instalacao {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            background: var(--card);
+            border: 2px solid var(--primary);
+            border-radius: 15px;
+            padding: 15px;
+            z-index: 10001; /* Ficar acima de tudo */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            text-align: center;
+        }
+        #container-instalacao h3 { margin: 0 0 10px 0; color: var(--primary); }
+        #container-instalacao p { font-size: 14px; margin-bottom: 15px; }
+        .botoes-pwa { display: flex; gap: 10px; }
+        .btn-pwa { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
         .container-topo {
             width: 95%;
             max-width: 1200px;
             display: flex;
-            flex-direction: row; /* Alterado para Row para o layout de monitor */
+            flex-direction: row;
             gap: 20px;
             margin-top: 20px;
             align-items: flex-start;
-            flex-wrap: wrap; /* Adicionado para responsividade */
+            flex-wrap: wrap;
         }
 
-        /* Divisões Laterais da Imagem */
         .coluna-esquerda {
             flex: 1;
-            min-width: 320px; /* Garante que não fique muito estreito */
+            min-width: 320px;
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -68,7 +91,7 @@
 
         .coluna-direita {
             flex: 2;
-            min-width: 320px; /* Garante que não fique muito estreito */
+            min-width: 320px;
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -110,11 +133,10 @@
             from { box-shadow: 0 0 0px var(--danger); }
             to { box-shadow: 0 0 10px var(--danger); background: #421010; }
         }
-        /* --------------------------------------------------- */
 
         .menu-principal {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Botões em duas colunas como na foto */
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
             width: 100%;
         }
@@ -193,8 +215,7 @@
             max-width: 500px;
             margin: 10px auto;
             display: flex;
-            flex-direction: column;
-            gap: 8px;
+            flex-direction: column; gap: 8px;
             overflow-y: auto; 
         }
 
@@ -367,7 +388,6 @@
             font-size: 16px;
         }
 
-        /* Aviso Flutuante */
         #aviso-erro {
             position: fixed;
             top: 20%;
@@ -402,7 +422,6 @@
             color: white;
         }
 
-        /* ESTILO PARA A TABELA DE HISTORICO */
         .tabela-vendas {
             width: 100%;
             border-collapse: collapse;
@@ -445,7 +464,6 @@
         .dash-card h4 { margin: 0 0 5px 0; font-size: 12px; color: #aaa; }
         .dash-card p { margin: 0; font-size: 16px; font-weight: bold; color: var(--success); }
 
-        /* Estilo do campo de busca */
         .busca-container {
             margin-bottom: 15px;
             width: 100%;
@@ -460,7 +478,6 @@
             box-sizing: border-box;
         }
 
-        /* ESTILO DO OVERLAY DE BLOQUEIO */
         #overlay-login {
             display: none;
             position: fixed;
@@ -474,7 +491,6 @@
             color: white;
         }
 
-        /* Estilo para Botão Suporte */
         .btn-suporte {
             background: #25D366;
             color: white;
@@ -488,7 +504,6 @@
             text-align: center;
         }
 
-        /* RESPONSIVIDADE PARA VOLTAR AO MOBILE SE NECESSÁRIO */
         @media (max-width: 800px) {
             .container-topo { flex-direction: column; align-items: center; }
             .menu-principal { grid-template-columns: 1fr; }
@@ -498,6 +513,15 @@
     </style>
 </head>
 <body onclick="resetarInatividade()" onkeydown="resetarInatividade()">
+
+    <div id="container-instalacao">
+        <h3>Instalar Albatroz</h3>
+        <p>Deseja instalar este sistema como um aplicativo no seu celular?</p>
+        <div class="botoes-pwa">
+            <button id="btnInstalarApp" class="btn-pwa btn-green">INSTALAR</button>
+            <button id="btnRecusarApp" class="btn-pwa btn-vermelho">AGORA NÃO</button>
+        </div>
+    </div>
 
     <div id="overlay-login">
         <h2 id="titulo-bloqueio">🔒 SISTEMA BLOQUEADO</h2>
@@ -621,22 +645,25 @@
                 </div>
             </div>
             <div id="resumo-lucro" style="width: 100%; text-align: center; background: #222; padding: 15px; border-radius: 10px; border: 1px solid var(--warning);">
-                <span style="font-size: 14px; color: #aaa;">LUCRO NAS ÚLTIMAS 24H:</span><br>
-                <span id="valor-lucro-dia" style="font-size: 24px; font-weight: bold; color: var(--warning);">R$ 0,00</span>
+                <span style="font-size: 14px; color: #aaa;">Ganhos de Hoje:</span><br>
+                <span id="valor-lucro-dia" style="font-size: 24px; font-weight: bold; color: var(--warning);">R$ 0,00</span><br>
+                <span id="taxa-maquina-dia" style="font-size: 12px; color: var(--danger);">Taxa Máquina: R$ 0,00</span>
             </div>
             <div id="resumo-lucro-total" style="width: 100%; text-align: center; background: #222; padding: 10px; border-radius: 10px; border: 1px solid var(--success); margin-top: -10px;">
-                <span style="font-size: 12px; color: #aaa;">LUCRO TOTAL ACUMULADO:</span><br>
-                <span id="valor-lucro-total" style="font-size: 18px; font-weight: bold; color: var(--success);">R$ 0,00</span>
+                <span style="font-size: 12px; color: #aaa;">Lucro Acumulado</span><br>
+                <span id="valor-lucro-total" style="font-size: 18px; font-weight: bold; color: var(--success);">R$ 0,00</span><br>
+                <span id="taxa-maquina-total" style="font-size: 11px; color: var(--danger);">Taxa Máquina Total: R$ 0,00</span>
             </div>
             <div style="width: 100%; overflow-x: auto;">
                 <table class="tabela-vendas">
                     <thead>
                         <tr>
-                            <th>Data</th>
-                            <th>Produto</th>
-                            <th>Qtd</th>
-                            <th>Tipo</th>
-                            <th>Total</th>
+                            <th>Data/Hora</th>
+                            <th>Itens</th>
+                            <th>Metodo</th>
+                            <th>Total Bruto</th>
+                            <th>Taxa %</th>
+                            <th>Líquido</th>
                         </tr>
                     </thead>
                     <tbody id="corpo-tabela-vendas"></tbody>
@@ -646,63 +673,55 @@
         </div>
     </div>
 
+    <script>
+      let promptDeInstalacao;
+      const areaInstalacao = document.getElementById('container-instalacao');
+      const botaoInstalar = document.getElementById('btnInstalarApp');
+      const botaoRecusar = document.getElementById('btnRecusarApp');
 
+      window.addEventListener('beforeinstallprompt', (e) => {
+        console.log("Evento de instalação capturado!");
+        e.preventDefault();
+        promptDeInstalacao = e;
 
+        const tempoRecusa = localStorage.getItem('app_recusado_em');
+        const agora = Date.now();
+        const umMinuto = 1 * 60 * 1000; 
 
-
-    
-<script>
-  let promptDeInstalacao;
-  const areaInstalacao = document.getElementById('container-instalacao');
-  const botaoInstalar = document.getElementById('btnInstalarApp');
-  const botaoRecusar = document.getElementById('btnRecusarApp');
-
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    promptDeInstalacao = e;
-
-    const tempoRecusa = localStorage.getItem('app_recusado_em');
-    const agora = Date.now();
-    const umMinuto = 1 * 60 * 1000; // Define o tempo para 1 minuto
-
-    // Só mostra se nunca recusou ou se já passou 1 minuto da última recusa
-    if (!tempoRecusa || (agora - tempoRecusa > umMinuto)) {
-        iniciarContadorAparecer(5000);
-    }
-  });
-
-  function iniciarContadorAparecer(tempo) {
-    setTimeout(() => {
-      const modoApp = window.matchMedia('(display-mode: standalone)').matches;
-      if (!modoApp && promptDeInstalacao) {
-        areaInstalacao.style.display = 'block';
-      }
-    }, tempo);
-  }
-
-  botaoInstalar.addEventListener('click', () => {
-    if (promptDeInstalacao) {
-      promptDeInstalacao.prompt();
-      promptDeInstalacao.userChoice.then((escolha) => {
-        if (escolha.outcome === 'accepted') {
-          areaInstalacao.style.display = 'none';
-          localStorage.removeItem('app_recusado_em');
+        if (!tempoRecusa || (agora - tempoRecusa > umMinuto)) {
+            setTimeout(() => {
+                const modoApp = window.matchMedia('(display-mode: standalone)').matches;
+                if (!modoApp && promptDeInstalacao) {
+                    areaInstalacao.style.display = 'block';
+                }
+            }, 5000);
         }
       });
-    }
-  });
 
-  botaoRecusar.addEventListener('click', () => {
-    areaInstalacao.style.display = 'none';
-    localStorage.setItem('app_recusado_em', Date.now());
-  });
+      botaoInstalar.addEventListener('click', () => {
+        if (promptDeInstalacao) {
+          promptDeInstalacao.prompt();
+          promptDeInstalacao.userChoice.then((escolha) => {
+            if (escolha.outcome === 'accepted') {
+              areaInstalacao.style.display = 'none';
+              localStorage.removeItem('app_recusado_em');
+            }
+          });
+        }
+      });
 
-  window.addEventListener('appinstalled', () => {
-    areaInstalacao.style.display = 'none';
-  });
-</script>
-<script>
-        
+      botaoRecusar.addEventListener('click', () => {
+        areaInstalacao.style.display = 'none';
+        localStorage.setItem('app_recusado_em', Date.now());
+      });
+
+      window.addEventListener('appinstalled', () => {
+        console.log("App instalado com sucesso!");
+        areaInstalacao.style.display = 'none';
+      });
+    </script>
+
+    <script>
         let scanner;
         let cameras = [];
         let currentCamIndex = 0;
@@ -1044,7 +1063,9 @@
                     nome: produtos[pIndex].nome || "Produto",
                     qtd: qtdBaixa,
                     tipo: metodo,
-                    valorTotal: produtos[pIndex].valor * qtdBaixa
+                    valorTotal: produtos[pIndex].valor * qtdBaixa,
+                    itens: [{nome: produtos[pIndex].nome, qtd: qtdBaixa, valor: produtos[pIndex].valor}],
+                    taxa: 0
                 });
                 localStorage.setItem('historico_vendas', JSON.stringify(vendasRealizadas));
                 localStorage.setItem('meus_produtos', JSON.stringify(produtos));
@@ -1057,29 +1078,42 @@
         function baixaGeral() {
             if(!confirm("Deseja dar baixa geral?")) return;
             const metodo = document.getElementById('metodo-pagamento').value;
+            let itensVendidos = [];
+            let totalGeralVenda = 0;
+
             historico.forEach((item, index) => {
                 const qtdBaixa = parseInt(document.getElementById(`baixa-${index}`).value);
                 const pIndex = produtos.findIndex(p => p.id === item.id);
                 if(pIndex !== -1 && produtos[pIndex].qtd >= qtdBaixa) {
                     produtos[pIndex].qtd -= qtdBaixa;
-                    vendasRealizadas.unshift({
-                        data: new Date().toLocaleString(),
-                        timestamp: new Date().getTime(),
+                    const subtotal = produtos[pIndex].valor * qtdBaixa;
+                    totalGeralVenda += subtotal;
+                    itensVendidos.push({
                         nome: produtos[pIndex].nome || "Produto",
                         qtd: qtdBaixa,
-                        tipo: metodo,
-                        valorTotal: produtos[pIndex].valor * qtdBaixa
+                        valor: produtos[pIndex].valor
                     });
                 }
             });
-            localStorage.setItem('historico_vendas', JSON.stringify(vendasRealizadas));
-            localStorage.setItem('meus_produtos', JSON.stringify(produtos));
-            historico = [];
-            localStorage.setItem('meu_historico', JSON.stringify(historico));
-            document.getElementById('valor-recebido').value = "";
-            atualizarLista();
-            atualizarVisualizacaoHome();
-            alert("Baixa geral concluída!");
+
+            if(itensVendidos.length > 0) {
+                vendasRealizadas.unshift({
+                    data: new Date().toLocaleString(),
+                    timestamp: new Date().getTime(),
+                    tipo: metodo,
+                    valorTotal: totalGeralVenda,
+                    itens: itensVendidos,
+                    taxa: 0
+                });
+                localStorage.setItem('historico_vendas', JSON.stringify(vendasRealizadas));
+                localStorage.setItem('meus_produtos', JSON.stringify(produtos));
+                historico = [];
+                localStorage.setItem('meu_historico', JSON.stringify(historico));
+                document.getElementById('valor-recebido').value = "";
+                atualizarLista();
+                atualizarVisualizacaoHome();
+                alert("Baixa geral concluída!");
+            }
         }
 
         function limparFormProd() {
@@ -1109,10 +1143,14 @@
             const corpoTabela = document.getElementById('corpo-tabela-vendas');
             const displayLucroDia = document.getElementById('valor-lucro-dia');
             const displayLucroTotal = document.getElementById('valor-lucro-total');
+            const displayTaxaDia = document.getElementById('taxa-maquina-dia');
+            const displayTaxaTotal = document.getElementById('taxa-maquina-total');
             corpoTabela.innerHTML = "";
             
             let lucroTotal = 0;
             let lucroDia = 0;
+            let taxaTotalAcumulada = 0;
+            let taxaDiaAcumulada = 0;
             let totPix = 0;
             let totDinheiro = 0;
             let totCartao = 0;
@@ -1121,26 +1159,63 @@
             const agora = new Date().getTime();
             const vinteQuatroHoras = 24 * 60 * 60 * 1000;
 
-            vendasRealizadas.forEach(v => {
-                const valor = parseFloat(v.valorTotal);
-                lucroTotal += valor;
+            vendasRealizadas.forEach((v, index) => {
+                const bruto = parseFloat(v.valorTotal);
+                const taxa = v.taxa || 0;
+                const valorDaTaxa = bruto * (taxa / 100);
+                const liquido = bruto - valorDaTaxa;
+                
+                lucroTotal += liquido;
+                taxaTotalAcumulada += valorDaTaxa;
+
                 if (agora - v.timestamp < vinteQuatroHoras) {
-                    lucroDia += valor;
-                    if(v.tipo === "Pix") totPix += valor;
-                    else if(v.tipo === "Dinheiro") totDinheiro += valor;
-                    else if(v.tipo === "Cartão") totCartao += valor;
+                    lucroDia += liquido;
+                    taxaDiaAcumulada += valorDaTaxa;
+                    if(v.tipo === "Pix") totPix += liquido;
+                    else if(v.tipo === "Dinheiro") totDinheiro += liquido;
+                    else if(v.tipo === "Cartão") totCartao += liquido;
                 }
-                contagemProdutos[v.nome] = (contagemProdutos[v.nome] || 0) + v.qtd;
-                corpoTabela.innerHTML += `<tr><td>${v.data.split(',')[0]}</td><td>${v.nome}</td><td>${v.qtd}</td><td>${v.tipo}</td><td style="color:var(--success)">R$ ${valor.toFixed(2)}</td></tr>`;
+                
+                if(v.itens) {
+                    v.itens.forEach(item => {
+                        contagemProdutos[item.nome] = (contagemProdutos[item.nome] || 0) + item.qtd;
+                    });
+                } else if(v.nome) {
+                     contagemProdutos[v.nome] = (contagemProdutos[v.nome] || 0) + v.qtd;
+                }
+
+                const listaItensHtml = v.itens ? v.itens.map(i => `${i.qtd}x ${i.nome}`).join('<br>') : (v.nome || '---');
+
+                corpoTabela.innerHTML += `
+                    <tr>
+                        <td>${v.data}</td>
+                        <td>
+                            <button onclick="alert('${listaItensHtml.replace(/<br>/g, '\\n')}')" style="font-size:10px; cursor:pointer">VER ITENS</button>
+                        </td>
+                        <td>${v.tipo}</td>
+                        <td>R$ ${bruto.toFixed(2)}</td>
+                        <td>
+                            ${v.tipo === 'Cartão' ? `<input type="number" value="${taxa}" style="width:40px; font-size:10px;" onchange="atualizarTaxaVenda(${index}, this.value)">` : '0'}%
+                        </td>
+                        <td style="color:var(--success); font-weight:bold">R$ ${liquido.toFixed(2)}</td>
+                    </tr>`;
             });
 
             document.getElementById('dash-pix').innerText = `R$ ${totPix.toFixed(2)}`;
             document.getElementById('dash-dinheiro').innerText = `R$ ${totDinheiro.toFixed(2)}`;
             document.getElementById('dash-cartao').innerText = `R$ ${totCartao.toFixed(2)}`;
-            let topProd = Object.keys(contagemProdutos).reduce((a, b) => contagemProdutos[a] > contagemProdutos[b] ? a : b, "---");
+            let topProd = Object.keys(contagemProdutos).length > 0 ? Object.keys(contagemProdutos).reduce((a, b) => contagemProdutos[a] > contagemProdutos[b] ? a : b) : "---";
             document.getElementById('dash-top').innerText = topProd;
             displayLucroDia.innerText = `R$ ${lucroDia.toFixed(2)}`;
             displayLucroTotal.innerText = `R$ ${lucroTotal.toFixed(2)}`;
+            displayTaxaDia.innerText = `Taxa Máquina: R$ ${taxaDiaAcumulada.toFixed(2)}`;
+            displayTaxaTotal.innerText = `Taxa Máquina Total: R$ ${taxaTotalAcumulada.toFixed(2)}`;
+        }
+
+        function atualizarTaxaVenda(index, valor) {
+            vendasRealizadas[index].taxa = parseFloat(valor) || 0;
+            localStorage.setItem('historico_vendas', JSON.stringify(vendasRealizadas));
+            renderizarHistoricoVendas();
         }
 
         function limparHistoricoVendasComSenha() {
@@ -1182,5 +1257,4 @@
     </script>
 </body>
 </html>
-
 
