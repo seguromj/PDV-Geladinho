@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Vídeos</title>
+    <style>
+        :root {
+            /* Cores Futuristas */
+            --primary: #00d2ff;
+            --secondary: #3a7bd5;
+            --bg: #0f172a; 
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text: #f8fafc;
+            --youtube-red: #FF0000;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .header-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(0, 210, 255, 0.3);
+        }
+
+        .link-box {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+
+        .url-text {
+            font-size: 0.40rem; 
+            color: var(--primary);
+            word-break: break-all;
+            display: block;
+            margin-bottom: 12px;
+            font-family: monospace;
+            opacity: 0.9;
+        }
+
+        .button1 {
+            width: 100%;
+            padding: 14px;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 30px 30px 5px 5px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+    
+        .button2 {
+            width: 100%;
+            padding: 14px;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 5px 5px 30px 30px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        /* Efeito de encolher aplicado a qualquer botão ou card clicável */
+        .btn-youtube:active, .button1:active, .button2:active {
+            transform: scale(0.60); 
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--glass-border), transparent);
+            margin: 30px 0;
+        }
+
+        /* Card do YouTube transformado em área totalmente clicável */
+        .btn-youtube {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding: 10px 15px;
+            backdrop-filter: blur(5px);
+            border-radius: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            /* Garante que nada interno bloqueie o clique */
+            position: relative;
+        }
+
+        .btn-youtube:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--youtube-red);
+        }
+
+        /* Impede que os itens internos interfiram no clique do card */
+        .youtube-info, .visualizar-tag, .btn-youtube * {
+            pointer-events: none;
+        }
+
+        .youtube-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .btn-youtube img {
+            width: 28px;
+            filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.5));
+        }
+
+        .btn-youtube p {
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .visualizar-tag {
+            background: var(--youtube-red);
+            padding: 4px 10px;
+            border-radius: 16px 5px 16px 5px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+            white-space: nowrap;
+        }
+
+        .youtube-list {
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-section">
+            <h1>Links</h1>
+            
+            <div class="link-box">
+                <span class="link-title">↘ Link do PDV ↙</span>
+                <span class="url-text" id="linkPdv">https://seguromj.github.io/Gestao-Produtos-ALBATROZ/</span>
+                <button class="button1" onclick="copiarTexto('linkPdv')">Copiar Link PDV</button>
+            </div>
+
+            <div class="link-box">
+                <span class="link-title">↘ Link do Cardápio Web ↙</span>
+                <span class="url-text" id="linkCardapio">https://seguromj.github.io/Spook_Ice/</span>
+                <button class="button2" onclick="copiarTexto('linkCardapio')">Copiar Link Cardápio Web</button>
+            </div>
+        </div>
+        
+        <hr>
+
+        <h1 style="text-align: center;">Tutoriais</h1>
+        <div class="youtube-list">
+            
+            <div class="btn-youtube" onclick="window.open('https://youtube.com/shorts/wTpU2Px3LvA?si=rF-8CzV6JuCcIMG3', '_blank')">
+                <div class="youtube-info">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg" alt="YouTube">
+                    <p style="font-size: 10px;">Como mexer no Leitor de Codigo de barras e QR code</p>
+                </div>
+                <div class="visualizar-tag">Visualizar</div>
+            </div>
+
+            <div class="btn-youtube" onclick="window.open('https://www.youtube.com/', '_blank')">
+                <div class="youtube-info">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg" alt="YouTube">
+                    <p style="font-size: 10px;">Cardápio teste 2</p>
+                </div>
+                <div class="visualizar-tag">Visualizar</div>
+            </div>
+
+            <div class="btn-youtube" onclick="window.open('https://www.youtube.com/', '_blank')">
+                <div class="youtube-info">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg" alt="YouTube">
+                    <p style="font-size: 10px;">Como colocar a minha propria Imagem nos produtos</p>
+                </div>
+                <div class="visualizar-tag">Visualizar</div>
+            </div>
+
+            <div class="btn-youtube" onclick="window.open('https://www.youtube.com/', '_blank')">
+                <div class="youtube-info">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg" alt="YouTube">
+                    <p style="font-size: 10px;">Cardápio teste 4</p>
+                </div>
+                <div class="visualizar-tag">Visualizar</div>
+            </div>
+            
+             <div class="btn-youtube" onclick="window.open('https://www.youtube.com/', '_blank')">
+                <div class="youtube-info">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg" alt="YouTube">
+                    <p style="font-size: 10px;">Cardápio teste 5</p>
+                </div>
+                <div class="visualizar-tag">Visualizar</div>
+            </div>
+
+        </div>
+    </div>
+    <br><br><br>
+
+    <script>   
+        function copiarTexto(idElemento) {
+            const texto = document.getElementById(idElemento).innerText;
+            navigator.clipboard.writeText(texto).then(() => {
+                alert("Link copiado!");
+            });
+        }
+    </script>
+
+</body>
+</html>
