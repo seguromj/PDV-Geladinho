@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -546,7 +545,7 @@
                 <img src="icon-512.png" id="logo-sistema" style="width: 80px; height: 80px; border-radius: 50%;">
                 <div>
                     <h2 style="margin:0; color: white;">ALBATROZ</h2>
-                    <small style="color: var(--primary);">Home</small>
+                    <small style="color: var(--primary);">Suporte: (62) 995679219</small>
                 </div>
             </div>
 
@@ -801,18 +800,33 @@
             try {
                 const response = await fetch(URL_PLANILHA + "&t=" + new Date().getTime());
                 const data = await response.text();
-                const linhas = data.split('\n');
+                // Divide por linhas e remove linhas vazias
+                const linhas = data.split(/\r?\n/).filter(line => line.trim() !== "");
                 
                 for (let i = 1; i < linhas.length; i++) {
-                    const colunas = linhas[i].split(',');
-                    if (colunas.length >= 5) {
+                    // Tenta dividir por vírgula ou ponto e vírgula
+                    let colunas = linhas[i].includes(';') ? linhas[i].split(';') : linhas[i].split(',');
+                    
+                    // Limpa aspas e espaços de cada coluna
+                    colunas = colunas.map(col => col.replace(/^"|"$/g, '').trim());
+
+                    if (colunas.length >= 3) {
+                        let idPlanilha = "";
+                        let passPlanilha = "";
+
                         if (modoAcessoEspecial) {
-                            if (colunas[3].trim() === id && colunas[4].trim() === pass) return true;
+                            // Prioriza colunas 3 e 4 para Gerente, senão usa 1 e 2
+                            idPlanilha = (colunas[3] || colunas[1]);
+                            passPlanilha = (colunas[4] || colunas[2]);
                         } else {
-                            if (colunas[1].trim() === id && colunas[2].trim() === pass) return true;
+                            // Usuário comum colunas 1 e 2
+                            idPlanilha = colunas[1];
+                            passPlanilha = colunas[2];
                         }
-                    } else if (colunas.length >= 3 && !modoAcessoEspecial) {
-                        if (colunas[1].trim() === id && colunas[2].trim() === pass) return true;
+
+                        if (idPlanilha === id.trim() && passPlanilha === pass.trim()) {
+                            return true;
+                        }
                     }
                 }
                 return false;
@@ -1257,4 +1271,3 @@
     </script>
 </body>
 </html>
-
