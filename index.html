@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -663,6 +662,7 @@
                             <th>Total Bruto</th>
                             <th>Taxa %</th>
                             <th>Líquido</th>
+                            <th>Aparelho</th>
                         </tr>
                     </thead>
                     <tbody id="corpo-tabela-vendas"></tbody>
@@ -736,6 +736,47 @@
         let modoAcessoEspecial = false; 
         const URL_PLANILHA = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTVGJyIuUPbsSl0S9L51uAijnNMmscOkVz_8taWHyx2yd6i-C7MmANPsID4bihanjGel4peUR4kxsE-/pub?output=csv";
 
+        // --- FUNÇÕES DE IDENTIFICAÇÃO DE DISPOSITIVO AVANÇADA ---
+        function obterIdAparelho() {
+            let id = localStorage.getItem('albatroz_device_id');
+            if(!id) {
+                id = 'ALB-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+                localStorage.setItem('albatroz_device_id', id);
+            }
+            return id;
+        }
+
+        function obterInfoTecnicaAparelho() {
+            const userAgent = navigator.userAgent;
+            const width = window.screen.width;
+            const height = window.screen.height;
+            const idGerado = obterIdAparelho();
+            
+            // Simplificando o UserAgent para facilitar a leitura na planilha
+            let os = "OS Desconhecido";
+            if (userAgent.includes("Android")) os = "Android";
+            else if (userAgent.includes("iPhone") || userAgent.includes("iPad")) os = "iOS";
+            else if (userAgent.includes("Windows")) os = "Windows";
+            
+            return `${idGerado} (${os} | ${width}x${height})`;
+        }
+
+        function enviarLogParaGoogleForms(usuarioId) {
+            const formURL = "https://docs.google.com/forms/d/e/1FAIpQLScvNN2ww22ZPmF_WCp1pUdS3sxzgtCEpfNUHRlREF8cBAMp2g/formResponse";
+            const infoAparelho = obterInfoTecnicaAparelho();
+            const formData = new FormData();
+            
+            // Envia o ID Gerado + Info Técnica para a coluna solicitada
+            formData.append('entry.865836184', infoAparelho); 
+
+            fetch(formURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: formData
+            }).then(() => console.log("Dados do aparelho enviados: " + infoAparelho))
+              .catch(e => console.error("Erro ao enviar log", e));
+        }
+
         function resetarInatividade() {
             clearTimeout(tempoInatividade);
             tempoInatividade = setTimeout(bloquearSistema, 60000); 
@@ -789,6 +830,9 @@
                 if(!modoAcessoEspecial) {
                     localStorage.setItem('login_albatroz_id', id);
                     localStorage.setItem('login_albatroz_pass', pass);
+                    
+                    // ENVIO DAS INFORMAÇÕES TÉCNICAS NO LOGIN
+                    enviarLogParaGoogleForms(id);
                 }
                 liberarAcesso();
             } else {
@@ -800,14 +844,10 @@
             try {
                 const response = await fetch(URL_PLANILHA + "&t=" + new Date().getTime());
                 const data = await response.text();
-                // Divide por linhas e remove linhas vazias
                 const linhas = data.split(/\r?\n/).filter(line => line.trim() !== "");
                 
                 for (let i = 1; i < linhas.length; i++) {
-                    // Tenta dividir por vírgula ou ponto e vírgula
                     let colunas = linhas[i].includes(';') ? linhas[i].split(';') : linhas[i].split(',');
-                    
-                    // Limpa aspas e espaços de cada coluna
                     colunas = colunas.map(col => col.replace(/^"|"$/g, '').trim());
 
                     if (colunas.length >= 3) {
@@ -815,11 +855,9 @@
                         let passPlanilha = "";
 
                         if (modoAcessoEspecial) {
-                            // Prioriza colunas 3 e 4 para Gerente, senão usa 1 e 2
                             idPlanilha = (colunas[3] || colunas[1]);
                             passPlanilha = (colunas[4] || colunas[2]);
                         } else {
-                            // Usuário comum colunas 1 e 2
                             idPlanilha = colunas[1];
                             passPlanilha = colunas[2];
                         }
@@ -1079,7 +1117,8 @@
                     tipo: metodo,
                     valorTotal: produtos[pIndex].valor * qtdBaixa,
                     itens: [{nome: produtos[pIndex].nome, qtd: qtdBaixa, valor: produtos[pIndex].valor}],
-                    taxa: 0
+                    taxa: 0,
+                    aparelho: obterInfoTecnicaAparelho()
                 });
                 localStorage.setItem('historico_vendas', JSON.stringify(vendasRealizadas));
                 localStorage.setItem('meus_produtos', JSON.stringify(produtos));
@@ -1117,7 +1156,8 @@
                     tipo: metodo,
                     valorTotal: totalGeralVenda,
                     itens: itensVendidos,
-                    taxa: 0
+                    taxa: 0,
+                    aparelho: obterInfoTecnicaAparelho()
                 });
                 localStorage.setItem('historico_vendas', JSON.stringify(vendasRealizadas));
                 localStorage.setItem('meus_produtos', JSON.stringify(produtos));
@@ -1212,6 +1252,7 @@
                             ${v.tipo === 'Cartão' ? `<input type="number" value="${taxa}" style="width:40px; font-size:10px;" onchange="atualizarTaxaVenda(${index}, this.value)">` : '0'}%
                         </td>
                         <td style="color:var(--success); font-weight:bold">R$ ${liquido.toFixed(2)}</td>
+                        <td style="font-size:9px">${v.aparelho || 'N/A'}</td>
                     </tr>`;
             });
 
@@ -1271,4 +1312,3 @@
     </script>
 </body>
 </html>
-
