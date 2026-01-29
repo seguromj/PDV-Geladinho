@@ -45,7 +45,7 @@
             min-height: 100vh;
         }
 
-        /*👇 Estilo do Banner de Instalação App --> PWA 👇*/
+        /*==== Estilo do Banner de Instalação App --> PWA ====*/
         #container-instalacao {
             display: none;
             position: fixed;
@@ -66,7 +66,6 @@
         #container-instalacao p { font-size: 14px; margin-bottom: 15px; }
         .botoes-pwa { display: flex; gap: 10px; }
         .btn-pwa { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-         /*👆 Estilo do Banner de Instalação App --> PWA 👆*/
 
         .container-topo {
             width: 95%;
@@ -176,7 +175,7 @@
             overflow-y: auto;
         }
 
-        /*====👇 Layout PDV Mercado Profissional 👇====*/
+        /*==== Layout PDV Mercado Profissional ====*/
         .pdv-layout-container {
             display: flex;
             flex-direction: row;
@@ -214,7 +213,6 @@
         .monitor-nome { font-size: 28px; font-weight: 800; color: #000; text-transform: uppercase; }
         .monitor-preco { font-size: 48px; font-weight: 900; color: var(--success); margin: 10px 0; }
         .monitor-img { width: 200px; height: 200px; object-fit: contain; margin: 10px auto; display: block; background: #fff; border-radius: 10px; padding: 10px;}
-        /*====👆 Layout PDV Mercado Profissional 👆====*/
 
         #reader {
             width: 100%;
@@ -487,7 +485,7 @@
             font-size: 14px;
         }
 
-        /*👇 Estilo do Overlay de Login 👇*/
+        /*==== Estilo do Overlay de Login ====*/
         #overlay-login {
             display: flex;
             position: fixed;
@@ -504,7 +502,31 @@
         .container-senha { position: relative; width: 100%; }
         .btn-toggle-senha { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; }
         .btn-suporte { margin-top: 20px; color: var(--primary); text-decoration: none; font-weight: bold; }
-        /*👆 Estilo do Overlay de Login 👆*/
+
+        /* Estilos do Cupom */
+        .cupom-container {
+            background: white;
+            color: black;
+            padding: 20px;
+            width: 300px;
+            margin: 0 auto;
+            font-family: 'Courier New', Courier, monospace;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .cupom-header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
+        .cupom-header input { border: none; text-align: center; width: 100%; font-weight: bold; font-size: 16px; }
+        .cupom-tabela { width: 100%; font-size: 12px; margin: 10px 0; border-collapse: collapse; }
+        .cupom-totais { border-top: 1px dashed #000; padding-top: 10px; font-weight: bold; }
+        .linha-total { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        #qrcode-cupom { display: flex; justify-content: center; margin: 15px 0; }
+        .cupom-footer { text-align: center; font-size: 12px; margin-top: 10px; border-top: 1px dashed #000; padding-top: 10px; }
+        .cupom-input-calc { width: 60px; border: 1px solid #ccc; font-family: inherit; }
+
+        /* Dashboard */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 15px; }
+        .dash-card { background: #222; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #333; }
+        .dash-card h4 { margin: 0; font-size: 10px; color: #aaa; }
+        .dash-card p { margin: 5px 0 0 0; font-size: 16px; font-weight: bold; color: var(--success); }
 
         @media (max-width: 900px) {
             .pdv-layout-container { flex-direction: column; height: auto; }
@@ -732,11 +754,10 @@
                 ID DA NOTA: <span id="cupom-id-nota"></span><br>
                 DATA/HORA: <span id="cupom-data"></span><br>
                 <div style="margin-top: 5px;">
-                    <select id="cupom-metodo-pagamento-seletor" class="select-metodo-cupom" onchange="mudarMetodoCupom(this.value)">
+                    <select id="cupom-metodo-pagamento-seletor" class="select-metodo" style="width:100%" onchange="mudarMetodoCupom(this.value)">
                         <option value="Dinheiro">💵 Dinheiro</option>
                         <option value="Pix">📱 Pix</option>
                         <option value="Cartão de Crédito">💳 Cartão de Crédito</option>
-                        <option value="Cartão de Débito">💳 Cartão de Débito</option>
                     </select>
                 </div>
                 PAGAMENTO: <span id="cupom-pagamento"></span>
@@ -758,8 +779,7 @@
                 </div>
                 <div class="linha-total" id="linha-recebido-cupom">
                     <span>VALOR RECEBIDO:</span>
-                    <span>R$ <input type="number" id="cupom-calc-recebido" class="cupom-input-calc" value="0.00" oninput="calcularTrocoCupom()">
-                    <span class="texto-valor-limpo" id="cupom-recebido-limpo" style="display:none">0.00</span></span>
+                    <span>R$ <input type="number" id="cupom-calc-recebido" class="cupom-input-calc" value="0.00" oninput="calcularTrocoCupom()"></span>
                 </div>
                 <div class="linha-total" id="linha-troco-cupom">
                     <span>TROCO:</span>
@@ -767,23 +787,15 @@
                 </div>
             </div>
             <div id="qrcode-cupom"></div>
-            <input type="text" id="cupom-link-qr" class="input-link-qr" placeholder="Link para o QR Code" oninput="gerarQRCodeCupom(this.value)">
+            <input type="text" id="cupom-link-qr" class="input-pagamento" style="font-size:10px" placeholder="Link para o QR Code" oninput="gerarQRCodeCupom(this.value)">
             <div class="cupom-footer">
                 <p>Obrigado pela Preferência.<br>Volte Sempre.</p>
-                <textarea id="cupom-obs" style="width: 100%; font-family: inherit; font-size: 11px; border: 1px dotted #000; height: 40px;" placeholder="Digite algo aqui..." oninput="document.getElementById('cupom-obs-texto').innerText = this.value"></textarea>
-                <div id="cupom-obs-texto" style="display:none; font-size: 11px; text-align: center; margin-top: 5px; white-space: pre-wrap;"></div>
+                <div id="cupom-obs-texto" style="font-size: 11px; text-align: center; margin-top: 5px;"></div>
             </div>
             
-            <div class="toggle-cupom-label" style="margin-top: 10px; font-size: 11px; color: #333; display: flex; align-items: center; gap: 5px;">
-                <input type="checkbox" id="toggle-frase-fiscal" checked onchange="toggleFraseFiscal(this.checked)"> Exibir "CUPOM NÃO FISCAL"
-            </div>
-
             <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 5px;">
-                <div style="display: flex; gap: 5px;">
-                   <button class="btn-main btn-blue" style="flex: 1; padding: 8px; font-size: 10px;" onclick="window.print()">🖨️ IMPRIMIR</button>
-                   <button class="btn-main btn-vermelho" style="flex: 1; padding: 8px; font-size: 10px;" onclick="document.getElementById('modalDetalhesVenda').style.display='none'">FECHAR</button>
-                </div>
-                <button class="btn-main" id="btn-toggle-preview" style="background: #6c757d; color: white; padding: 8px; font-size: 12px; width: 100%;" onclick="togglePreviewCupom()">👁️ VER PRÉVIA DA NOTA</button>
+                <button class="btn-main btn-blue" onclick="window.print()">🖨️ IMPRIMIR</button>
+                <button class="btn-main btn-vermelho" onclick="document.getElementById('modalDetalhesVenda').style.display='none'">FECHAR</button>
             </div>
         </div>
     </div>
@@ -915,13 +927,11 @@
             const idSalvo = localStorage.getItem('login_albatroz_id');
             const senhaSalva = localStorage.getItem('login_albatroz_pass');
 
-            // Se for modo especial (Gerente) ou se não houver dados salvos, força a exibição dos campos
             if (modoAcessoEspecial || !idSalvo || !senhaSalva) {
                 mostrarCamposLogin();
                 return;
             }
 
-            // Se houver dados salvos e não for modo especial, tenta validar silenciosamente
             const valido = await validarCredenciaisPlanilha(idSalvo, senhaSalva);
             if (valido) {
                 liberarAcesso();
@@ -1007,7 +1017,6 @@
             if (document.getElementById('modalSist').style.display === 'flex') {
                 if (document.activeElement.id === 'valor-recebido' || document.activeElement.className.includes('baixa-input')) return;
                 
-                // Tecla F2 para dar baixa
                 if(e.key === "F2") {
                    baixaGeral();
                 }
@@ -1098,7 +1107,6 @@
         function adicionarNaLista(id) {
             const produtoEncontrado = produtos.find(p => p.id === id);
             
-            // ATUALIZAR MONITOR DE MERCADO (O AMARELO CARINHO)
             if(produtoEncontrado) {
                 document.getElementById('monitor-img').src = produtoEncontrado.img;
                 document.getElementById('monitor-nome').innerText = produtoEncontrado.nome;
@@ -1344,15 +1352,11 @@
             const displayBrutoDia = document.getElementById('valor-bruto-dia');
             const displayLucroTotal = document.getElementById('valor-lucro-total');
             const displayBrutoTotalAcumulado = document.getElementById('valor-bruto-total-acumulado');
-            const displayTaxaDia = document.getElementById('taxa-maquina-dia');
-            const displayTaxaTotal = document.getElementById('taxa-maquina-total');
             corpoTabela.innerHTML = "";
             let brutoTotalGeralAcumulado = 0;
             let lucroTotal = 0;
             let brutoDia = 0;
             let lucroDia = 0;
-            let taxaTotalAcumulada = 0;
-            let taxaDiaAcumulada = 0;
             let totPix = 0;
             let totDinheiro = 0;
             let totCartao = 0;
@@ -1368,11 +1372,9 @@
                 const liquido = bruto - valorDaTaxa;
                 brutoTotalGeralAcumulado += bruto;
                 lucroTotal += liquido;
-                taxaTotalAcumulada += valorDaTaxa;
                 if (agora - v.timestamp < vinteQuatroHoras && v.timestamp > timestampReset) {
                     brutoDia += bruto;
                     lucroDia += liquido;
-                    taxaDiaAcumulada += valorDaTaxa;
                     if(v.tipo === "Pix") totPix += liquido;
                     else if(v.tipo === "Dinheiro") totDinheiro += liquido;
                     else if(v.tipo === "Cartão" || v.tipo.includes("Cartão")) totCartao += liquido;
@@ -1382,7 +1384,7 @@
                         contagemProdutos[item.nome] = (contagemProdutos[item.nome] || 0) + item.qtd;
                     });
                 }
-                corpoTabela.innerHTML += `<tr><td>${v.data}</td><td><button onclick="visualizarItensVenda(${index})" style="font-size:10px; cursor:pointer; background: var(--primary); color: white; border:none; padding: 4px; border-radius:4px;">VER NOTA</button></td><td>${v.tipo}</td><td>R$ ${bruto.toFixed(2)}</td><td><input type="number" value="${taxa}" style="width:45px; font-size:11px; padding: 2px;" onchange="atualizarTaxaVenda(${index}, this.value)"></td><td style="color:var(--success); font-weight:bold">R$ ${liquido.toFixed(2)}</td><td style="font-size:9px">${v.aparelho || 'N/A'}</td></tr>`;
+                corpoTabela.innerHTML += `<tr><td>${v.data}</td><td><button onclick="visualizarItensVenda(${index})" style="font-size:10px; cursor:pointer; background: var(--primary); color: white; border:none; padding: 4px; border-radius:4px;">VER NOTA</button></td><td>${v.tipo}</td><td>R$ ${bruto.toFixed(2)}</td><td><input type="number" value="${taxa}" style="width:45px; font-size:11px;" onchange="atualizarTaxaVenda(${index}, this.value)"></td><td style="color:var(--success); font-weight:bold">R$ ${liquido.toFixed(2)}</td><td>${v.aparelho || 'N/A'}</td></tr>`;
             });
 
             document.getElementById('dash-pix').innerText = `R$ ${totPix.toFixed(2)}`;
@@ -1394,42 +1396,6 @@
             displayLucroDia.innerText = `R$ ${lucroDia.toFixed(2)}`;
             displayLucroTotal.innerText = `R$ ${lucroTotal.toFixed(2)}`;
             displayBrutoTotalAcumulado.innerText = `R$ ${brutoTotalGeralAcumulado.toFixed(2)}`;
-            displayTaxaDia.innerText = `Perda p/ Máquina: R$ ${taxaDiaAcumulada.toFixed(2)}`;
-            displayTaxaTotal.innerText = `Taxa Máquina Total: R$ ${taxaTotalAcumulada.toFixed(2)}`;
-        }
-
-        function abrirModalValorBruto(valor) {
-            document.getElementById('txtValorBrutoModal').innerText = `R$ ${valor.toFixed(2)}`;
-            document.getElementById('modalValorBruto').style.display = 'flex';
-        }
-
-        function toggleFraseFiscal(marcado) {
-            const frase = document.getElementById('texto-cupom-fiscal-frase');
-            frase.style.display = marcado ? 'block' : 'none';
-        }
-
-        function togglePreviewCupom() {
-            const cupom = document.querySelector('.cupom-container');
-            const btn = document.getElementById('btn-toggle-preview');
-            const inputRec = document.getElementById('cupom-calc-recebido');
-            const txtRec = document.getElementById('cupom-recebido-limpo');
-            const obsTextarea = document.getElementById('cupom-obs');
-            const obsDisplay = document.getElementById('cupom-obs-texto');
-            cupom.classList.toggle('preview-modo-profissional');
-            if(cupom.classList.contains('preview-modo-profissional')) {
-                btn.innerText = "✏️ EDITAR NOTA";
-                txtRec.innerText = parseFloat(inputRec.value).toFixed(2);
-                txtRec.style.display = "inline-block";
-                inputRec.style.display = "none";
-                obsDisplay.style.display = "block";
-                obsTextarea.style.display = "none";
-            } else {
-                btn.innerText = "👁️ VER PRÉVIA DA NOTA";
-                txtRec.style.display = "none";
-                inputRec.style.display = "inline-block";
-                obsDisplay.style.display = "none";
-                obsTextarea.style.display = "block";
-            }
         }
 
         function visualizarItensVenda(index) {
@@ -1437,9 +1403,7 @@
             document.getElementById('cupom-id-nota').innerText = venda.idVenda || 'N/A';
             document.getElementById('cupom-data').innerText = venda.data;
             const seletorMetodo = document.getElementById('cupom-metodo-pagamento-seletor');
-            if (venda.tipo === "Dinheiro") seletorMetodo.value = "Dinheiro";
-            else if (venda.tipo === "Pix") seletorMetodo.value = "Pix";
-            else seletorMetodo.value = "Cartão de Crédito";
+            seletorMetodo.value = (venda.tipo === "Dinheiro" || venda.tipo === "Pix") ? venda.tipo : "Cartão de Crédito";
             mudarMetodoCupom(seletorMetodo.value);
             document.getElementById('cupom-total-bruto').innerText = `R$ ${parseFloat(venda.valorTotal).toFixed(2)}`;
             const corpo = document.getElementById('cupom-corpo-itens');
@@ -1538,4 +1502,3 @@
     </script>
 </body>
 </html>
-
