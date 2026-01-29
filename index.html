@@ -998,8 +998,8 @@
                             <th>Itens</th>
                             <th>Metodo</th>
                             <th>Total Bruto</th>
-                            <th>Taxa %</th>
-                            <th>Líquido</th>
+                            <th>Taxa/Desc %</th>
+                            <th>Líquido (Bruto)</th>
                             <th>Aparelho</th>
                         </tr>
                     </thead>
@@ -1780,7 +1780,10 @@
                         <td>
                             <input type="number" value="${taxa}" style="width:45px; font-size:11px; padding: 2px; border: 1px solid #444; background: #222; color: white;" onchange="atualizarTaxaVenda(${index}, this.value)">
                         </td>
-                        <td style="color:var(--success); font-weight:bold">R$ ${liquido.toFixed(2)}</td>
+                        <td style="color:var(--success); font-weight:bold">
+                            R$ ${liquido.toFixed(2)}<br>
+                            <small style="color:#666; font-weight:normal;">(R$ ${bruto.toFixed(2)})</small>
+                        </td>
                         <td style="font-size:10px">${v.aparelho || 'N/A'}</td>
                     </tr>`;
             });
