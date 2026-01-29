@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -1353,8 +1354,12 @@
                 }
             }
 
+            // LÓGICA PARA LEITOR DE CÓDIGO DE BARRAS FÍSICO
+            // Verifica se o modal de escaneamento está aberto
             if (document.getElementById('modalSist').style.display === 'flex') {
+                // Se o foco estiver em um input de valor ou quantidade, deixamos o sistema agir normalmente
                 if (document.activeElement.id === 'valor-recebido' || document.activeElement.className.includes('baixa-input')) return;
+                
                 if (e.key === "Enter") {
                     if (barcodeBuffer.length > 0) {
                         const existe = produtos.some(p => p.id === barcodeBuffer);
@@ -1367,9 +1372,15 @@
                         barcodeBuffer = "";
                     }
                 } else {
-                    if (e.key.length === 1) barcodeBuffer += e.key;
+                    // Ignora teclas de sistema como Shift ou Control no buffer
+                    if (e.key.length === 1) {
+                        barcodeBuffer += e.key;
+                    }
                 }
-                setTimeout(() => { barcodeBuffer = ""; }, 200);
+                
+                // Reset de segurança do buffer (se demorar muito entre as teclas, limpa o buffer)
+                clearTimeout(window.barcodeTimeout);
+                window.barcodeTimeout = setTimeout(() => { barcodeBuffer = ""; }, 150);
             }
         });
 
@@ -2050,4 +2061,3 @@
     </script>
 </body>
 </html>
-
