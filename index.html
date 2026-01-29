@@ -666,6 +666,36 @@
             margin-bottom: 5px;
             border: 1px solid #ddd;
         }
+
+        /* NOVO ESTILO PARA ATALHOS */
+        .modal-atalhos {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card);
+            border: 2px solid var(--primary);
+            padding: 20px;
+            border-radius: 15px;
+            z-index: 6000;
+            width: 90%;
+            max-width: 400px;
+        }
+        .linha-atalho {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .input-tecla {
+            width: 60px;
+            text-align: center;
+            background: #222;
+            color: var(--warning);
+            border: 1px solid #444;
+            padding: 5px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body onclick="resetarInatividade()" onkeydown="resetarInatividade()">
@@ -701,9 +731,31 @@
     <div id="modalAvisoID">
         <div class="aviso-id-box">
             <h2 style="color:var(--danger)">⚠️ ID EM USO</h2>
-            <p>Este ID já está cadastrado em outro produto. Por favor, escolha um ID diferente.</p>
+            <p id="texto-aviso-id">Este ID já está cadastrado em outro produto. Por favor, escolha um ID diferente.</p>
             <button class="btn-main btn-blue" style="width:100%" onclick="document.getElementById('modalAvisoID').style.display='none'">OK, VOU TROCAR</button>
         </div>
+    </div>
+
+    <div id="modalAtalhos" class="modal-atalhos">
+        <h3 style="text-align:center; color: var(--primary);">Configurar Atalhos</h3>
+        <p style="font-size: 11px; text-align: center; color: #888;">Clique no campo e pressione a tecla desejada.</p>
+        <div class="linha-atalho">
+            <span>Abrir Escaner:</span>
+            <input type="text" class="input-tecla" id="key-escanear" readonly onclick="capturarTecla('key-escanear')">
+        </div>
+        <div class="linha-atalho">
+            <span>Abrir Histórico:</span>
+            <input type="text" class="input-tecla" id="key-historico" readonly onclick="capturarTecla('key-historico')">
+        </div>
+        <div class="linha-atalho">
+            <span>Abrir Cadastro:</span>
+            <input type="text" class="input-tecla" id="key-cadastro" readonly onclick="capturarTecla('key-cadastro')">
+        </div>
+        <div class="linha-atalho">
+            <span>Baixa Geral (no PDV):</span>
+            <input type="text" class="input-tecla" id="key-baixa" readonly onclick="capturarTecla('key-baixa')">
+        </div>
+        <button class="btn-main btn-green" style="width:100%; margin-top:10px;" onclick="fecharModalAtalhos()">SALVAR ATALHOS</button>
     </div>
 
     <div class="container-topo" id="home">
@@ -724,6 +776,7 @@
                 <a class="btn-main btn-laranja" href="Nota-fiscal-por-lei.html" target="_self">Cupom de novo Fiscal</a>
                 <a class="btn-main btn-vermelho" href="Codigo-Barra-QR.html" target="_self">Criar QR/BARRA</a>
                 <a class="btn-main btn-vermelho" href="Botao-Admin.html" target="_self">ALTERAR SITE</a>
+                <button class="btn-main btn-black" onclick="abrirModalAtalhos()">⌨️ CONFIGURAR TECLAS</button>
                 <a class="btn-main btn-black" href="Tutorial-Sistema.html" target="_self">Tutorial do Sistema</a>
             </div>
 
@@ -1006,6 +1059,14 @@
         let modoAcessoEspecial = false; 
         const URL_PLANILHA = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTVGJyIuUPbsSl0S9L51uAijnNMmscOkVz_8taWHyx2yd6i-C7MmANPsID4bihanjGel4peUR4kxsE-/pub?output=csv";
 
+        // CONFIGURAÇÕES DE TECLAS (Inicia com defaults ou salva no localStorage)
+        let configTeclas = JSON.parse(localStorage.getItem('albatroz_teclas')) || {
+            escanear: 'F2',
+            historico: 'F4',
+            cadastro: 'F8',
+            baixa: 'F9'
+        };
+
         // --- FUNÇÕES DE IDENTIFICAÇÃO DE DISPOSITIVO AVANÇADA ---
         function obterIdAparelho() {
             let id = localStorage.getItem('albatroz_device_id');
@@ -1161,6 +1222,19 @@
 
         let barcodeBuffer = "";
         window.addEventListener("keydown", (e) => {
+            // VERIFICAÇÃO DE ATALHOS PERSONALIZADOS
+            if (logado) {
+                if (e.key === configTeclas.escanear) { e.preventDefault(); abrirSist(); }
+                if (e.key === configTeclas.historico) { e.preventDefault(); abrirHistoricoVendas(); }
+                if (e.key === configTeclas.cadastro) { e.preventDefault(); abrirCadastro(); }
+                
+                // Atalho de baixa geral apenas se o modal de PDV estiver aberto
+                if (e.key === configTeclas.baixa && document.getElementById('modalSist').style.display === 'flex') {
+                    e.preventDefault();
+                    baixaGeral();
+                }
+            }
+
             if (document.getElementById('modalSist').style.display === 'flex') {
                 if (document.activeElement.id === 'valor-recebido' || document.activeElement.className.includes('baixa-input')) return;
                 if (e.key === "Enter") {
@@ -1185,6 +1259,7 @@
             if(historico.length > 0) atualizarLista();
             atualizarVisualizacaoHome();
             bloquearSistema(); 
+            carregarLabelsAtalhos();
         };
 
         function atualizarVisualizacaoHome() {
@@ -1357,9 +1432,10 @@
             const index = document.getElementById('edit-index').value;
             const idDigitado = document.getElementById('p-id').value;
             
-            // VERIFICAÇÃO DE ID DUPLICADO
-            const jaExiste = produtos.some((p, i) => p.id === idDigitado && i.toString() !== index);
-            if (jaExiste) {
+            // VERIFICAÇÃO DE ID DUPLICADO - MOSTRANDO O NOME DO PRODUTO
+            const produtoExistente = produtos.find((p, i) => p.id === idDigitado && i.toString() !== index);
+            if (produtoExistente) {
+                document.getElementById('texto-aviso-id').innerHTML = `O ID <b>${idDigitado}</b> já está sendo usado pelo produto: <br><b style="color:var(--warning)">${produtoExistente.nome || 'Produto sem nome'}</b>.<br><br>Por favor, escolha um ID diferente.`;
                 document.getElementById('modalAvisoID').style.display = 'flex';
                 return;
             }
@@ -1793,6 +1869,45 @@
             };
             reader.readAsText(event.target.files[0]);
         }
+
+        // --- NOVAS FUNÇÕES DE ATALHOS ---
+        function abrirModalAtalhos() {
+            document.getElementById('modalAtalhos').style.display = 'block';
+        }
+
+        function fecharModalAtalhos() {
+            document.getElementById('modalAtalhos').style.display = 'none';
+            localStorage.setItem('albatroz_teclas', JSON.stringify(configTeclas));
+        }
+
+        function carregarLabelsAtalhos() {
+            document.getElementById('key-escanear').value = configTeclas.escanear;
+            document.getElementById('key-historico').value = configTeclas.historico;
+            document.getElementById('key-cadastro').value = configTeclas.cadastro;
+            document.getElementById('key-baixa').value = configTeclas.baixa;
+        }
+
+        function capturarTecla(inputId) {
+            const input = document.getElementById(inputId);
+            input.value = "Pressione...";
+            
+            const listener = (e) => {
+                e.preventDefault();
+                const tecla = e.key;
+                input.value = tecla;
+                
+                // Mapeia para o objeto de config
+                if(inputId === 'key-escanear') configTeclas.escanear = tecla;
+                if(inputId === 'key-historico') configTeclas.historico = tecla;
+                if(inputId === 'key-cadastro') configTeclas.cadastro = tecla;
+                if(inputId === 'key-baixa') configTeclas.baixa = tecla;
+                
+                window.removeEventListener('keydown', listener);
+            };
+            
+            window.addEventListener('keydown', listener);
+        }
     </script>
 </body>
 </html>
+
