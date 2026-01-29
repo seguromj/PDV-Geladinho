@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -488,7 +487,7 @@
 
         /*==== Estilo do Overlay de Login ====*/
         #overlay-login {
-            display: flex;
+            display: none;
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
@@ -538,7 +537,7 @@
         }
     </style>
 </head>
-<body onclick="resetarInatividade()" onkeydown="resetarInatividade()">
+<body>
 <div id="container-instalacao">
         <h3>Instalar Albatroz</h3>
         <p>Deseja instalar este sistema como um aplicativo no seu celular?</p>
@@ -861,8 +860,6 @@
         let valorTotalVenda = 0;
         
         let logado = false;
-        let logadoHistorico = false;
-        let tempoInatividade;
         let modoAcessoEspecial = false; 
         const URL_PLANILHA = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTVGJyIuUPbsSl0S9L51uAijnNMmscOkVz_8taWHyx2yd6i-C7MmANPsID4bihanjGel4peUR4kxsE-/pub?output=csv";
 
@@ -909,120 +906,113 @@
                 method: 'POST',
                 mode: 'no-cors',
                 body: formData
-            }).then(() => console.log("Log enviado: " + infoCompleta))
-              .catch(e => console.error("Erro ao enviar log", e));
+            }).catch(e => console.error("Erro ao enviar log", e));
         }
 
-        function resetarInatividade() {
-            clearTimeout(tempoInatividade);
-            tempoInatividade = setTimeout(bloquearSistema, 60000); 
+        async function validarCredenciaisPlanilha(id, pass) {
+            try {
+                const response = await fetch(URL_PLANILHA + "&t=" + Date.now());
+                const data = await response.text();
+                const linhas = data.split(/\r?\n/).filter(line => line.trim() !== "");
+                for (let i = 1; i < linhas.length; i++) {
+                    let colunas = linhas[i].includes(';') ? linhas[i].split(';') : linhas[i].split(',');
+                    colunas = colunas.map(col => col.replace(/^"|"$/g, '').trim());
+                    if (colunas.length >= 3) {
+                        // Verifica Usuário Normal [1,2] ou Gerente [3,4]
+                        let idUser = colunas[1];
+                        let passUser = colunas[2];
+                        let idGerente = colunas[3];
+                        let passGerente = colunas[4];
+                        
+                        if (modoAcessoEspecial) {
+                            if (idGerente === id.trim() && passGerente === pass.trim()) return true;
+                        } else {
+                            if (idUser === id.trim() && passUser === pass.trim()) return true;
+                        }
+                    }
+                }
+                return false;
+            } catch (e) {
+                console.warn("Erro ao buscar planilha, usando cache offline.");
+                return null; // Indica erro de conexão
+            }
         }
 
-        async function bloquearSistema() {
+        async function gerenciarSessao() {
+            const idSalvo = localStorage.getItem('login_albatroz_id');
+            const passSalvo = localStorage.getItem('login_albatroz_pass');
+            const ultimaValidacao = parseInt(localStorage.getItem('albatroz_last_sync')) || 0;
+            const agora = Date.now();
+            const quatroHoras = 4 * 60 * 60 * 1000;
+
+            // 1. Se não tem nada salvo, obriga login
+            if (!idSalvo || !passSalvo) {
+                exibirBloqueio();
+                return;
+            }
+
+            // 2. Se validou a menos de 4 horas, libera o uso e valida em background
+            if (agora - ultimaValidacao < quatroHoras) {
+                liberarAcesso();
+                validarEmBackground(idSalvo, passSalvo);
+            } else {
+                // 3. Passou de 4 horas, tenta validar antes de bloquear
+                const valido = await validarCredenciaisPlanilha(idSalvo, passSalvo);
+                if (valido === true) {
+                    localStorage.setItem('albatroz_last_sync', Date.now());
+                    liberarAcesso();
+                } else if (valido === false) {
+                    exibirBloqueio(); // Senha mudou na planilha
+                } else {
+                    // Erro de rede: se já estava logado antes, deixa passar para não travar o PDV
+                    liberarAcesso();
+                }
+            }
+        }
+
+        async function validarEmBackground(id, pass) {
+            const valido = await validarCredenciaisPlanilha(id, pass);
+            if (valido === true) {
+                localStorage.setItem('albatroz_last_sync', Date.now());
+            } else if (valido === false) {
+                // Senha foi alterada remotamente, bloqueia na próxima verificação ou agora
+                console.warn("Credenciais alteradas remotamente.");
+                exibirBloqueio();
+            }
+        }
+
+        function exibirBloqueio() {
             logado = false;
             document.getElementById('overlay-login').style.display = 'flex';
-            document.getElementById('msg-login').innerText = "Verificando credenciais...";
-            document.getElementById('campos-login').style.display = "none";
-            document.getElementById('titulo-bloqueio').innerText = "🔒 SISTEMA BLOQUEADO";
-            
-            const idSalvo = localStorage.getItem('login_albatroz_id');
-            const senhaSalva = localStorage.getItem('login_albatroz_pass');
-
-            if (modoAcessoEspecial || !idSalvo || !senhaSalva) {
-                mostrarCamposLogin();
-                return;
-            }
-
-            // Otimização: Cache de sucesso para liberar instantaneamente
-            const cacheAuth = localStorage.getItem('albatroz_auth_cache');
-            if (cacheAuth === (idSalvo + senhaSalva)) {
-                liberarAcesso();
-                // Verifica em background se ainda é válido (sem travar)
-                validarCredenciaisPlanilha(idSalvo, senhaSalva);
-                return;
-            }
-
-            const valido = await validarCredenciaisPlanilha(idSalvo, senhaSalva);
-            if (valido) {
-                localStorage.setItem('albatroz_auth_cache', idSalvo + senhaSalva);
-                liberarAcesso();
-            } else {
-                mostrarCamposLogin();
-            }
-        }
-
-        function mostrarCamposLogin() {
-            if(modoAcessoEspecial) {
-                document.getElementById('titulo-bloqueio').innerText = "📊 ACESSO AO HISTÓRICO";
-                document.getElementById('msg-login').innerText = "Informe credenciais de Gerente.";
-            } else {
-                document.getElementById('titulo-bloqueio').innerText = "🔒 SISTEMA BLOQUEADO";
-                document.getElementById('msg-login').innerText = "Credenciais inválidas ou ausentes.";
-            }
-            document.getElementById('campos-login').style.display = "flex";
+            document.getElementById('campos-login').style.display = 'flex';
+            document.getElementById('msg-login').innerText = modoAcessoEspecial ? "Acesso Restrito: Gerente" : "Por favor, faça login para continuar.";
         }
 
         function liberarAcesso() {
             logado = true;
             document.getElementById('overlay-login').style.display = 'none';
-            resetarInatividade();
         }
 
         async function validarAcessoManual() {
             const id = document.getElementById('login-id').value;
             const pass = document.getElementById('login-senha').value;
             
-            if(!id || !pass) {
-                alert("Por favor, preencha todos os campos.");
-                return;
-            }
+            if(!id || !pass) return alert("Preencha os campos!");
 
             document.getElementById('msg-login').innerText = "Validando...";
             const valido = await validarCredenciaisPlanilha(id, pass);
             
-            if(valido) {
-                if(!modoAcessoEspecial) {
+            if(valido === true) {
+                if (!modoAcessoEspecial) {
                     localStorage.setItem('login_albatroz_id', id);
                     localStorage.setItem('login_albatroz_pass', pass);
-                    localStorage.setItem('albatroz_auth_cache', id + pass);
+                    localStorage.setItem('albatroz_last_sync', Date.now());
                     enviarLogParaGoogleForms(id);
                 }
                 liberarAcesso();
             } else {
-                document.getElementById('msg-login').innerText = "Erro: ID ou Senha incorretos.";
                 alert("ID ou Senha incorretos!");
-            }
-        }
-
-        async function validarCredenciaisPlanilha(id, pass) {
-            try {
-                // Timeout de 3 segundos para evitar que o usuário fique preso
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 3000);
-
-                const response = await fetch(URL_PLANILHA + "&t=" + Date.now(), { signal: controller.signal });
-                const data = await response.text();
-                clearTimeout(timeoutId);
-
-                const linhas = data.split(/\r?\n/).filter(line => line.trim() !== "");
-                for (let i = 1; i < linhas.length; i++) {
-                    let colunas = linhas[i].includes(';') ? linhas[i].split(';') : linhas[i].split(',');
-                    colunas = colunas.map(col => col.replace(/^"|"$/g, '').trim());
-                    if (colunas.length >= 3) {
-                        let idPlanilha = modoAcessoEspecial ? (colunas[3] || colunas[1]) : colunas[1];
-                        let passPlanilha = modoAcessoEspecial ? (colunas[4] || colunas[2]) : colunas[2];
-                        
-                        if (idPlanilha === id.trim() && passPlanilha === pass.trim()) {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            } catch (e) {
-                console.warn("Validação rápida falhou ou timeout atingido.", e);
-                // Se der erro de rede mas tiver cache, consideramos válido para não travar o PDV
-                const cacheAuth = localStorage.getItem('albatroz_auth_cache');
-                return cacheAuth === (id + pass);
+                document.getElementById('msg-login').innerText = "Erro nas credenciais.";
             }
         }
 
@@ -1030,11 +1020,7 @@
         window.addEventListener("keydown", (e) => {
             if (document.getElementById('modalSist').style.display === 'flex') {
                 if (document.activeElement.id === 'valor-recebido' || document.activeElement.className.includes('baixa-input')) return;
-                
-                if(e.key === "F2") {
-                   baixaGeral();
-                }
-
+                if(e.key === "F2") { baixaGeral(); }
                 if (e.key === "Enter") {
                     if (barcodeBuffer.length > 0) {
                         const existe = produtos.some(p => p.id === barcodeBuffer);
@@ -1056,7 +1042,13 @@
         window.onload = () => {
             if(historico.length > 0) atualizarLista();
             atualizarVisualizacaoHome();
-            bloquearSistema(); 
+            gerenciarSessao();
+            // Verifica a cada 10 minutos em background
+            setInterval(() => {
+                const id = localStorage.getItem('login_albatroz_id');
+                const pass = localStorage.getItem('login_albatroz_pass');
+                if(id && pass) validarEmBackground(id, pass);
+            }, 600000);
         };
 
         function atualizarVisualizacaoHome() {
@@ -1347,9 +1339,8 @@
         }
 
         function abrirHistoricoVendas() {
-            logadoHistorico = false; 
             modoAcessoEspecial = true;
-            bloquearSistema();
+            exibirBloqueio();
             const interval = setInterval(() => {
                 if (logado) {
                     clearInterval(interval);
@@ -1485,8 +1476,9 @@
             document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
             document.getElementById('home').style.display = 'flex';
             if (scanner) scanner.stop();
-            logado = false; 
             modoAcessoEspecial = false;
+            // Verifica sessão ao voltar ao menu para garantir que ainda está autorizado
+            gerenciarSessao();
         }
 
         function exportarDados() {
@@ -1516,3 +1508,4 @@
     </script>
 </body>
 </html>
+
