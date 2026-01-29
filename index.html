@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -920,7 +919,7 @@
         async function bloquearSistema() {
             logado = false;
             document.getElementById('overlay-login').style.display = 'flex';
-            document.getElementById('msg-login').innerText = "Verificando credenciais salvas...";
+            document.getElementById('msg-login').innerText = "Verificando credenciais...";
             document.getElementById('campos-login').style.display = "none";
             document.getElementById('titulo-bloqueio').innerText = "🔒 SISTEMA BLOQUEADO";
             
@@ -929,6 +928,15 @@
 
             if (modoAcessoEspecial || !idSalvo || !senhaSalva) {
                 mostrarCamposLogin();
+                return;
+            }
+
+            // Otimização: Se já validamos recentemente na planilha, libera direto
+            const cacheValidacao = localStorage.getItem('albatroz_auth_cache');
+            if(cacheValidacao === (idSalvo + senhaSalva)) {
+                liberarAcesso();
+                // Tenta atualizar o cache em background sem travar o usuário
+                validarCredenciaisPlanilha(idSalvo, senhaSalva);
                 return;
             }
 
@@ -973,6 +981,8 @@
                 if(!modoAcessoEspecial) {
                     localStorage.setItem('login_albatroz_id', id);
                     localStorage.setItem('login_albatroz_pass', pass);
+                    // Salva cache de sucesso para próximas aberturas rápidas
+                    localStorage.setItem('albatroz_auth_cache', id + pass);
                     enviarLogParaGoogleForms(id);
                 }
                 liberarAcesso();
@@ -984,8 +994,14 @@
 
         async function validarCredenciaisPlanilha(id, pass) {
             try {
-                const response = await fetch(URL_PLANILHA + "&t=" + new Date().getTime());
+                // Adicionado timeout para não deixar o usuário esperando infinito se a rede estiver ruim
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 8000); 
+
+                const response = await fetch(URL_PLANILHA + "&t=" + new Date().getTime(), { signal: controller.signal });
                 const data = await response.text();
+                clearTimeout(timeoutId);
+
                 const linhas = data.split(/\r?\n/).filter(line => line.trim() !== "");
                 for (let i = 1; i < linhas.length; i++) {
                     let colunas = linhas[i].includes(';') ? linhas[i].split(';') : linhas[i].split(',');
@@ -1502,3 +1518,5 @@
     </script>
 </body>
 </html>
+
+
