@@ -138,7 +138,7 @@
             flex-direction: column;
         }
 
-        .carrinho-lado-direito {
+        .carrinho-lado-right {
             flex: 0 0 400px;
             display: flex;
             flex-direction: column;
@@ -441,6 +441,25 @@
             font-size: 18px;
         }
 
+        /* ESTILO PARA MODAL RÁPIDO DE STATUS DE TECLAS */
+        #modal-status-teclas {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 15px;
+            font-weight: bold;
+            z-index: 10000;
+            display: none;
+            box-shadow: 0 0 20px var(--primary);
+            font-size: 20px;
+            text-align: center;
+            border: 2px solid var(--primary);
+        }
+
         .container-backup {
             display: flex;
             gap: 10px;
@@ -620,7 +639,7 @@
             .coluna-esquerda { flex: 1; width: 100%; }
             .coluna-direita { width: 100%; }
             .layout-scan-pc { flex-direction: column; }
-            .carrinho-lado-direito { flex: 1; width: 100%; }
+            .carrinho-lado-right { flex: 1; width: 100%; }
             .dashboard-grid { grid-template-columns: 1fr 1fr; }
             .menu-principal { grid-template-columns: 1fr 1fr; }
         }
@@ -746,6 +765,8 @@
     <audio id="beep" src="https://assets.mixkit.co/active_storage/sfx/766/766-preview.mp3"></audio>
 
     <div id="aviso-erro">PRODUTO NÃO CADASTRADO NO SISTEMA</div>
+
+    <div id="modal-status-teclas"></div>
 
     <div id="modalAvisoID">
         <div class="aviso-id-box">
@@ -876,7 +897,7 @@
                 <div id="reader"></div>
             </div>
 
-            <div class="carrinho-lado-direito">
+            <div class="carrinho-lado-right">
                 <div id="container-baixa-geral">
                     <button class="btn-baixa-geral" onclick="baixaGeral()">DAR BAIXA EM TUDO</button>
                     <div id="valor-total" class="campo-total">Total: R$ 0,00</div>
@@ -1296,8 +1317,15 @@
 
         let barcodeBuffer = "";
         window.addEventListener("keydown", (e) => {
+            // DETECÇÃO DA TECLA ALT GR (AltGraph) PARA ALTERNAR ATALHOS
+            if (e.key === "AltGraph") {
+                e.preventDefault();
+                toggleAtalhos();
+                return;
+            }
+
             // VERIFICAÇÃO DE ATALHOS PERSONALIZADOS
-            if (logado) {
+            if (logado && atalhosAtivados) {
                 // ATALHOS HOME / GLOBAL
                 if (e.key === configTeclas.escanear) { e.preventDefault(); abrirSist(); }
                 if (e.key === configTeclas.historico) { e.preventDefault(); abrirHistoricoVendas(); }
@@ -1965,8 +1993,20 @@
 
         function toggleAtalhos() {
             atalhosAtivados = !atalhosAtivados;
-            const status = atalhosAtivados ? "ATIVADOS ✅" : "DESATIVADOS (Modo Digitação) 🔒";
-            console.log("Atalhos " + status);
+            const statusStr = atalhosAtivados ? "ATALHOS ATIVADOS ✅" : "MODO DIGITAÇÃO 🔒 (Atalhos Desativados)";
+            
+            // MOSTRAR MODAL RÁPIDO
+            const modalStatus = document.getElementById('modal-status-teclas');
+            modalStatus.innerText = statusStr;
+            modalStatus.style.display = 'block';
+            modalStatus.style.borderColor = atalhosAtivados ? "var(--success)" : "var(--danger)";
+            modalStatus.style.boxShadow = atalhosAtivados ? "0 0 20px var(--success)" : "0 0 20px var(--danger)";
+            
+            setTimeout(() => {
+                modalStatus.style.display = 'none';
+            }, 1200);
+
+            console.log(statusStr);
         }
 
         function abrirModalAtalhos() {
@@ -2010,3 +2050,4 @@
     </script>
 </body>
 </html>
+
