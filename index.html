@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -931,17 +933,18 @@
                 return;
             }
 
-            // Otimização: Se já validamos recentemente na planilha, libera direto
-            const cacheValidacao = localStorage.getItem('albatroz_auth_cache');
-            if(cacheValidacao === (idSalvo + senhaSalva)) {
+            // Otimização: Cache de sucesso para liberar instantaneamente
+            const cacheAuth = localStorage.getItem('albatroz_auth_cache');
+            if (cacheAuth === (idSalvo + senhaSalva)) {
                 liberarAcesso();
-                // Tenta atualizar o cache em background sem travar o usuário
+                // Verifica em background se ainda é válido (sem travar)
                 validarCredenciaisPlanilha(idSalvo, senhaSalva);
                 return;
             }
 
             const valido = await validarCredenciaisPlanilha(idSalvo, senhaSalva);
             if (valido) {
+                localStorage.setItem('albatroz_auth_cache', idSalvo + senhaSalva);
                 liberarAcesso();
             } else {
                 mostrarCamposLogin();
@@ -981,24 +984,23 @@
                 if(!modoAcessoEspecial) {
                     localStorage.setItem('login_albatroz_id', id);
                     localStorage.setItem('login_albatroz_pass', pass);
-                    // Salva cache de sucesso para próximas aberturas rápidas
                     localStorage.setItem('albatroz_auth_cache', id + pass);
                     enviarLogParaGoogleForms(id);
                 }
                 liberarAcesso();
             } else {
                 document.getElementById('msg-login').innerText = "Erro: ID ou Senha incorretos.";
-                alert("ID ou Senha incorretos na planilha!");
+                alert("ID ou Senha incorretos!");
             }
         }
 
         async function validarCredenciaisPlanilha(id, pass) {
             try {
-                // Adicionado timeout para não deixar o usuário esperando infinito se a rede estiver ruim
+                // Timeout de 3 segundos para evitar que o usuário fique preso
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 8000); 
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-                const response = await fetch(URL_PLANILHA + "&t=" + new Date().getTime(), { signal: controller.signal });
+                const response = await fetch(URL_PLANILHA + "&t=" + Date.now(), { signal: controller.signal });
                 const data = await response.text();
                 clearTimeout(timeoutId);
 
@@ -1007,15 +1009,9 @@
                     let colunas = linhas[i].includes(';') ? linhas[i].split(';') : linhas[i].split(',');
                     colunas = colunas.map(col => col.replace(/^"|"$/g, '').trim());
                     if (colunas.length >= 3) {
-                        let idPlanilha = "";
-                        let passPlanilha = "";
-                        if (modoAcessoEspecial) {
-                            idPlanilha = (colunas[3] || colunas[1]);
-                            passPlanilha = (colunas[4] || colunas[2]);
-                        } else {
-                            idPlanilha = colunas[1];
-                            passPlanilha = colunas[2];
-                        }
+                        let idPlanilha = modoAcessoEspecial ? (colunas[3] || colunas[1]) : colunas[1];
+                        let passPlanilha = modoAcessoEspecial ? (colunas[4] || colunas[2]) : colunas[2];
+                        
                         if (idPlanilha === id.trim() && passPlanilha === pass.trim()) {
                             return true;
                         }
@@ -1023,8 +1019,10 @@
                 }
                 return false;
             } catch (e) {
-                console.error("Erro ao validar planilha", e);
-                return false;
+                console.warn("Validação rápida falhou ou timeout atingido.", e);
+                // Se der erro de rede mas tiver cache, consideramos válido para não travar o PDV
+                const cacheAuth = localStorage.getItem('albatroz_auth_cache');
+                return cacheAuth === (id + pass);
             }
         }
 
@@ -1518,5 +1516,3 @@
     </script>
 </body>
 </html>
-
-
