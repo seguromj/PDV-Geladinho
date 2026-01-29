@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -69,25 +70,23 @@
 
         .container-topo {
             width: 95%;
-            max-width: 1200px;
+            max-width: 1400px;
             display: flex;
             flex-direction: row;
             gap: 20px;
             margin-top: 20px;
             align-items: flex-start;
-            flex-wrap: wrap;
+            flex-wrap: nowrap; /* Mantém lado a lado no PC */
         }
 
         .coluna-esquerda {
-            flex: 1;
-            min-width: 320px;
+            flex: 0 0 350px; /* Largura fixa para menus no PC */
             display: flex;
             flex-direction: column; gap: 20px;
         }
 
         .coluna-direita {
-            flex: 2;
-            min-width: 320px;
+            flex: 1;
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -118,6 +117,32 @@
             box-sizing: border-box;
             border: 2px solid var(--warning);
             color: #000;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        /* Layout Especial para o Modal de Escaneamento no PC */
+        .layout-scan-pc {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            align-items: flex-start;
+        }
+
+        .camera-lado-esquerdo {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .carrinho-lado-direito {
+            flex: 0 0 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .card-disponivel {
@@ -181,18 +206,18 @@
             background: var(--bg);
             z-index: 1000;
             flex-direction: column;
-            padding: 15px;
+            padding: 20px;
             box-sizing: border-box;
             overflow-y: auto;
         }
 
         #reader {
             width: 100%;
-            max-width: 300px;
+            max-width: 500px; /* Maior no PC */
             margin: 0 auto;
-            border-radius: 10px;
+            border-radius: 15px;
             overflow: hidden;
-            border: 2px solid #333;
+            border: 3px solid var(--primary);
             flex-shrink: 0;
         }
 
@@ -201,40 +226,37 @@
             justify-content: space-between;
             align-items: center;
             width: 100%;
-            max-width: 300px;
+            max-width: 500px;
             margin: 5px auto;
             flex-shrink: 0;
         }
 
         .btn-circle {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             border: none;
             background: #333;
             color: white;
-            font-size: 18px;
+            font-size: 20px;
             cursor: pointer;
         }
 
         .lista-resultados {
             width: 100%;
-            max-width: 500px;
-            margin: 10px auto;
             display: flex;
             flex-direction: column; gap: 8px;
-            overflow-y: auto; 
         }
 
         .item-lista {
             background: #ffffff;
             color: #000;
-            padding: 8px 12px;
+            padding: 10px 12px;
             border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-left: 4px solid var(--primary);
+            border-left: 6px solid var(--primary);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
@@ -255,20 +277,21 @@
             background: #222;
             color: #fff;
             border: 1px solid #444;
-            padding: 8px 15px;
-            margin-bottom: 10px;
+            padding: 10px 20px;
+            margin-bottom: 20px;
             border-radius: 8px;
             align-self: flex-start;
             cursor: pointer;
             flex-shrink: 0;
-            font-size: 12px;
+            font-size: 14px;
+            font-weight: bold;
         }
 
         #status-leitura {
             text-align: center;
-            font-size: 12px;
+            font-size: 14px;
             color: var(--success);
-            height: 18px;
+            font-weight: bold;
         }
 
         .form-cadastro {
@@ -276,10 +299,13 @@
             flex-direction: column;
             gap: 10px;
             background: var(--card);
-            padding: 15px;
+            padding: 20px;
             border-radius: 12px;
             margin-bottom: 20px;
             border: 1px solid #333;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
         .form-cadastro input {
             padding: 12px;
@@ -290,25 +316,27 @@
         }
         .grid-produtos {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
             width: 100%;
         }
         .produto-card {
             background: var(--card);
-            border-radius: 10px;
-            padding: 8px;
+            border-radius: 12px;
+            padding: 12px;
             border: 1px solid #333;
             position: relative;
             text-align: center;
+            transition: 0.3s;
         }
+        .produto-card:hover { border-color: var(--primary); transform: translateY(-5px); }
         .produto-card img {
             width: 100%;
-            height: 80px;
+            height: 120px;
             object-fit: cover;
-            border-radius: 6px;
+            border-radius: 8px;
         }
-        .produto-info { font-size: 12px; margin-top: 5px; }
+        .produto-info { font-size: 14px; margin-top: 10px; }
         .btn-edit-prod {
             position: absolute;
             top: 5px;
@@ -317,7 +345,7 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            padding: 2px 5px;
+            padding: 4px 8px;
         }
         .btn-del-prod {
             position: absolute;
@@ -328,7 +356,7 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            padding: 2px 6px;
+            padding: 4px 8px;
             font-weight: bold;
         }
         .baixa-container {
@@ -348,44 +376,45 @@
             color: black;
             border: none;
             border-radius: 8px;
-            padding: 10px;
-            font-size: 14px;
+            padding: 15px;
+            font-size: 16px;
             font-weight: bold;
             width: 100%;
             cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
         }
 
         .campo-total {
             background: #333;
             color: var(--warning);
-            padding: 10px;
+            padding: 15px;
             border-radius: 8px;
             text-align: center;
-            font-size: 18px;
+            font-size: 22px;
             font-weight: bold;
-            margin-top: 5px;
-            border: 1px solid var(--warning);
+            margin-top: 10px;
+            border: 2px solid var(--warning);
         }
 
         .container-pagamento {
             background: var(--card);
-            padding: 10px;
+            padding: 15px;
             border-radius: 8px;
             margin-top: 10px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
             border: 1px solid #444;
         }
 
         .input-pagamento {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border-radius: 6px;
             border: 1px solid var(--primary);
             background: #222;
             color: white;
-            font-size: 16px;
+            font-size: 18px;
             box-sizing: border-box;
         }
 
@@ -393,7 +422,7 @@
             color: var(--success);
             font-weight: bold;
             text-align: center;
-            font-size: 16px;
+            font-size: 20px;
         }
 
         #aviso-erro {
@@ -403,12 +432,13 @@
             transform: translateX(-50%);
             background: var(--danger);
             color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
+            padding: 20px 40px;
+            border-radius: 15px;
             font-weight: bold;
-            z-index: 2000;
+            z-index: 5000;
             display: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 25px rgba(0,0,0,0.7);
+            font-size: 18px;
         }
 
         .container-backup {
@@ -420,8 +450,8 @@
 
         .btn-backup {
             flex: 1;
-            padding: 10px;
-            font-size: 12px;
+            padding: 12px;
+            font-size: 13px;
             font-weight: bold;
             border-radius: 8px;
             border: none;
@@ -434,11 +464,11 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
-            font-size: 12px;
+            font-size: 13px;
         }
         .tabela-vendas th, .tabela-vendas td {
             border: 1px solid #333;
-            padding: 8px;
+            padding: 10px;
             text-align: left;
         }
         .tabela-vendas th {
@@ -448,42 +478,46 @@
 
         .select-metodo {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border-radius: 6px;
             border: 1px solid var(--primary);
             background: #222;
             color: white;
-            font-size: 14px;
+            font-size: 16px;
         }
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         .dash-card {
             background: #222;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 20px;
+            border-radius: 12px;
             border: 1px solid #444;
             text-align: center;
         }
-        .dash-card h4 { margin: 0 0 5px 0; font-size: 12px; color: #aaa; }
-        .dash-card p { margin: 0; font-size: 16px; font-weight: bold; color: var(--success); }
+        .dash-card h4 { margin: 0 0 10px 0; font-size: 14px; color: #aaa; }
+        .dash-card p { margin: 0; font-size: 20px; font-weight: bold; color: var(--success); }
 
         .busca-container {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
         .busca-container input {
             width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid var(--warning);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid var(--warning);
             background: #222;
             color: white;
             box-sizing: border-box;
+            font-size: 16px;
         }
 
         #overlay-login {
@@ -541,31 +575,59 @@
         .cupom-container {
             background: #fff;
             width: 95%;
-            max-width: 400px;
+            max-width: 450px;
             margin: 20px auto;
-            padding: 20px;
+            padding: 30px;
             color: #000;
             font-family: 'Courier New', Courier, monospace;
-            box-shadow: 0 0 15px rgba(255,255,255,0.2);
-            border-radius: 2px;
+            box-shadow: 0 0 25px rgba(255,255,255,0.2);
+            border-radius: 4px;
         }
-        .cupom-header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
-        .cupom-header input { border: none; text-align: center; width: 100%; font-weight: bold; font-family: inherit; font-size: 16px; margin-bottom: 5px; }
-        .cupom-info { font-size: 12px; margin-bottom: 10px; }
-        .cupom-tabela { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 10px; }
-        .cupom-tabela th { text-align: left; border-bottom: 1px solid #000; }
-        .cupom-totais { border-top: 1px dashed #000; padding-top: 10px; margin-top: 10px; }
-        .linha-total { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; }
-        .cupom-footer { text-align: center; margin-top: 20px; border-top: 1px dashed #000; padding-top: 10px; }
+        .cupom-header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 15px; margin-bottom: 15px; }
+        .cupom-header input { border: none; text-align: center; width: 100%; font-weight: bold; font-family: inherit; font-size: 18px; margin-bottom: 5px; }
+        .cupom-info { font-size: 13px; margin-bottom: 15px; }
+        .cupom-tabela { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 15px; }
+        .cupom-tabela th { text-align: left; border-bottom: 1px solid #000; padding: 5px 0; }
+        .cupom-totais { border-top: 2px dashed #000; padding-top: 15px; margin-top: 15px; }
+        .linha-total { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 8px; font-size: 16px; }
+        .cupom-footer { text-align: center; margin-top: 25px; border-top: 2px dashed #000; padding-top: 15px; }
         .cupom-input-calc { border: 1px solid #ddd; padding: 5px; width: 80px; font-family: inherit; text-align: right; }
         #qrcode-cupom { display: flex; justify-content: center; margin: 15px 0; }
-        .input-link-qr { width: 100%; font-size: 10px; margin-top: 5px; border: 1px solid #ccc; }
+        .input-link-qr { width: 100%; font-size: 11px; margin-top: 5px; border: 1px solid #ccc; }
 
-        @media (max-width: 800px) {
-            .container-topo { flex-direction: column; align-items: center; }
+        /* Estilos de modal de aviso para ID duplicado */
+        #modalAvisoID {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 5001;
+            align-items: center;
+            justify-content: center;
+        }
+        .aviso-id-box {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid var(--danger);
+            text-align: center;
+            max-width: 350px;
+        }
+
+        @media (max-width: 1000px) {
+            .container-topo { flex-direction: column; align-items: center; flex-wrap: wrap; }
+            .coluna-esquerda { flex: 1; width: 100%; }
+            .coluna-direita { width: 100%; }
+            .layout-scan-pc { flex-direction: column; }
+            .carrinho-lado-direito { flex: 1; width: 100%; }
+            .dashboard-grid { grid-template-columns: 1fr 1fr; }
+            .menu-principal { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 600px) {
             .menu-principal { grid-template-columns: 1fr; }
             .btn-black { grid-column: span 1; }
-            .coluna-esquerda, .coluna-direita { width: 100%; }
         }
 
         /* Estilos para modo visualização prévia da nota */
@@ -591,7 +653,7 @@
         @media print {
             body * { visibility: hidden; }
             #modalDetalhesVenda, #modalDetalhesVenda * { visibility: visible; }
-            #modalDetalhesVenda { position: absolute; left: 0; top: 0; background: white; }
+            #modalDetalhesVenda { position: absolute; left: 0; top: 0; background: white; width: 100%; }
             .btn-main, .input-link-qr, .cupom-input-calc, textarea, .toggle-cupom-label, .select-metodo-cupom { display: none !important; }
             #cupom-obs-texto { display: block !important; }
         }
@@ -634,7 +696,15 @@
 
     <audio id="beep" src="https://assets.mixkit.co/active_storage/sfx/766/766-preview.mp3"></audio>
 
-    <div id="aviso-erro">PRODUTO NÃO EXISTE</div>
+    <div id="aviso-erro">PRODUTO NÃO CADASTRADO NO SISTEMA</div>
+
+    <div id="modalAvisoID">
+        <div class="aviso-id-box">
+            <h2 style="color:var(--danger)">⚠️ ID EM USO</h2>
+            <p>Este ID já está cadastrado em outro produto. Por favor, escolha um ID diferente.</p>
+            <button class="btn-main btn-blue" style="width:100%" onclick="document.getElementById('modalAvisoID').style.display='none'">OK, VOU TROCAR</button>
+        </div>
+    </div>
 
     <div class="container-topo" id="home">
         
@@ -642,17 +712,17 @@
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                 <img src="icon-512.png" id="logo-sistema" style="width: 80px; height: 80px; border-radius: 50%;">
                 <div>
-                    <h2 style="margin:0; color: white;">ALBATROZ <strong style="font-size: 11px; color: #002680">PDV</strong></h2>
+                    <h2 style="margin:0; color: white;">ALBATROZ <strong style="font-size: 11px; color: #2D35FA">PDV</strong></h2>
                     <small style="color: var(--primary);"><strong style="color: #800000">Suporte:</strong> (62) 995679219</small>
                 </div>
             </div>
 
             <div class="menu-principal">
                 <button class="btn-main btn-blue" onclick="abrirSist()"><img src="scan-code.png" alt="imagem escanear" style="padding: 10px; width: 20px; height: 20px; border-radius: 50%;"> Escanear Produtos</button>
-                <button class="btn-main btn-green" onclick="abrirHistoricoVendas()">📊 HISTÓRICO</button>
-                <button class="btn-main btn-orange" onclick="abrirCadastro()">🛍️ CADASTRAR</button>
-                <a class="btn-main btn-laranja" href="Nota-fiscal-por-lei.html" target="_self">🖼️ IMAGENS</a>
-                <a class="btn-main btn-vermelho" href="Codigo-Barra-QR.html" target="_self">GEN. QR/BARRA</a>
+                <button class="btn-main btn-green" onclick="abrirHistoricoVendas()">📊 HISTÓRICO de VENDA</button>
+                <button class="btn-main btn-orange" onclick="abrirCadastro()">🛍️ CADASTRAR PRODUTOS</button>
+                <a class="btn-main btn-laranja" href="Nota-fiscal-por-lei.html" target="_self">Cupom de novo Fiscal</a>
+                <a class="btn-main btn-vermelho" href="Codigo-Barra-QR.html" target="_self">Criar QR/BARRA</a>
                 <a class="btn-main btn-vermelho" href="Botao-Admin.html" target="_self">ALTERAR SITE</a>
                 <a class="btn-main btn-black" href="Tutorial-Sistema.html" target="_self">Tutorial do Sistema</a>
             </div>
@@ -666,59 +736,69 @@
         </div>
 
         <div class="coluna-direita">
-            <div class="secao-disponiveis" style="min-height: 200px;">
+            <div class="secao-disponiveis" style="min-height: 400px;">
                 <h3 style="margin-top:0; text-align:center;">CATÁLOGO RÁPIDO</h3>
                 <div class="grid-produtos" id="home-catalogo-view"></div>
-                <p style="text-align: center; color: #666; font-size: 12px; margin-top: 15px;">Use os botões laterais para gerenciar o sistema.</p>
+                <p style="text-align: center; color: #666; font-size: 14px; margin-top: 15px;">Use os botões laterais para gerenciar o sistema.</p>
             </div>
         </div>
     </div>
 
     <div id="modalSist" class="modal">
-        <button class="btn-voltar" onclick="fecharTudo()">⬅ VOLTAR</button>
-        <div class="camera-controls">
-            <div id="status-leitura">Pronto para escanear</div>
-            <button class="btn-circle" onclick="girarCamera()">🔁</button>
-        </div>
-        <div id="reader"></div>
-        <div id="container-baixa-geral" style="padding: 10px 0; display: none; flex-shrink: 0;">
-            <button class="btn-baixa-geral" onclick="baixaGeral()">DAR BAIXA EM TUDO</button>
-            <div id="valor-total" class="campo-total">Total: R$ 0,00</div>
-            <div class="container-pagamento">
-                <select id="metodo-pagamento" class="select-metodo">
-                    <option value="Dinheiro">💵 Dinheiro</option>
-                    <option value="Pix">📱 Pix</option>
-                    <option value="Cartão">💳 Cartão</option>
-                </select>
-                <input type="number" id="valor-recebido" class="input-pagamento" placeholder="Valor recebido do cliente" oninput="calcularTroco()">
-                <div id="texto-troco" class="texto-troco">Troco: R$ 0,00</div>
+        <button class="btn-voltar" onclick="fecharTudo()">⬅ VOLTAR PARA HOME</button>
+        
+        <div class="layout-scan-pc">
+            <div class="camera-lado-esquerdo">
+                <div class="camera-controls">
+                    <div id="status-leitura">Pronto para escanear</div>
+                    <button class="btn-circle" onclick="girarCamera()">🔁</button>
+                </div>
+                <div id="reader"></div>
             </div>
-        </div>
-        <div class="secao-escaneados">
-            <h3 style="margin:0 0 10px 0; text-align:center; font-size: 14px;">🛒 ITENS NO CARRINHO</h3>
-            <div class="lista-resultados" id="lista"></div>
+
+            <div class="carrinho-lado-direito">
+                <div id="container-baixa-geral">
+                    <button class="btn-baixa-geral" onclick="baixaGeral()">DAR BAIXA EM TUDO</button>
+                    <div id="valor-total" class="campo-total">Total: R$ 0,00</div>
+                    <div class="container-pagamento">
+                        <select id="metodo-pagamento" class="select-metodo">
+                            <option value="Dinheiro">💵 Dinheiro</option>
+                            <option value="Pix">📱 Pix</option>
+                            <option value="Cartão">💳 Cartão</option>
+                        </select>
+                        <input type="number" id="valor-recebido" class="input-pagamento" placeholder="Valor recebido" oninput="calcularTroco()">
+                        <div id="texto-troco" class="texto-troco">Troco: R$ 0,00</div>
+                    </div>
+                </div>
+
+                <div class="secao-escaneados">
+                    <h3 style="margin:0 0 10px 0; text-align:center; font-size: 16px;">🛒 ITENS NO CARRINHO</h3>
+                    <div class="lista-resultados" id="lista"></div>
+                </div>
+            </div>
         </div>
     </div>
 
     <div id="modalCadastro" class="modal">
         <button class="btn-voltar" onclick="fecharTudo()">⬅ VOLTAR</button>
         <div class="form-cadastro">
-            <h3 style="margin:0">Cadastrar/Editar</h3>
+            <h3 style="margin:0; text-align:center; color:var(--primary)">Cadastrar/Editar Produto</h3>
             <input type="hidden" id="edit-index">
-            <input type="text" id="p-nome" placeholder="Nome do Produto"> <input type="text" id="p-id" placeholder="ID do Produto">
+            <input type="text" id="p-nome" placeholder="Nome do Produto"> 
+            <input type="text" id="p-id" placeholder="ID do Produto (Código de Barras)">
             <input type="text" id="p-img" placeholder="Link da Imagem">
-            <a style="text-decoration: none;" class="btn-voltar" href="Hospedar-IMGs.html">Imagens </a>
-            <input type="number" id="p-valor" placeholder="Valor (R$)">
+            <a style="text-decoration: none;" class="btn-voltar" href="Hospedar-IMGs.html">Hospedar Imagem </a>
+            <input type="number" id="p-valor" placeholder="Valor de Venda (R$)">
             <input type="number" id="p-qtd" placeholder="Quantidade em Estoque">
             <button class="btn-main btn-green" style="padding:15px; width: 100%;" onclick="salvarProduto()">SALVAR NO CATÁLOGO</button>
             <div class="container-backup">
-                <button class="btn-backup" onclick="exportarDados()">📤 EXPORTAR BACKUP GERAL</button>
-                <button class="btn-backup" onclick="document.getElementById('input-import').click()">📥 IMPORTAR BACKUP GERAL</button>
+                <button class="btn-backup" onclick="exportarDados()">📤 EXPORTAR BACKUP</button>
+                <button class="btn-backup" onclick="document.getElementById('input-import').click()">📥 IMPORTAR BACKUP</button>
                 <input type="file" id="input-import" style="display:none" accept=".json" onchange="importarDados(event)">
             </div>
         </div>
         <div class="busca-container">
-            <input type="text" id="busca-id" placeholder="🔍 Buscar produto por ID..." oninput="renderizarCatalogo()">
+            <input type="text" id="busca-id" placeholder="🔍 Buscar produto por nome ou ID..." oninput="renderizarCatalogo()">
         </div>
         <div class="grid-produtos" id="grid-produtos"></div>
     </div>
@@ -726,7 +806,7 @@
     <div id="modalGen" class="modal">
         <button class="btn-voltar" onclick="fecharTudo()">⬅ VOLTAR</button>
         <div style="display:flex; flex-direction:column; align-items:center; gap:20px;">
-            <h2>Dashboard e Histórico</h2>
+            <h2 style="color:var(--primary)">Dashboard e Histórico de Vendas</h2>
             <div class="dashboard-grid">
                 <div class="dash-card">
                     <h4>PIX HOJE</h4>
@@ -746,27 +826,27 @@
                 </div>
             </div>
             
-            <div id="resumo-lucro" style="width: 100%; text-align: center; background: #222; padding: 15px; border-radius: 10px; border: 1px solid var(--warning); position: relative;">
-                <button onclick="limparGanhosHoje()" style="position: absolute; right: 10px; top: 10px; background: var(--danger); border: none; color: white; border-radius: 5px; cursor: pointer; font-size: 10px; padding: 5px;">ZERAR HOJE</button>
+            <div id="resumo-lucro" style="width: 100%; max-width: 800px; text-align: center; background: #222; padding: 20px; border-radius: 15px; border: 1px solid var(--warning); position: relative;">
+                <button onclick="limparGanhosHoje()" style="position: absolute; right: 15px; top: 15px; background: var(--danger); border: none; color: white; border-radius: 5px; cursor: pointer; font-size: 11px; padding: 8px;">ZERAR HOJE</button>
                 
-                <span style="font-size: 14px; color: #aaa;">Total Bruto Hoje:</span><br>
-                <span id="valor-bruto-dia" style="font-size: 18px; font-weight: bold; color: #fff;">R$ 0,00</span><br>
+                <span style="font-size: 16px; color: #aaa;">Total Bruto Hoje:</span><br>
+                <span id="valor-bruto-dia" style="font-size: 22px; font-weight: bold; color: #fff;">R$ 0,00</span><br>
                 
-                <span style="font-size: 14px; color: #aaa; margin-top: 5px; display: inline-block;">Ganhos Líquidos Hoje:</span><br>
-                <span id="valor-lucro-dia" style="font-size: 24px; font-weight: bold; color: var(--warning);">R$ 0,00</span><br>
+                <span style="font-size: 16px; color: #aaa; margin-top: 10px; display: inline-block;">Ganhos Líquidos Hoje:</span><br>
+                <span id="valor-lucro-dia" style="font-size: 32px; font-weight: bold; color: var(--warning);">R$ 0,00</span><br>
                 
-                <div style="display: flex; justify-content: center; gap: 10px; margin-top: 5px;">
-                    <span id="taxa-maquina-dia" style="font-size: 12px; color: var(--danger);">Perda p/ Máquina: R$ 0,00</span>
+                <div style="display: flex; justify-content: center; gap: 15px; margin-top: 10px;">
+                    <span id="taxa-maquina-dia" style="font-size: 14px; color: var(--danger);">Perda p/ Máquina: R$ 0,00</span>
                 </div>
             </div>
 
-            <div id="resumo-lucro-total" style="width: 100%; text-align: center; background: #222; padding: 10px; border-radius: 10px; border: 1px solid var(--success); margin-top: -10px;">
-                <span style="font-size: 12px; color: #aaa;">Bruto Acumulado</span><br>
-                <span id="valor-bruto-total-acumulado" style="font-size: 18px; font-weight: bold; color: var(--warning);">R$ 0,00</span><br>
-                <hr style="border: 0.5px solid #333; width: 50%;">
-                <span style="font-size: 12px; color: #aaa;">Lucro Acumulado (Líquido)</span><br>
-                <span id="valor-lucro-total" style="font-size: 18px; font-weight: bold; color: var(--success);">R$ 0,00</span><br>
-                <span id="taxa-maquina-total" style="font-size: 11px; color: var(--danger);">Taxa Máquina Total: R$ 0,00</span>
+            <div id="resumo-lucro-total" style="width: 100%; max-width: 800px; text-align: center; background: #222; padding: 15px; border-radius: 15px; border: 1px solid var(--success); margin-top: -5px;">
+                <span style="font-size: 14px; color: #aaa;">Bruto Acumulado</span><br>
+                <span id="valor-bruto-total-acumulado" style="font-size: 20px; font-weight: bold; color: var(--warning);">R$ 0,00</span><br>
+                <hr style="border: 0.5px solid #333; width: 50%; margin: 10px auto;">
+                <span style="font-size: 14px; color: #aaa;">Lucro Acumulado (Líquido)</span><br>
+                <span id="valor-lucro-total" style="font-size: 20px; font-weight: bold; color: var(--success);">R$ 0,00</span><br>
+                <span id="taxa-maquina-total" style="font-size: 13px; color: var(--danger);">Taxa Máquina Total: R$ 0,00</span>
             </div>
             <div style="width: 100%; overflow-x: auto;">
                 <table class="tabela-vendas">
@@ -784,7 +864,7 @@
                     <tbody id="corpo-tabela-vendas"></tbody>
                 </table>
             </div>
-            <button class="btn-delete" style="width: 100%; padding: 10px;" onclick="limparHistoricoVendasComSenha()">LIMPAR HISTÓRICO</button>
+            <button class="btn-delete" style="width: 100%; max-width: 400px; padding: 15px; font-size: 14px;" onclick="limparHistoricoVendasComSenha()">LIMPAR HISTÓRICO</button>
         </div>
     </div>
 
@@ -828,7 +908,7 @@
             </table>
             <div class="cupom-totais">
                 <div class="linha-total">
-                    <span>TOTAL DOS PRODUTOS:</span>
+                    <span>VALOR TOTAL:</span>
                     <span id="cupom-total-bruto">R$ 0,00</span>
                 </div>
                 <div class="linha-total" id="linha-recebido-cupom">
@@ -1151,7 +1231,7 @@
         function startCamera(id) {
             if (scanner) scanner.stop();
             scanner = new Html5Qrcode("reader");
-            scanner.start(id, { fps: 15, qrbox: 180 }, (text) => {
+            scanner.start(id, { fps: 15, qrbox: 250 }, (text) => {
                 if (!aguardandoReset) {
                     const existe = produtos.some(p => p.id === text);
                     if (existe) {
@@ -1232,10 +1312,10 @@
                 div.className = 'item-lista';
                 div.innerHTML = `
                     <div style="display:flex; align-items:center; gap:8px">
-                        <img src="${item.img}" style="width:30px; height:30px; border-radius:4px; object-fit:cover">
+                        <img src="${item.img}" style="width:40px; height:40px; border-radius:4px; object-fit:cover">
                         <div>
                             <span class="id-text">${item.id}</span><br>
-                            <small style="font-size:10px; color:#555">${item.nome} | R$ ${valorItem.toFixed(2)}</small>
+                            <small style="font-size:12px; color:#555; font-weight:bold;">${item.nome} | R$ ${valorItem.toFixed(2)}</small>
                         </div>
                     </div>
                     <div style="display:flex; align-items:center; gap:5px">
@@ -1275,9 +1355,18 @@
 
         function salvarProduto() {
             const index = document.getElementById('edit-index').value;
+            const idDigitado = document.getElementById('p-id').value;
+            
+            // VERIFICAÇÃO DE ID DUPLICADO
+            const jaExiste = produtos.some((p, i) => p.id === idDigitado && i.toString() !== index);
+            if (jaExiste) {
+                document.getElementById('modalAvisoID').style.display = 'flex';
+                return;
+            }
+
             const p = {
                 nome: document.getElementById('p-nome').value,
-                id: document.getElementById('p-id').value,
+                id: idDigitado,
                 img: document.getElementById('p-img').value || "https://via.placeholder.com/150",
                 valor: document.getElementById('p-valor').value,
                 qtd: parseInt(document.getElementById('p-qtd').value) || 0
@@ -1296,13 +1385,13 @@
             grid.innerHTML = "";
             
             produtos.forEach((p, i) => {
-                if (termoBusca === "" || p.id.toLowerCase().includes(termoBusca)) {
+                if (termoBusca === "" || p.id.toLowerCase().includes(termoBusca) || (p.nome && p.nome.toLowerCase().includes(termoBusca))) {
                     grid.innerHTML += `<div class="produto-card">
                         <button class="btn-edit-prod" onclick="editarProduto(${i})">✏️</button>
                         <button class="btn-del-prod" onclick="excluirProdutoPermanente(${i})">X</button>
                         <img src="${p.img}"><div class="produto-info"><b>${p.nome || 'Sem Nome'}</b><br>
                         <small>ID: ${p.id}</small><br>R$ ${p.valor}<br>
-                        <span style="color:var(--success)">Estoque: ${p.qtd}</span></div></div>`;
+                        <span style="color:var(--success); font-weight:bold;">Estoque: ${p.qtd}</span></div></div>`;
                 }
             });
         }
@@ -1315,6 +1404,7 @@
             document.getElementById('p-valor').value = p.valor;
             document.getElementById('p-qtd').value = p.qtd;
             document.getElementById('edit-index').value = i;
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
         function excluirProdutoPermanente(i) {
@@ -1477,7 +1567,7 @@
                         <td>${v.data}</td>
                         <td>
                             <div style="display:flex; gap:2px">
-                                <button onclick="visualizarItensVenda(${index})" style="font-size:10px; cursor:pointer; background: var(--primary); color: white; border:none; padding: 4px; border-radius:4px;">VER NOTA</button>
+                                <button onclick="visualizarItensVenda(${index})" style="font-size:11px; cursor:pointer; background: var(--primary); color: white; border:none; padding: 6px; border-radius:4px; font-weight:bold;">VER NOTA</button>
                             </div>
                         </td>
                         <td>${v.tipo}</td>
@@ -1486,7 +1576,7 @@
                             <input type="number" value="${taxa}" style="width:45px; font-size:11px; padding: 2px; border: 1px solid #444; background: #222; color: white;" onchange="atualizarTaxaVenda(${index}, this.value)">
                         </td>
                         <td style="color:var(--success); font-weight:bold">R$ ${liquido.toFixed(2)}</td>
-                        <td style="font-size:9px">${v.aparelho || 'N/A'}</td>
+                        <td style="font-size:10px">${v.aparelho || 'N/A'}</td>
                     </tr>`;
             });
 
@@ -1706,5 +1796,3 @@
     </script>
 </body>
 </html>
-
-
