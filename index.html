@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -487,7 +488,7 @@
 
         /*==== Estilo do Overlay de Login ====*/
         #overlay-login {
-            display: none;
+            display: none; /* Começa oculto por padrão */
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
@@ -537,7 +538,7 @@
         }
     </style>
 </head>
-<body>
+<body onclick="resetarInatividade()" onkeydown="resetarInatividade()">
 <div id="container-instalacao">
         <h3>Instalar Albatroz</h3>
         <p>Deseja instalar este sistema como um aplicativo no seu celular?</p>
@@ -906,86 +907,39 @@
                 method: 'POST',
                 mode: 'no-cors',
                 body: formData
-            }).catch(e => console.error("Erro ao enviar log", e));
+            }).then(() => console.log("Log enviado: " + infoCompleta))
+              .catch(e => console.error("Erro ao enviar log", e));
         }
 
-        async function validarCredenciaisPlanilha(id, pass) {
-            try {
-                const response = await fetch(URL_PLANILHA + "&t=" + Date.now());
-                const data = await response.text();
-                const linhas = data.split(/\r?\n/).filter(line => line.trim() !== "");
-                for (let i = 1; i < linhas.length; i++) {
-                    let colunas = linhas[i].includes(';') ? linhas[i].split(';') : linhas[i].split(',');
-                    colunas = colunas.map(col => col.replace(/^"|"$/g, '').trim());
-                    if (colunas.length >= 3) {
-                        // Verifica Usuário Normal [1,2] ou Gerente [3,4]
-                        let idUser = colunas[1];
-                        let passUser = colunas[2];
-                        let idGerente = colunas[3];
-                        let passGerente = colunas[4];
-                        
-                        if (modoAcessoEspecial) {
-                            if (idGerente === id.trim() && passGerente === pass.trim()) return true;
-                        } else {
-                            if (idUser === id.trim() && passUser === pass.trim()) return true;
-                        }
-                    }
-                }
-                return false;
-            } catch (e) {
-                console.warn("Erro ao buscar planilha, usando cache offline.");
-                return null; // Indica erro de conexão
-            }
-        }
+        // --- NOVA LÓGICA DE BLOQUEIO/CACHE ---
 
-        async function gerenciarSessao() {
+        async function verificarAcessoAoIniciar() {
             const idSalvo = localStorage.getItem('login_albatroz_id');
-            const passSalvo = localStorage.getItem('login_albatroz_pass');
-            const ultimaValidacao = parseInt(localStorage.getItem('albatroz_last_sync')) || 0;
+            const senhaSalva = localStorage.getItem('login_albatroz_pass');
+            const ultimaVerificacao = localStorage.getItem('albatroz_last_check') || 0;
             const agora = Date.now();
             const quatroHoras = 4 * 60 * 60 * 1000;
 
-            // 1. Se não tem nada salvo, obriga login
-            if (!idSalvo || !passSalvo) {
-                exibirBloqueio();
+            // 1. Se não tem nada salvo, bloqueia e pede senha
+            if (!idSalvo || !senhaSalva) {
+                forcarBloqueio("Bem-vindo! Por favor, faça login.");
                 return;
             }
 
-            // 2. Se validou a menos de 4 horas, libera o uso e valida em background
-            if (agora - ultimaValidacao < quatroHoras) {
-                liberarAcesso();
-                validarEmBackground(idSalvo, passSalvo);
-            } else {
-                // 3. Passou de 4 horas, tenta validar antes de bloquear
-                const valido = await validarCredenciaisPlanilha(idSalvo, passSalvo);
-                if (valido === true) {
-                    localStorage.setItem('albatroz_last_sync', Date.now());
-                    liberarAcesso();
-                } else if (valido === false) {
-                    exibirBloqueio(); // Senha mudou na planilha
-                } else {
-                    // Erro de rede: se já estava logado antes, deixa passar para não travar o PDV
-                    liberarAcesso();
-                }
+            // 2. Se tem salvo, libera o uso IMEDIATAMENTE
+            liberarAcesso();
+
+            // 3. Se passou mais de 4 horas, valida em background sem travar a tela
+            if (agora - ultimaVerificacao > quatroHoras) {
+                validarCredenciaisBackground(idSalvo, senhaSalva);
             }
         }
 
-        async function validarEmBackground(id, pass) {
-            const valido = await validarCredenciaisPlanilha(id, pass);
-            if (valido === true) {
-                localStorage.setItem('albatroz_last_sync', Date.now());
-            } else if (valido === false) {
-                // Senha foi alterada remotamente, bloqueia na próxima verificação ou agora
-                console.warn("Credenciais alteradas remotamente.");
-                exibirBloqueio();
-            }
-        }
-
-        function exibirBloqueio() {
+        function forcarBloqueio(msg) {
             logado = false;
             document.getElementById('overlay-login').style.display = 'flex';
-            document.getElementById('campos-login').style.display = 'flex';
-            document.getElementById('msg-login').innerText = modoAcessoEspecial ? "Acesso Restrito: Gerente" : "Por favor, faça login para continuar.";
+            document.getElementById('msg-login').innerText = msg;
+            document.getElementById('campos-login').style.display = "flex";
         }
 
         function liberarAcesso() {
@@ -993,34 +947,90 @@
             document.getElementById('overlay-login').style.display = 'none';
         }
 
+        async function validarCredenciaisBackground(id, pass) {
+            console.log("Verificando credenciais em background...");
+            const valido = await validarCredenciaisPlanilha(id, pass);
+            
+            if (valido) {
+                localStorage.setItem('albatroz_last_check', Date.now());
+                console.log("Credenciais validadas com sucesso em background.");
+            } else {
+                console.warn("Credenciais alteradas na planilha! Bloqueando...");
+                localStorage.removeItem('login_albatroz_id');
+                localStorage.removeItem('login_albatroz_pass');
+                forcarBloqueio("Sua sessão expirou ou a senha foi alterada.");
+            }
+        }
+
         async function validarAcessoManual() {
             const id = document.getElementById('login-id').value;
             const pass = document.getElementById('login-senha').value;
             
-            if(!id || !pass) return alert("Preencha os campos!");
+            if(!id || !pass) {
+                alert("Por favor, preencha todos os campos.");
+                return;
+            }
 
             document.getElementById('msg-login').innerText = "Validando...";
             const valido = await validarCredenciaisPlanilha(id, pass);
             
-            if(valido === true) {
-                if (!modoAcessoEspecial) {
-                    localStorage.setItem('login_albatroz_id', id);
-                    localStorage.setItem('login_albatroz_pass', pass);
-                    localStorage.setItem('albatroz_last_sync', Date.now());
-                    enviarLogParaGoogleForms(id);
-                }
+            if(valido) {
+                localStorage.setItem('login_albatroz_id', id);
+                localStorage.setItem('login_albatroz_pass', pass);
+                localStorage.setItem('albatroz_last_check', Date.now());
+                enviarLogParaGoogleForms(id);
                 liberarAcesso();
+                if(modoAcessoEspecial) {
+                    abrirHistoricoVendas(); // Retorna para onde estava
+                }
             } else {
                 alert("ID ou Senha incorretos!");
-                document.getElementById('msg-login').innerText = "Erro nas credenciais.";
+                document.getElementById('msg-login').innerText = "Erro: ID ou Senha incorretos.";
             }
         }
+
+        async function validarCredenciaisPlanilha(id, pass) {
+            try {
+                const response = await fetch(URL_PLANILHA + "&t=" + Date.now());
+                const data = await response.text();
+                const linhas = data.split(/\r?\n/).filter(line => line.trim() !== "");
+                
+                for (let i = 1; i < linhas.length; i++) {
+                    let colunas = linhas[i].includes(';') ? linhas[i].split(';') : linhas[i].split(',');
+                    colunas = colunas.map(col => col.replace(/^"|"$/g, '').trim());
+                    
+                    if (colunas.length >= 3) {
+                        // Se for acesso ao histórico, verifica colunas de gerente (3 e 4), senão verifica operador (1 e 2)
+                        let idPlanilha = modoAcessoEspecial ? (colunas[3] || colunas[1]) : colunas[1];
+                        let passPlanilha = modoAcessoEspecial ? (colunas[4] || colunas[2]) : colunas[2];
+                        
+                        if (idPlanilha === id.trim() && passPlanilha === pass.trim()) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            } catch (e) {
+                console.error("Falha ao buscar planilha", e);
+                return false;
+            }
+        }
+
+        function resetarInatividade() {
+            // Removido o bloqueio por tempo para não atrapalhar o fluxo solicitado
+        }
+
+        // --- FIM DA NOVA LÓGICA ---
 
         let barcodeBuffer = "";
         window.addEventListener("keydown", (e) => {
             if (document.getElementById('modalSist').style.display === 'flex') {
                 if (document.activeElement.id === 'valor-recebido' || document.activeElement.className.includes('baixa-input')) return;
-                if(e.key === "F2") { baixaGeral(); }
+                
+                if(e.key === "F2") {
+                   baixaGeral();
+                }
+
                 if (e.key === "Enter") {
                     if (barcodeBuffer.length > 0) {
                         const existe = produtos.some(p => p.id === barcodeBuffer);
@@ -1042,13 +1052,7 @@
         window.onload = () => {
             if(historico.length > 0) atualizarLista();
             atualizarVisualizacaoHome();
-            gerenciarSessao();
-            // Verifica a cada 10 minutos em background
-            setInterval(() => {
-                const id = localStorage.getItem('login_albatroz_id');
-                const pass = localStorage.getItem('login_albatroz_pass');
-                if(id && pass) validarEmBackground(id, pass);
-            }, 600000);
+            verificarAcessoAoIniciar(); 
         };
 
         function atualizarVisualizacaoHome() {
@@ -1340,15 +1344,20 @@
 
         function abrirHistoricoVendas() {
             modoAcessoEspecial = true;
-            exibirBloqueio();
-            const interval = setInterval(() => {
-                if (logado) {
-                    clearInterval(interval);
+            // Verifica se as credenciais salvas dão acesso de gerente
+            const id = localStorage.getItem('login_albatroz_id');
+            const pass = localStorage.getItem('login_albatroz_pass');
+
+            // Validação instantânea contra o cache de gerente
+            validarCredenciaisPlanilha(id, pass).then(valido => {
+                if(valido) {
                     document.getElementById('modalGen').style.display = 'flex';
                     document.getElementById('home').style.display = 'none';
                     renderizarHistoricoVendas();
+                } else {
+                    forcarBloqueio("Acesso Restrito: Informe login de Gerente.");
                 }
-            }, 500);
+            });
         }
 
         function renderizarHistoricoVendas() {
@@ -1477,8 +1486,6 @@
             document.getElementById('home').style.display = 'flex';
             if (scanner) scanner.stop();
             modoAcessoEspecial = false;
-            // Verifica sessão ao voltar ao menu para garantir que ainda está autorizado
-            gerenciarSessao();
         }
 
         function exportarDados() {
