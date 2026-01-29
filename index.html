@@ -794,7 +794,7 @@
             </div>
 
             <div class="grupo-atalho">
-                <h4>📊 Dentro do Histórico</h4>
+                <h4><h4>📊 Dentro do Histórico</h4>
                 <div class="linha-atalho">
                     <span>Zerar Ganhos Hoje:</span>
                     <input type="text" class="input-tecla" id="key-zerar-hoje" readonly onclick="capturarTecla('key-zerar-hoje')">
@@ -1961,89 +1961,52 @@
         }
 
         // --- NOVAS FUNÇÕES DE ATALHOS ---
-        // --- MODIFICAÇÃO: VARIÁVEL DE CONTROLE E FUNÇÃO DE TRAVA ---
-let atalhosAtivados = true;
+        let atalhosAtivados = true;
 
-function toggleAtalhos() {
-    atalhosAtivados = !atalhosAtivados;
-    const status = atalhosAtivados ? "ATIVADOS ✅" : "DESATIVADOS (Modo Digitação) 🔒";
-    console.log("Atalhos " + status);
-    
-    // Feedback visual rápido se desejar
-    const aviso = document.getElementById('status-leitura');
-    if(aviso) {
-        const original = aviso.innerText;
-        aviso.innerText = "Teclado: " + status;
-        setTimeout(() => { aviso.innerText = original; }, 2000);
-    }
-}
-
-// --- LOGICA DE TECLAS ATUALIZADA ---
-window.addEventListener("keydown", (e) => {
-    // 1. Tecla F1 sempre funciona para alternar o modo
-    if (e.key === "F1") {
-        e.preventDefault();
-        toggleAtalhos();
-        return;
-    }
-
-    // 2. Se atalhos estiverem desligados OU o usuário estiver digitando em um campo, não processa atalhos
-    const estaDigitando = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
-    if (!atalhosAtivados || estaDigitando) {
-        // Se estiver digitando, apenas saímos da função e deixamos o navegador escrever
-        return;
-    }
-
-    // 3. PROCESSAMENTO DOS ATALHOS (Apenas se logado e não estiver digitando)
-    if (logado) {
-        // ATALHOS HOME / GLOBAL
-        if (e.key === configTeclas.escanear) { e.preventDefault(); abrirSist(); }
-        if (e.key === configTeclas.historico) { e.preventDefault(); abrirHistoricoVendas(); }
-        if (e.key === configTeclas.cadastro) { e.preventDefault(); abrirCadastro(); }
-        
-        // ATALHOS PDV (Apenas se o modal de PDV estiver aberto)
-        if (document.getElementById('modalSist').style.display === 'flex') {
-            if (e.key === configTeclas.baixa) { e.preventDefault(); baixaGeral(); }
-            if (e.key === configTeclas.girarCamera) { e.preventDefault(); girarCamera(); }
-            if (e.key === configTeclas.focarRecebido) { e.preventDefault(); document.getElementById('valor-recebido').focus(); }
+        function toggleAtalhos() {
+            atalhosAtivados = !atalhosAtivados;
+            const status = atalhosAtivados ? "ATIVADOS ✅" : "DESATIVADOS (Modo Digitação) 🔒";
+            console.log("Atalhos " + status);
         }
 
-        // ATALHOS HISTÓRICO
-        if (document.getElementById('modalGen').style.display === 'flex') {
-            if (e.key === configTeclas.zerarHoje) { e.preventDefault(); limparGanhosHoje(); }
-            if (e.key === configTeclas.limparHistorico) { e.preventDefault(); limparHistoricoVendasComSenha(); }
+        function abrirModalAtalhos() {
+            document.getElementById('modalAtalhos').style.display = 'block';
+            carregarLabelsAtalhos();
         }
 
-        // ATALHOS CADASTRO
-        if (document.getElementById('modalCadastro').style.display === 'flex') {
-            if (e.key === configTeclas.salvarProduto) { e.preventDefault(); salvarProduto(); }
-            if (e.key === configTeclas.exportarBackup) { e.preventDefault(); exportarDados(); }
-            if (e.key === configTeclas.focarBusca) { e.preventDefault(); document.getElementById('busca-id').focus(); }
+        function fecharModalAtalhos() {
+            document.getElementById('modalAtalhos').style.display = 'none';
+            localStorage.setItem('albatroz_teclas', JSON.stringify(configTeclas));
         }
-    }
 
-    // Lógica do leitor de código de barras físico (Buffer)
-    if (document.getElementById('modalSist').style.display === 'flex') {
-        if (e.key === "Enter") {
-            if (barcodeBuffer.length > 0) {
-                const existe = produtos.some(p => p.id === barcodeBuffer);
-                if (existe) {
-                    document.getElementById('beep').play();
-                    adicionarNaLista(barcodeBuffer);
-                } else {
-                    mostrarAvisoErro();
-                }
-                barcodeBuffer = "";
-            }
-        } else {
-            if (e.key.length === 1) barcodeBuffer += e.key;
+        function carregarLabelsAtalhos() {
+            document.getElementById('key-escanear').value = configTeclas.escanear;
+            document.getElementById('key-historico').value = configTeclas.historico;
+            document.getElementById('key-cadastro').value = configTeclas.cadastro;
+            document.getElementById('key-baixa').value = configTeclas.baixa;
+            document.getElementById('key-girar-camera').value = configTeclas.girarCamera;
+            document.getElementById('key-focar-recebido').value = configTeclas.focarRecebido;
+            document.getElementById('key-zerar-hoje').value = configTeclas.zerarHoje;
+            document.getElementById('key-limpar-hist').value = configTeclas.limparHistorico;
+            document.getElementById('key-salvar-prod').value = configTeclas.salvarProduto;
+            document.getElementById('key-exportar').value = configTeclas.exportarBackup;
+            document.getElementById('key-focar-busca').value = configTeclas.focarBusca;
         }
-        setTimeout(() => { barcodeBuffer = ""; }, 200);
-    }
-});
-    
+
+        function capturarTecla(inputId) {
+            const input = document.getElementById(inputId);
+            input.value = "Pressione...";
+            
+            const detector = (e) => {
+                e.preventDefault();
+                input.value = e.key;
+                const configKey = inputId.replace('key-', '').replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+                configTeclas[configKey] = e.key;
+                window.removeEventListener('keydown', detector);
+            };
+            
+            window.addEventListener('keydown', detector);
+        }
     </script>
 </body>
 </html>
-
-
