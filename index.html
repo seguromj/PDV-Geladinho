@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -31,7 +30,6 @@
             --laranja: #B5300E;
             --black: #B5300E;
             --vermelho: #B5300E;
-            --monitor-bg: #fffbe6; /* Amarelo clarinho estilo mercado */
         }
 
         body {
@@ -46,7 +44,7 @@
             min-height: 100vh;
         }
 
-        /*==== Estilo do Banner de Instalação App --> PWA ====*/
+        /*👇 Estilo do Banner de Instalação App --> PWA 👇*/
         #container-instalacao {
             display: none;
             position: fixed;
@@ -67,6 +65,7 @@
         #container-instalacao p { font-size: 14px; margin-bottom: 15px; }
         .botoes-pwa { display: flex; gap: 10px; }
         .btn-pwa { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+         /*👆 Estilo do Banner de Instalação App --> PWA 👆*/
 
         .container-topo {
             width: 95%;
@@ -176,52 +175,13 @@
             overflow-y: auto;
         }
 
-        /*==== Layout PDV Mercado Profissional ====*/
-        .pdv-layout-container {
-            display: flex;
-            flex-direction: row;
-            gap: 20px;
-            width: 100%;
-            height: calc(100vh - 100px);
-        }
-
-        .pdv-col-scanner {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .pdv-col-monitor {
-            flex: 1.2;
-            background: var(--monitor-bg);
-            border-radius: 15px;
-            padding: 20px;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
-            border: 4px solid #ddd;
-        }
-
-        .monitor-display {
-            text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #ccc;
-            padding-bottom: 15px;
-        }
-
-        .monitor-nome { font-size: 28px; font-weight: 800; color: #000; text-transform: uppercase; }
-        .monitor-preco { font-size: 48px; font-weight: 900; color: var(--success); margin: 10px 0; }
-        .monitor-img { width: 200px; height: 200px; object-fit: contain; margin: 10px auto; display: block; background: #fff; border-radius: 10px; padding: 10px;}
-
         #reader {
             width: 100%;
-            max-width: 400px;
+            max-width: 300px;
             margin: 0 auto;
             border-radius: 10px;
             overflow: hidden;
-            border: 4px solid var(--primary);
+            border: 2px solid #333;
             flex-shrink: 0;
         }
 
@@ -230,7 +190,7 @@
             justify-content: space-between;
             align-items: center;
             width: 100%;
-            max-width: 400px;
+            max-width: 300px;
             margin: 5px auto;
             flex-shrink: 0;
         }
@@ -248,26 +208,25 @@
 
         .lista-resultados {
             width: 100%;
-            margin-top: 10px;
+            max-width: 500px;
+            margin: 10px auto;
             display: flex;
             flex-direction: column; gap: 8px;
-            overflow-y: auto;
-            max-height: 250px;
+            overflow-y: auto; 
         }
 
         .item-lista {
-            background: #fff;
+            background: var(--card);
             padding: 8px 12px;
             border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-left: 6px solid var(--primary);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            color: #333;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        .id-text { font-size: 14px; font-weight: bold; color: var(--primary); }
+        .id-text { font-size: 16px; font-weight: bold; color: var(--primary); }
 
         .btn-delete {
             background: var(--danger);
@@ -295,9 +254,9 @@
 
         #status-leitura {
             text-align: center;
-            font-size: 14px;
-            font-weight: bold;
+            font-size: 12px;
             color: var(--success);
+            height: 18px;
         }
 
         .form-cadastro {
@@ -317,36 +276,72 @@
             background: #222;
             color: white;
         }
+
+        /* 👇 MELHORIA NO LAYOUT DE PRODUTOS 👇 */
         .grid-produtos {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
             gap: 15px;
             width: 100%;
         }
         .produto-card {
-            background: var(--card);
-            border-radius: 10px;
-            padding: 8px;
+            background: #252525;
+            border-radius: 12px;
+            padding: 0;
             border: 1px solid #333;
             position: relative;
-            text-align: center;
+            text-align: left;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        .produto-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
         .produto-card img {
             width: 100%;
-            height: 80px;
+            height: 120px;
             object-fit: cover;
-            border-radius: 6px;
+            border-bottom: 2px solid #333;
         }
-        .produto-info { font-size: 12px; margin-top: 5px; }
+        .produto-info { 
+            padding: 10px;
+            font-size: 13px; 
+            flex-grow: 1;
+        }
+        .produto-info b {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 4px;
+            color: var(--warning);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .produto-info .preco-tag {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--success);
+            margin: 5px 0;
+        }
+        .produto-info .estoque-tag {
+            font-size: 11px;
+            color: #aaa;
+        }
+        
         .btn-edit-prod {
             position: absolute;
             top: 5px;
             right: 35px;
             background: var(--warning);
             border: none;
-            border-radius: 4px;
+            border-radius: 50%;
             cursor: pointer;
-            padding: 2px 5px;
+            padding: 5px;
+            width: 25px; height: 25px;
+            display: flex; align-items: center; justify-content: center;
         }
         .btn-del-prod {
             position: absolute;
@@ -355,11 +350,14 @@
             background: var(--danger);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 50%;
             cursor: pointer;
-            padding: 2px 6px;
+            width: 25px; height: 25px;
             font-weight: bold;
+            display: flex; align-items: center; justify-content: center;
         }
+        /* 👆 FIM DA MELHORIA NO LAYOUT 👆 */
+
         .baixa-container {
             margin-top: 5px;
             display: flex;
@@ -373,39 +371,38 @@
         }
         
         .btn-baixa-geral {
-            background: var(--success);
-            color: white;
+            background: var(--warning);
+            color: black;
             border: none;
             border-radius: 8px;
-            padding: 15px;
-            font-size: 18px;
+            padding: 10px;
+            font-size: 14px;
             font-weight: bold;
             width: 100%;
             cursor: pointer;
-            margin-top: 10px;
         }
 
         .campo-total {
-            background: #000;
-            color: #fff;
-            padding: 15px;
+            background: #333;
+            color: var(--warning);
+            padding: 10px;
             border-radius: 8px;
-            text-align: right;
-            font-size: 24px;
+            text-align: center;
+            font-size: 18px;
             font-weight: bold;
             margin-top: 5px;
-            border: 2px solid var(--success);
+            border: 1px solid var(--warning);
         }
 
         .container-pagamento {
-            background: #f8f9fa;
+            background: var(--card);
             padding: 10px;
             border-radius: 8px;
             margin-top: 10px;
             display: flex;
             flex-direction: column;
             gap: 8px;
-            border: 1px solid #ddd;
+            border: 1px solid #444;
         }
 
         .input-pagamento {
@@ -413,8 +410,8 @@
             padding: 10px;
             border-radius: 6px;
             border: 1px solid var(--primary);
-            background: #fff;
-            color: #000;
+            background: #222;
+            color: white;
             font-size: 16px;
             box-sizing: border-box;
         }
@@ -422,8 +419,8 @@
         .texto-troco {
             color: var(--success);
             font-weight: bold;
-            text-align: right;
-            font-size: 18px;
+            text-align: center;
+            font-size: 16px;
         }
 
         #aviso-erro {
@@ -481,60 +478,158 @@
             padding: 10px;
             border-radius: 6px;
             border: 1px solid var(--primary);
-            background: #fff;
-            color: #333;
+            background: #222;
+            color: white;
             font-size: 14px;
         }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        .dash-card {
+            background: #222;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            text-align: center;
+        }
+        .dash-card h4 { margin: 0 0 5px 0; font-size: 12px; color: #aaa; }
+        .dash-card p { margin: 0; font-size: 16px; font-weight: bold; color: var(--success); }
 
-        /*==== Estilo do Overlay de Login ====*/
+        .busca-container {
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        .busca-container input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--warning);
+            background: #222;
+            color: white;
+            box-sizing: border-box;
+        }
+
         #overlay-login {
-            display: none; /* Começa oculto por padrão */
+            display: none;
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
             background: rgba(0,0,0,0.95);
-            z-index: 99999;
+            z-index: 9999;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             color: white;
+        }
+
+        .btn-suporte {
+            background: #25D366;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 10px;
+            display: block;
             text-align: center;
         }
-        .container-senha { position: relative; width: 100%; }
-        .btn-toggle-senha { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; }
-        .btn-suporte { margin-top: 20px; color: var(--primary); text-decoration: none; font-weight: bold; }
 
-        /* Estilos do Cupom */
+        /* Estilo para o olho da senha */
+        .container-senha {
+            position: relative;
+            width: 100%;
+        }
+        .btn-toggle-senha {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 10;
+        }
+
+        /* ESTILO CUPOM NOTA NÃO FISCAL */
+        #modalDetalhesVenda {
+            z-index: 2000;
+            background: rgba(0,0,0,0.95);
+            justify-content: center;
+            align-items: flex-start;
+            overflow-y: auto;
+        }
         .cupom-container {
-            background: white;
-            color: black;
+            background: #fff;
+            width: 95%;
+            max-width: 400px;
+            margin: 20px auto;
             padding: 20px;
-            width: 300px;
-            margin: 0 auto;
+            color: #000;
             font-family: 'Courier New', Courier, monospace;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            box-shadow: 0 0 15px rgba(255,255,255,0.2);
+            border-radius: 2px;
         }
         .cupom-header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
-        .cupom-header input { border: none; text-align: center; width: 100%; font-weight: bold; font-size: 16px; }
-        .cupom-tabela { width: 100%; font-size: 12px; margin: 10px 0; border-collapse: collapse; }
-        .cupom-totais { border-top: 1px dashed #000; padding-top: 10px; font-weight: bold; }
-        .linha-total { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .cupom-header input { border: none; text-align: center; width: 100%; font-weight: bold; font-family: inherit; font-size: 16px; margin-bottom: 5px; }
+        .cupom-info { font-size: 12px; margin-bottom: 10px; }
+        .cupom-tabela { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 10px; }
+        .cupom-tabela th { text-align: left; border-bottom: 1px solid #000; }
+        .cupom-totais { border-top: 1px dashed #000; padding-top: 10px; margin-top: 10px; }
+        .linha-total { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; }
+        .cupom-footer { text-align: center; margin-top: 20px; border-top: 1px dashed #000; padding-top: 10px; }
+        .cupom-input-calc { border: 1px solid #ddd; padding: 5px; width: 80px; font-family: inherit; text-align: right; }
         #qrcode-cupom { display: flex; justify-content: center; margin: 15px 0; }
-        .cupom-footer { text-align: center; font-size: 12px; margin-top: 10px; border-top: 1px dashed #000; padding-top: 10px; }
-        .cupom-input-calc { width: 60px; border: 1px solid #ccc; font-family: inherit; }
+        .input-link-qr { width: 100%; font-size: 10px; margin-top: 5px; border: 1px solid #ccc; }
 
-        /* Dashboard */
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 15px; }
-        .dash-card { background: #222; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #333; }
-        .dash-card h4 { margin: 0; font-size: 10px; color: #aaa; }
-        .dash-card p { margin: 5px 0 0 0; font-size: 16px; font-weight: bold; color: var(--success); }
+        @media (max-width: 800px) {
+            .container-topo { flex-direction: column; align-items: center; }
+            .menu-principal { grid-template-columns: 1fr; }
+            .btn-black { grid-column: span 1; }
+            .coluna-esquerda, .coluna-direita { width: 100%; }
+        }
 
-        @media (max-width: 900px) {
-            .pdv-layout-container { flex-direction: column; height: auto; }
-            .pdv-col-monitor { order: -1; }
-            .monitor-nome { font-size: 20px; }
-            .monitor-preco { font-size: 32px; }
-            .monitor-img { width: 120px; height: 120px; }
+        /* Estilos para modo visualização prévia da nota */
+        .preview-modo-profissional .input-link-qr,
+        .preview-modo-profissional .cupom-input-calc,
+        .preview-modo-profissional textarea,
+        .preview-modo-profissional .toggle-cupom-label,
+        .preview-modo-profissional .select-metodo-cupom,
+        .preview-modo-profissional span:has(.cupom-input-calc) {
+            display: none !important;
+        }
+        
+        .preview-modo-profissional .texto-valor-limpo,
+        .preview-modo-profissional #cupom-obs-texto {
+            display: inline-block !important;
+        }
+
+        .cupom-preview-mode {
+            transform: scale(0.9);
+            border: 2px solid var(--primary);
+        }
+        
+        @media print {
+            body * { visibility: hidden; }
+            #modalDetalhesVenda, #modalDetalhesVenda * { visibility: visible; }
+            #modalDetalhesVenda { position: absolute; left: 0; top: 0; background: white; }
+            .btn-main, .input-link-qr, .cupom-input-calc, textarea, .toggle-cupom-label, .select-metodo-cupom { display: none !important; }
+            #cupom-obs-texto { display: block !important; }
+        }
+
+        .select-metodo-cupom {
+            width: 100%;
+            padding: 5px;
+            font-family: inherit;
+            font-size: 12px;
+            margin-bottom: 5px;
+            border: 1px solid #ddd;
         }
     </style>
 </head>
@@ -607,45 +702,26 @@
     </div>
 
     <div id="modalSist" class="modal">
-        <button class="btn-voltar" onclick="fecharTudo()">⬅ VOLTAR AO MENU</button>
-        
-        <div class="pdv-layout-container">
-            <div class="pdv-col-scanner">
-                <div class="camera-controls">
-                    <div id="status-leitura">Aguardando produto...</div>
-                    <button class="btn-circle" onclick="girarCamera()">🔁</button>
-                </div>
-                <div id="reader"></div>
-                
-                <div class="lista-resultados" id="lista"></div>
-            </div>
-
-            <div class="pdv-col-monitor">
-                <div class="monitor-display">
-                    <div id="monitor-label-aviso" style="font-size: 12px; color: #666; margin-bottom: 5px;">PRODUTO ESCANEADO</div>
-                    <img id="monitor-img" src="https://via.placeholder.com/150?text=ALBATROZ" class="monitor-img">
-                    <div id="monitor-nome" class="monitor-nome">---</div>
-                    <div id="monitor-preco" class="monitor-preco">R$ 0,00</div>
-                </div>
-
-                <div id="container-baixa-geral" style="display: none;">
-                    <div id="valor-total" class="campo-total">TOTAL: R$ 0,00</div>
-                    
-                    <div class="container-pagamento">
-                        <label style="font-size: 11px; color: #666;">FORMA DE PAGAMENTO:</label>
-                        <select id="metodo-pagamento" class="select-metodo">
-                            <option value="Dinheiro">💵 Dinheiro</option>
-                            <option value="Pix">📱 Pix</option>
-                            <option value="Cartão">💳 Cartão</option>
-                        </select>
-                        <input type="number" id="valor-recebido" class="input-pagamento" placeholder="VALOR RECEBIDO" oninput="calcularTroco()">
-                        <div id="texto-troco" class="texto-troco">TROCO: R$ 0,00</div>
-                    </div>
-                    
-                    <button class="btn-baixa-geral" onclick="baixaGeral()">CONCLUIR VENDA (F2)</button>
-                </div>
+        <button class="btn-voltar" onclick="fecharTudo()">⬅ VOLTAR</button>
+        <div class="camera-controls">
+            <div id="status-leitura">Pronto para escanear</div>
+            <button class="btn-circle" onclick="girarCamera()">🔁</button>
+        </div>
+        <div id="reader"></div>
+        <div id="container-baixa-geral" style="padding: 10px 0; display: none; flex-shrink: 0;">
+            <button class="btn-baixa-geral" onclick="baixaGeral()">DAR BAIXA EM TUDO</button>
+            <div id="valor-total" class="campo-total">Total: R$ 0,00</div>
+            <div class="container-pagamento">
+                <select id="metodo-pagamento" class="select-metodo">
+                    <option value="Dinheiro">💵 Dinheiro</option>
+                    <option value="Pix">📱 Pix</option>
+                    <option value="Cartão">💳 Cartão</option>
+                </select>
+                <input type="number" id="valor-recebido" class="input-pagamento" placeholder="Valor recebido do cliente" oninput="calcularTroco()">
+                <div id="texto-troco" class="texto-troco">Troco: R$ 0,00</div>
             </div>
         </div>
+        <div class="lista-resultados" id="lista"></div>
     </div>
 
     <div id="modalCadastro" class="modal">
@@ -755,10 +831,11 @@
                 ID DA NOTA: <span id="cupom-id-nota"></span><br>
                 DATA/HORA: <span id="cupom-data"></span><br>
                 <div style="margin-top: 5px;">
-                    <select id="cupom-metodo-pagamento-seletor" class="select-metodo" style="width:100%" onchange="mudarMetodoCupom(this.value)">
+                    <select id="cupom-metodo-pagamento-seletor" class="select-metodo-cupom" onchange="mudarMetodoCupom(this.value)">
                         <option value="Dinheiro">💵 Dinheiro</option>
                         <option value="Pix">📱 Pix</option>
                         <option value="Cartão de Crédito">💳 Cartão de Crédito</option>
+                        <option value="Cartão de Débito">💳 Cartão de Débito</option>
                     </select>
                 </div>
                 PAGAMENTO: <span id="cupom-pagamento"></span>
@@ -780,7 +857,8 @@
                 </div>
                 <div class="linha-total" id="linha-recebido-cupom">
                     <span>VALOR RECEBIDO:</span>
-                    <span>R$ <input type="number" id="cupom-calc-recebido" class="cupom-input-calc" value="0.00" oninput="calcularTrocoCupom()"></span>
+                    <span>R$ <input type="number" id="cupom-calc-recebido" class="cupom-input-calc" value="0.00" oninput="calcularTrocoCupom()">
+                    <span class="texto-valor-limpo" id="cupom-recebido-limpo" style="display:none">0.00</span></span>
                 </div>
                 <div class="linha-total" id="linha-troco-cupom">
                     <span>TROCO:</span>
@@ -788,20 +866,27 @@
                 </div>
             </div>
             <div id="qrcode-cupom"></div>
-            <input type="text" id="cupom-link-qr" class="input-pagamento" style="font-size:10px" placeholder="Link para o QR Code" oninput="gerarQRCodeCupom(this.value)">
+            <input type="text" id="cupom-link-qr" class="input-link-qr" placeholder="Link para o QR Code" oninput="gerarQRCodeCupom(this.value)">
             <div class="cupom-footer">
                 <p>Obrigado pela Preferência.<br>Volte Sempre.</p>
-                <div id="cupom-obs-texto" style="font-size: 11px; text-align: center; margin-top: 5px;"></div>
+                <textarea id="cupom-obs" style="width: 100%; font-family: inherit; font-size: 11px; border: 1px dotted #000; height: 40px;" placeholder="Digite algo aqui..." oninput="document.getElementById('cupom-obs-texto').innerText = this.value"></textarea>
+                <div id="cupom-obs-texto" style="display:none; font-size: 11px; text-align: center; margin-top: 5px; white-space: pre-wrap;"></div>
             </div>
             
+            <div class="toggle-cupom-label" style="margin-top: 10px; font-size: 11px; color: #333; display: flex; align-items: center; gap: 5px;">
+                <input type="checkbox" id="toggle-frase-fiscal" checked onchange="toggleFraseFiscal(this.checked)"> Exibir "CUPOM NÃO FISCAL"
+            </div>
+
             <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 5px;">
-                <button class="btn-main btn-blue" onclick="window.print()">🖨️ IMPRIMIR</button>
-                <button class="btn-main btn-vermelho" onclick="document.getElementById('modalDetalhesVenda').style.display='none'">FECHAR</button>
+                <div style="display: flex; gap: 5px;">
+                   <button class="btn-main btn-blue" style="flex: 1; padding: 8px; font-size: 10px;" onclick="window.print()">🖨️ IMPRIMIR</button>
+                   <button class="btn-main btn-vermelho" style="flex: 1; padding: 8px; font-size: 10px;" onclick="document.getElementById('modalDetalhesVenda').style.display='none'">FECHAR</button>
+                </div>
+                <button class="btn-main" id="btn-toggle-preview" style="background: #6c757d; color: white; padding: 8px; font-size: 12px; width: 100%;" onclick="togglePreviewCupom()">👁️ VER PRÉVIA DA NOTA</button>
             </div>
         </div>
     </div>
-
-    <script>
+<script>
       let promptDeInstalacao;
       const areaInstalacao = document.getElementById('container-instalacao');
       const botaoInstalar = document.getElementById('btnInstalarApp');
@@ -848,8 +933,7 @@
         areaInstalacao.style.display = 'none';
       });
     </script>
-
-    <script>
+<script>
         let scanner;
         let cameras = [];
         let currentCamIndex = 0;
@@ -861,9 +945,12 @@
         let valorTotalVenda = 0;
         
         let logado = false;
+        let logadoHistorico = false;
+        let tempoInatividade;
         let modoAcessoEspecial = false; 
         const URL_PLANILHA = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTVGJyIuUPbsSl0S9L51uAijnNMmscOkVz_8taWHyx2yd6i-C7MmANPsID4bihanjGel4peUR4kxsE-/pub?output=csv";
 
+        // --- FUNÇÕES DE IDENTIFICAÇÃO DE DISPOSITIVO AVANÇADA ---
         function obterIdAparelho() {
             let id = localStorage.getItem('albatroz_device_id');
             if(!id) {
@@ -878,13 +965,17 @@
             const width = window.screen.width;
             const height = window.screen.height;
             const idGerado = obterIdAparelho();
+            
+            // Simplificando o UserAgent para facilitar a leitura na planilha
             let os = "OS Desconhecido";
             if (userAgent.includes("Android")) os = "Android";
             else if (userAgent.includes("iPhone") || userAgent.includes("iPad")) os = "iOS";
             else if (userAgent.includes("Windows")) os = "Windows";
+            
             return `${idGerado} (${os} | ${width}x${height})`;
         }
 
+        // FUNÇÃO PARA MOSTRAR/OCULTAR SENHA
         function toggleSenha() {
             const campo = document.getElementById('login-senha');
             const btn = document.querySelector('.btn-toggle-senha');
@@ -900,9 +991,13 @@
         function enviarLogParaGoogleForms(usuarioId) {
             const formURL = "https://docs.google.com/forms/d/e/1FAIpQLScvNN2ww22ZPmF_WCp1pUdS3sxzgtCEpfNUHRlREF8cBAMp2g/formResponse";
             const infoAparelho = obterInfoTecnicaAparelho();
+            
+            // AGORA ENVIA TAMBÉM O ID DO USUÁRIO QUE ACESSOU
             const infoCompleta = `USUÁRIO: ${usuarioId} | APARELHO: ${infoAparelho}`;
+            
             const formData = new FormData();
             formData.append('entry.865836184', infoCompleta); 
+
             fetch(formURL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -911,99 +1006,91 @@
               .catch(e => console.error("Erro ao enviar log", e));
         }
 
-        // --- NOVA LÓGICA DE BLOQUEIO/CACHE ---
+        function resetarInatividade() {
+            clearTimeout(tempoInatividade);
+            tempoInatividade = setTimeout(bloquearSistema, 60000); 
+        }
 
-        async function verificarAcessoAoIniciar() {
+        async function bloquearSistema() {
+            logado = false;
+            document.getElementById('overlay-login').style.display = 'flex';
+            document.getElementById('msg-login').innerText = "Verificando credenciais salvas...";
+            document.getElementById('campos-login').style.display = "none";
+            document.getElementById('titulo-bloqueio').innerText = "🔒 SISTEMA BLOQUEADO";
+            
             const idSalvo = localStorage.getItem('login_albatroz_id');
             const senhaSalva = localStorage.getItem('login_albatroz_pass');
-            const ultimaVerificacao = localStorage.getItem('albatroz_last_check') || 0;
-            const agora = Date.now();
-            const quatroHoras = 4 * 60 * 60 * 1000;
 
-            // 1. Se não tem nada salvo, bloqueia e pede senha
-            if (!idSalvo || !senhaSalva) {
-                forcarBloqueio("Bem-vindo! Por favor, faça login.");
-                return;
-            }
-
-            // 2. Se tem salvo, libera o uso IMEDIATAMENTE
-            liberarAcesso();
-
-            // 3. Se passou mais de 4 horas, valida em background sem travar a tela
-            if (agora - ultimaVerificacao > quatroHoras) {
-                validarCredenciaisBackground(idSalvo, senhaSalva);
+            if(idSalvo && senhaSalva && !modoAcessoEspecial) {
+                const valido = await validarCredenciaisPlanilha(idSalvo, senhaSalva);
+                if(valido) {
+                    liberarAcesso();
+                } else {
+                    mostrarCamposLogin();
+                }
+            } else {
+                mostrarCamposLogin();
             }
         }
 
-        function forcarBloqueio(msg) {
-            logado = false;
-            document.getElementById('overlay-login').style.display = 'flex';
-            document.getElementById('msg-login').innerText = msg;
+        function mostrarCamposLogin() {
+            if(modoAcessoEspecial) {
+                document.getElementById('titulo-bloqueio').innerText = "📊 ACESSO AO HISTÓRICO";
+                document.getElementById('msg-login').innerText = "Informe credenciais de Gerente.";
+            } else {
+                document.getElementById('titulo-bloqueio').innerText = "🔒 SISTEMA BLOQUEADO";
+                document.getElementById('msg-login').innerText = "Credenciais inválidas ou ausentes.";
+            }
             document.getElementById('campos-login').style.display = "flex";
         }
 
         function liberarAcesso() {
             logado = true;
             document.getElementById('overlay-login').style.display = 'none';
-        }
-
-        async function validarCredenciaisBackground(id, pass) {
-            console.log("Verificando credenciais em background...");
-            const valido = await validarCredenciaisPlanilha(id, pass);
-            
-            if (valido) {
-                localStorage.setItem('albatroz_last_check', Date.now());
-                console.log("Credenciais validadas com sucesso em background.");
-            } else {
-                console.warn("Credenciais alteradas na planilha! Bloqueando...");
-                localStorage.removeItem('login_albatroz_id');
-                localStorage.removeItem('login_albatroz_pass');
-                forcarBloqueio("Sua sessão expirou ou a senha foi alterada.");
-            }
+            resetarInatividade();
         }
 
         async function validarAcessoManual() {
             const id = document.getElementById('login-id').value;
             const pass = document.getElementById('login-senha').value;
             
-            if(!id || !pass) {
-                alert("Por favor, preencha todos os campos.");
-                return;
-            }
-
-            document.getElementById('msg-login').innerText = "Validando...";
             const valido = await validarCredenciaisPlanilha(id, pass);
-            
             if(valido) {
-                localStorage.setItem('login_albatroz_id', id);
-                localStorage.setItem('login_albatroz_pass', pass);
-                localStorage.setItem('albatroz_last_check', Date.now());
-                enviarLogParaGoogleForms(id);
-                liberarAcesso();
-                if(modoAcessoEspecial) {
-                    abrirHistoricoVendas(); // Retorna para onde estava
+                if(!modoAcessoEspecial) {
+                    localStorage.setItem('login_albatroz_id', id);
+                    localStorage.setItem('login_albatroz_pass', pass);
+                    
+                    // ENVIO DAS INFORMAÇÕES TÉCNICAS NO LOGIN (COM ID DO USUÁRIO)
+                    enviarLogParaGoogleForms(id);
                 }
+                liberarAcesso();
             } else {
-                alert("ID ou Senha incorretos!");
-                document.getElementById('msg-login').innerText = "Erro: ID ou Senha incorretos.";
+                alert("ID ou Senha incorretos na planilha!");
             }
         }
 
         async function validarCredenciaisPlanilha(id, pass) {
             try {
-                const response = await fetch(URL_PLANILHA + "&t=" + Date.now());
+                const response = await fetch(URL_PLANILHA + "&t=" + new Date().getTime());
                 const data = await response.text();
                 const linhas = data.split(/\r?\n/).filter(line => line.trim() !== "");
                 
                 for (let i = 1; i < linhas.length; i++) {
                     let colunas = linhas[i].includes(';') ? linhas[i].split(';') : linhas[i].split(',');
                     colunas = colunas.map(col => col.replace(/^"|"$/g, '').trim());
-                    
+
                     if (colunas.length >= 3) {
-                        // Se for acesso ao histórico, verifica colunas de gerente (3 e 4), senão verifica operador (1 e 2)
-                        let idPlanilha = modoAcessoEspecial ? (colunas[3] || colunas[1]) : colunas[1];
-                        let passPlanilha = modoAcessoEspecial ? (colunas[4] || colunas[2]) : colunas[2];
-                        
+                        let idPlanilha = "";
+                        let passPlanilha = "";
+
+                        if (modoAcessoEspecial) {
+                            idPlanilha = (colunas[3] || colunas[1]);
+                            passPlanilha = (colunas[4] || colunas[2]);
+                        } else {
+                            idPlanilha = colunas[1];
+                            passPlanilha = colunas[2];
+                        }
+
                         if (idPlanilha === id.trim() && passPlanilha === pass.trim()) {
                             return true;
                         }
@@ -1011,26 +1098,15 @@
                 }
                 return false;
             } catch (e) {
-                console.error("Falha ao buscar planilha", e);
+                console.error("Erro ao validar planilha", e);
                 return false;
             }
         }
-
-        function resetarInatividade() {
-            // Removido o bloqueio por tempo para não atrapalhar o fluxo solicitado
-        }
-
-        // --- FIM DA NOVA LÓGICA ---
 
         let barcodeBuffer = "";
         window.addEventListener("keydown", (e) => {
             if (document.getElementById('modalSist').style.display === 'flex') {
                 if (document.activeElement.id === 'valor-recebido' || document.activeElement.className.includes('baixa-input')) return;
-                
-                if(e.key === "F2") {
-                   baixaGeral();
-                }
-
                 if (e.key === "Enter") {
                     if (barcodeBuffer.length > 0) {
                         const existe = produtos.some(p => p.id === barcodeBuffer);
@@ -1052,7 +1128,7 @@
         window.onload = () => {
             if(historico.length > 0) atualizarLista();
             atualizarVisualizacaoHome();
-            verificarAcessoAoIniciar(); 
+            bloquearSistema(); 
         };
 
         function atualizarVisualizacaoHome() {
@@ -1060,19 +1136,32 @@
             const containerCatalogo = document.getElementById('home-catalogo-view');
             container.innerHTML = "";
             containerCatalogo.innerHTML = "";
+            
             if (produtos.length === 0) {
                 container.innerHTML = "<p style='text-align:center; color:#666'>Nenhum produto cadastrado.</p>";
                 return;
             }
+
             produtos.forEach(p => {
                 const div = document.createElement('div');
                 div.className = 'card-disponivel';
                 if (parseInt(p.qtd) <= 5) div.classList.add('alerta-estoque');
-                div.innerHTML = `<span style="font-weight:bold">${p.nome || 'Sem Nome'}</span><span style="color:var(--warning)">Qtd: ${p.qtd}</span>`;
+                div.innerHTML = `
+                    <span style="font-weight:bold">${p.nome || 'Sem Nome'}</span>
+                    <span style="color:var(--warning)">Qtd: ${p.qtd}</span>
+                `;
                 container.appendChild(div);
+
                 const cardCat = document.createElement('div');
                 cardCat.className = 'produto-card';
-                cardCat.innerHTML = `<img src="${p.img}"><div class="produto-info"><b>${p.nome}</b><br>R$ ${p.valor}</div>`;
+                cardCat.innerHTML = `
+                    <img src="${p.img}">
+                    <div class="produto-info">
+                        <b>${p.nome}</b>
+                        <div class="preco-tag">R$ ${parseFloat(p.valor).toFixed(2)}</div>
+                        <div class="estoque-tag">Estoque: ${p.qtd} un</div>
+                    </div>
+                `;
                 containerCatalogo.appendChild(cardCat);
             });
         }
@@ -1116,19 +1205,12 @@
 
         function adicionarNaLista(id) {
             const produtoEncontrado = produtos.find(p => p.id === id);
-            
-            if(produtoEncontrado) {
-                document.getElementById('monitor-img').src = produtoEncontrado.img;
-                document.getElementById('monitor-nome').innerText = produtoEncontrado.nome;
-                document.getElementById('monitor-preco').innerText = `R$ ${parseFloat(produtoEncontrado.valor).toFixed(2)}`;
-            }
-
             const itemObj = {
                 id: id,
                 nome: produtoEncontrado ? (produtoEncontrado.nome || "Produto Localizado") : "ID Não Cadastrado",
                 img: produtoEncontrado ? produtoEncontrado.img : "https://via.placeholder.com/50",
                 valor: produtoEncontrado ? produtoEncontrado.valor : 0,
-                qtdBaixa: 1,
+                qtdBaixa: 1, // Adicionado para persistência
                 timestamp: new Date().getTime()
             };
             historico.unshift(itemObj);
@@ -1143,15 +1225,18 @@
             }
         }
 
+        // MODIFICAÇÃO: Salvando a quantidade no array historico para não resetar ao bipar
         function atualizarQtdNoHistorico(index, valor) {
             historico[index].qtdBaixa = parseInt(valor) || 1;
             localStorage.setItem('meu_historico', JSON.stringify(historico));
+            
+            // Recalcula o total sem renderizar tudo novamente (para evitar perda de foco)
             let soma = 0;
             historico.forEach(item => {
                 soma += (parseFloat(item.valor) || 0) * (item.qtdBaixa || 1);
             });
             valorTotalVenda = soma;
-            document.getElementById('valor-total').innerText = `TOTAL: R$ ${soma.toFixed(2)}`;
+            document.getElementById('valor-total').innerText = `Total: R$ ${soma.toFixed(2)}`;
             calcularTroco();
         }
 
@@ -1159,7 +1244,7 @@
             const container = document.getElementById('lista');
             const btnGeral = document.getElementById('container-baixa-geral');
             const campoTotal = document.getElementById('valor-total');
-            container.innerHTML = '<h4 style="margin:5px 0; color:#333">ITENS NA CESTA</h4>';
+            container.innerHTML = '<h4 style="margin:5px 0">Histórico</h4>';
             let somaTotal = 0;
             btnGeral.style.display = historico.length > 0 ? 'block' : 'none';
 
@@ -1175,7 +1260,7 @@
                         <img src="${item.img}" style="width:30px; height:30px; border-radius:4px; object-fit:cover">
                         <div>
                             <span class="id-text">${item.id}</span><br>
-                            <small style="font-size:10px; color:#666">${item.nome} | R$ ${valorItem.toFixed(2)}</small>
+                            <small style="font-size:10px; color:#aaa">${item.nome} | R$ ${valorItem.toFixed(2)}</small>
                         </div>
                     </div>
                     <div style="display:flex; align-items:center; gap:5px">
@@ -1189,7 +1274,7 @@
                 container.appendChild(div);
             });
             valorTotalVenda = somaTotal;
-            campoTotal.innerText = `TOTAL: R$ ${somaTotal.toFixed(2)}`;
+            campoTotal.innerText = `Total: R$ ${somaTotal.toFixed(2)}`;
             calcularTroco();
         }
 
@@ -1197,7 +1282,7 @@
             const recebido = parseFloat(document.getElementById('valor-recebido').value) || 0;
             const troco = recebido - valorTotalVenda;
             const displayTroco = document.getElementById('texto-troco');
-            displayTroco.innerText = `TROCO: R$ ${recebido > 0 && troco >= 0 ? troco.toFixed(2) : "0,00"}`;
+            displayTroco.innerText = `Troco: R$ ${recebido > 0 && troco >= 0 ? troco.toFixed(2) : "0,00"}`;
             displayTroco.style.color = troco < 0 ? "var(--danger)" : "var(--success)";
         }
 
@@ -1234,14 +1319,20 @@
             const grid = document.getElementById('grid-produtos');
             const termoBusca = document.getElementById('busca-id').value.toLowerCase();
             grid.innerHTML = "";
+            
             produtos.forEach((p, i) => {
                 if (termoBusca === "" || p.id.toLowerCase().includes(termoBusca)) {
                     grid.innerHTML += `<div class="produto-card">
                         <button class="btn-edit-prod" onclick="editarProduto(${i})">✏️</button>
                         <button class="btn-del-prod" onclick="excluirProdutoPermanente(${i})">X</button>
-                        <img src="${p.img}"><div class="produto-info"><b>${p.nome || 'Sem Nome'}</b><br>
-                        <small>ID: ${p.id}</small><br>R$ ${p.valor}<br>
-                        <span style="color:var(--success)">Estoque: ${p.qtd}</span></div></div>`;
+                        <img src="${p.img}">
+                        <div class="produto-info">
+                            <b>${p.nome || 'Sem Nome'}</b>
+                            <small>ID: ${p.id}</small>
+                            <div class="preco-tag">R$ ${parseFloat(p.valor).toFixed(2)}</div>
+                            <div class="estoque-tag" style="color:${p.qtd <= 5 ? 'var(--danger)' : 'var(--success)'}">Estoque: ${p.qtd} un</div>
+                        </div>
+                    </div>`;
                 }
             });
         }
@@ -1292,10 +1383,11 @@
         }
 
         function baixaGeral() {
-            if(!confirm("Deseja concluir esta venda?")) return;
+            if(!confirm("Deseja dar baixa geral?")) return;
             const metodo = document.getElementById('metodo-pagamento').value;
             let itensVendidos = [];
             let totalGeralVenda = 0;
+
             historico.forEach((item, index) => {
                 const qtdBaixa = item.qtdBaixa || 1;
                 const pIndex = produtos.findIndex(p => p.id === item.id);
@@ -1310,6 +1402,7 @@
                     });
                 }
             });
+
             if(itensVendidos.length > 0) {
                 vendasRealizadas.unshift({
                     idVenda: 'V-' + Math.floor(Date.now() / 1000),
@@ -1326,11 +1419,9 @@
                 historico = [];
                 localStorage.setItem('meu_historico', JSON.stringify(historico));
                 document.getElementById('valor-recebido').value = "";
-                document.getElementById('monitor-nome').innerText = "VENDA CONCLUÍDA";
-                document.getElementById('monitor-preco').innerText = "R$ 0,00";
                 atualizarLista();
                 atualizarVisualizacaoHome();
-                alert("Venda concluída com sucesso!");
+                alert("Baixa geral concluída!");
             }
         }
 
@@ -1343,21 +1434,18 @@
         }
 
         function abrirHistoricoVendas() {
+            logadoHistorico = false; 
             modoAcessoEspecial = true;
-            // Verifica se as credenciais salvas dão acesso de gerente
-            const id = localStorage.getItem('login_albatroz_id');
-            const pass = localStorage.getItem('login_albatroz_pass');
-
-            // Validação instantânea contra o cache de gerente
-            validarCredenciaisPlanilha(id, pass).then(valido => {
-                if(valido) {
+            bloquearSistema();
+            
+            const interval = setInterval(() => {
+                if (logado) {
+                    clearInterval(interval);
                     document.getElementById('modalGen').style.display = 'flex';
                     document.getElementById('home').style.display = 'none';
                     renderizarHistoricoVendas();
-                } else {
-                    forcarBloqueio("Acesso Restrito: Informe login de Gerente.");
                 }
-            });
+            }, 500);
         }
 
         function renderizarHistoricoVendas() {
@@ -1366,15 +1454,23 @@
             const displayBrutoDia = document.getElementById('valor-bruto-dia');
             const displayLucroTotal = document.getElementById('valor-lucro-total');
             const displayBrutoTotalAcumulado = document.getElementById('valor-bruto-total-acumulado');
+            const displayTaxaDia = document.getElementById('taxa-maquina-dia');
+            const displayTaxaTotal = document.getElementById('taxa-maquina-total');
             corpoTabela.innerHTML = "";
+            
             let brutoTotalGeralAcumulado = 0;
             let lucroTotal = 0;
+            
             let brutoDia = 0;
             let lucroDia = 0;
+            
+            let taxaTotalAcumulada = 0;
+            let taxaDiaAcumulada = 0;
             let totPix = 0;
             let totDinheiro = 0;
             let totCartao = 0;
             let contagemProdutos = {};
+
             const agora = new Date().getTime();
             const vinteQuatroHoras = 24 * 60 * 60 * 1000;
             const timestampReset = parseInt(localStorage.getItem('timestamp_reset_ganhos')) || 0;
@@ -1384,21 +1480,44 @@
                 const taxa = v.taxa || 0;
                 const valorDaTaxa = bruto * (taxa / 100);
                 const liquido = bruto - valorDaTaxa;
+                
                 brutoTotalGeralAcumulado += bruto;
                 lucroTotal += liquido;
+                taxaTotalAcumulada += valorDaTaxa;
+                
                 if (agora - v.timestamp < vinteQuatroHoras && v.timestamp > timestampReset) {
                     brutoDia += bruto;
                     lucroDia += liquido;
+                    taxaDiaAcumulada += valorDaTaxa;
                     if(v.tipo === "Pix") totPix += liquido;
                     else if(v.tipo === "Dinheiro") totDinheiro += liquido;
                     else if(v.tipo === "Cartão" || v.tipo.includes("Cartão")) totCartao += liquido;
                 }
+                
                 if(v.itens) {
                     v.itens.forEach(item => {
                         contagemProdutos[item.nome] = (contagemProdutos[item.nome] || 0) + item.qtd;
                     });
+                } else if(v.nome) {
+                     contagemProdutos[v.nome] = (contagemProdutos[v.nome] || 0) + v.qtd;
                 }
-                corpoTabela.innerHTML += `<tr><td>${v.data}</td><td><button onclick="visualizarItensVenda(${index})" style="font-size:10px; cursor:pointer; background: var(--primary); color: white; border:none; padding: 4px; border-radius:4px;">VER NOTA</button></td><td>${v.tipo}</td><td>R$ ${bruto.toFixed(2)}</td><td><input type="number" value="${taxa}" style="width:45px; font-size:11px;" onchange="atualizarTaxaVenda(${index}, this.value)"></td><td style="color:var(--success); font-weight:bold">R$ ${liquido.toFixed(2)}</td><td>${v.aparelho || 'N/A'}</td></tr>`;
+
+                corpoTabela.innerHTML += `
+                    <tr>
+                        <td>${v.data}</td>
+                        <td>
+                            <div style="display:flex; gap:2px">
+                                <button onclick="visualizarItensVenda(${index})" style="font-size:10px; cursor:pointer; background: var(--primary); color: white; border:none; padding: 4px; border-radius:4px;">VER NOTA</button>
+                            </div>
+                        </td>
+                        <td>${v.tipo}</td>
+                        <td>R$ ${bruto.toFixed(2)}</td>
+                        <td>
+                            <input type="number" value="${taxa}" style="width:45px; font-size:11px; padding: 2px; border: 1px solid #444; background: #222; color: white;" onchange="atualizarTaxaVenda(${index}, this.value)">
+                        </td>
+                        <td style="color:var(--success); font-weight:bold">R$ ${liquido.toFixed(2)}</td>
+                        <td style="font-size:9px">${v.aparelho || 'N/A'}</td>
+                    </tr>`;
             });
 
             document.getElementById('dash-pix').innerText = `R$ ${totPix.toFixed(2)}`;
@@ -1406,27 +1525,96 @@
             document.getElementById('dash-cartao').innerText = `R$ ${totCartao.toFixed(2)}`;
             let topProd = Object.keys(contagemProdutos).length > 0 ? Object.keys(contagemProdutos).reduce((a, b) => contagemProdutos[a] > contagemProdutos[b] ? a : b) : "---";
             document.getElementById('dash-top').innerText = topProd;
+            
             displayBrutoDia.innerText = `R$ ${brutoDia.toFixed(2)}`;
             displayLucroDia.innerText = `R$ ${lucroDia.toFixed(2)}`;
             displayLucroTotal.innerText = `R$ ${lucroTotal.toFixed(2)}`;
             displayBrutoTotalAcumulado.innerText = `R$ ${brutoTotalGeralAcumulado.toFixed(2)}`;
+            displayTaxaDia.innerText = `Perda p/ Máquina: R$ ${taxaDiaAcumulada.toFixed(2)}`;
+            displayTaxaTotal.innerText = `Taxa Máquina Total: R$ ${taxaTotalAcumulada.toFixed(2)}`;
         }
 
+        // NOVAS FUNÇÕES ADICIONADAS
+        function abrirModalValorBruto(valor) {
+            document.getElementById('txtValorBrutoModal').innerText = `R$ ${valor.toFixed(2)}`;
+            document.getElementById('modalValorBruto').style.display = 'flex';
+        }
+
+        function toggleFraseFiscal(marcado) {
+            const frase = document.getElementById('texto-cupom-fiscal-frase');
+            frase.style.display = marcado ? 'block' : 'none';
+        }
+
+        function togglePreviewCupom() {
+            const cupom = document.querySelector('.cupom-container');
+            const btn = document.getElementById('btn-toggle-preview');
+            const inputRec = document.getElementById('cupom-calc-recebido');
+            const txtRec = document.getElementById('cupom-recebido-limpo');
+            const obsTextarea = document.getElementById('cupom-obs');
+            const obsDisplay = document.getElementById('cupom-obs-texto');
+            
+            cupom.classList.toggle('preview-modo-profissional');
+            
+            if(cupom.classList.contains('preview-modo-profissional')) {
+                btn.innerText = "✏️ EDITAR NOTA";
+                // CORREÇÃO: Passar o valor do input para o span visual antes de ocultar o input
+                txtRec.innerText = parseFloat(inputRec.value).toFixed(2);
+                txtRec.style.display = "inline-block";
+                inputRec.style.display = "none";
+                obsDisplay.style.display = "block";
+                obsTextarea.style.display = "none";
+            } else {
+                btn.innerText = "👁️ VER PRÉVIA DA NOTA";
+                txtRec.style.display = "none";
+                inputRec.style.display = "inline-block";
+                obsDisplay.style.display = "none";
+                obsTextarea.style.display = "block";
+            }
+        }
+
+        // --- FUNÇÃO DO CUPOM (NOTA NÃO FISCAL) ---
         function visualizarItensVenda(index) {
             const venda = vendasRealizadas[index];
             document.getElementById('cupom-id-nota').innerText = venda.idVenda || 'N/A';
             document.getElementById('cupom-data').innerText = venda.data;
+            
+            // Setar o seletor baseado no tipo que veio da venda
             const seletorMetodo = document.getElementById('cupom-metodo-pagamento-seletor');
-            seletorMetodo.value = (venda.tipo === "Dinheiro" || venda.tipo === "Pix") ? venda.tipo : "Cartão de Crédito";
+            if (venda.tipo === "Dinheiro") seletorMetodo.value = "Dinheiro";
+            else if (venda.tipo === "Pix") seletorMetodo.value = "Pix";
+            else if (venda.tipo.includes("Crédito")) seletorMetodo.value = "Cartão de Crédito";
+            else if (venda.tipo.includes("Débito")) seletorMetodo.value = "Cartão de Débito";
+            else seletorMetodo.value = "Dinheiro"; // Default
+
             mudarMetodoCupom(seletorMetodo.value);
+            
             document.getElementById('cupom-total-bruto').innerText = `R$ ${parseFloat(venda.valorTotal).toFixed(2)}`;
+            
             const corpo = document.getElementById('cupom-corpo-itens');
             corpo.innerHTML = "";
+            
             if(venda.itens) {
                 venda.itens.forEach(i => {
-                    corpo.innerHTML += `<tr><td>${i.nome}</td><td style="text-align:center;">${i.qtd}</td><td style="text-align:right;">R$ ${parseFloat(i.valor).toFixed(2)}</td></tr>`;
+                    corpo.innerHTML += `
+                        <tr>
+                            <td>${i.nome}</td>
+                            <td style="text-align:center;">${i.qtd}</td>
+                            <td style="text-align:right;">R$ ${parseFloat(i.valor).toFixed(2)}</td>
+                        </tr>`;
                 });
             }
+
+            // Reseta para modo edição ao abrir
+            const cupom = document.querySelector('.cupom-container');
+            cupom.classList.remove('preview-modo-profissional');
+            document.getElementById('btn-toggle-preview').innerText = "👁️ VER PRÉVIA DA NOTA";
+            document.getElementById('cupom-calc-recebido').style.display = "inline-block";
+            document.getElementById('cupom-recebido-limpo').style.display = "none";
+            document.getElementById('cupom-obs-texto').style.display = "none";
+            document.getElementById('cupom-obs').style.display = "block";
+
+            document.getElementById('cupom-calc-recebido').value = "0.00";
+            document.getElementById('cupom-calc-troco').innerText = "R$ 0,00";
             document.getElementById('modalDetalhesVenda').style.display = 'flex';
         }
 
@@ -1434,11 +1622,21 @@
             const labelPagamento = document.getElementById('cupom-pagamento');
             const linhaRecebido = document.getElementById('linha-recebido-cupom');
             const linhaTroco = document.getElementById('linha-troco-cupom');
-            labelPagamento.innerText = metodo;
+
             if (metodo === "Dinheiro") {
+                labelPagamento.innerText = "Dinheiro";
                 linhaRecebido.style.display = "flex";
                 linhaTroco.style.display = "flex";
-            } else {
+            } else if (metodo === "Pix") {
+                labelPagamento.innerText = "Pagamento via Pix";
+                linhaRecebido.style.display = "none";
+                linhaTroco.style.display = "none";
+            } else if (metodo === "Cartão de Crédito") {
+                labelPagamento.innerText = "Pagamento via Cartão de Crédito";
+                linhaRecebido.style.display = "none";
+                linhaTroco.style.display = "none";
+            } else if (metodo === "Cartão de Débito") {
+                labelPagamento.innerText = "Pagamento via Cartão de Débito";
                 linhaRecebido.style.display = "none";
                 linhaTroco.style.display = "none";
             }
@@ -1456,7 +1654,11 @@
             const container = document.getElementById('qrcode-cupom');
             container.innerHTML = "";
             if(link.trim() !== "") {
-                new QRCode(container, { text: link, width: 100, height: 100 });
+                new QRCode(container, {
+                    text: link,
+                    width: 100,
+                    height: 100
+                });
             }
         }
 
@@ -1485,34 +1687,52 @@
             document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
             document.getElementById('home').style.display = 'flex';
             if (scanner) scanner.stop();
+            logado = false; 
             modoAcessoEspecial = false;
         }
 
         function exportarDados() {
-            const backupCompleto = { produtos, historico, vendas: vendasRealizadas, idDispositivo: localStorage.getItem('albatroz_device_id') };
+            const backupCompleto = {
+                produtos: produtos,
+                historico: historico,
+                vendas: vendasRealizadas,
+                idDispositivo: localStorage.getItem('albatroz_device_id')
+            };
             const blob = new Blob([JSON.stringify(backupCompleto)], {type: 'application/json'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'backup_albatroz_' + new Date().toLocaleDateString() + '.json';
+            a.download = 'backup_albatroz_completo_' + new Date().toLocaleDateString().replace(/\//g, '-') + '.json';
             a.click();
         }
 
         function importarDados(event) {
-            if(!confirm("Substituir dados atuais?")) return;
+            if(!confirm("Isso irá substituir todos os dados atuais. Deseja continuar?")) return;
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
                     const dados = JSON.parse(e.target.result);
-                    if(dados.produtos) { produtos = dados.produtos; localStorage.setItem('meus_produtos', JSON.stringify(produtos)); }
-                    if(dados.vendas) { vendasRealizadas = dados.vendas; localStorage.setItem('historico_vendas', JSON.stringify(vendasRealizadas)); }
+                    if(dados.produtos) {
+                        produtos = dados.produtos;
+                        localStorage.setItem('meus_produtos', JSON.stringify(produtos));
+                    }
+                    if(dados.vendas) {
+                        vendasRealizadas = dados.vendas;
+                        localStorage.setItem('historico_vendas', JSON.stringify(vendasRealizadas));
+                    }
+                    if(dados.historico) {
+                        historico = dados.historico;
+                        localStorage.setItem('meu_historico', JSON.stringify(historico));
+                    }
                     renderizarCatalogo();
                     atualizarVisualizacaoHome();
-                    alert("Importado!");
-                } catch(err) { alert("Erro no backup."); }
+                    atualizarLista();
+                    alert("Backup Geral importado com sucesso!");
+                } catch(err) {
+                    alert("Erro ao ler o arquivo de backup.");
+                }
             };
             reader.readAsText(event.target.files[0]);
         }
     </script>
 </body>
 </html>
-
