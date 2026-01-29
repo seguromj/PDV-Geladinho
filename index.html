@@ -667,34 +667,46 @@
             border: 1px solid #ddd;
         }
 
-        /* NOVO ESTILO PARA ATALHOS */
+        /* MODIFICAÇÃO: Modal de atalhos em tela cheia */
         .modal-atalhos {
             display: none;
             position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--card);
-            border: 2px solid var(--primary);
-            padding: 20px;
-            border-radius: 15px;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: var(--bg);
             z-index: 6000;
-            width: 90%;
-            max-width: 400px;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            flex-direction: column;
+        }
+        .atalhos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
         }
         .linha-atalho {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            background: var(--card);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #333;
         }
         .input-tecla {
-            width: 60px;
+            width: 80px;
             text-align: center;
-            background: #222;
+            background: #111;
             color: var(--warning);
-            border: 1px solid #444;
-            padding: 5px;
+            border: 1px solid var(--primary);
+            padding: 10px;
             font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -737,25 +749,48 @@
     </div>
 
     <div id="modalAtalhos" class="modal-atalhos">
-        <h3 style="text-align:center; color: var(--primary);">Configurar Atalhos</h3>
-        <p style="font-size: 11px; text-align: center; color: #888;">Clique no campo e pressione a tecla desejada.</p>
-        <div class="linha-atalho">
-            <span>Abrir Escaner:</span>
-            <input type="text" class="input-tecla" id="key-escanear" readonly onclick="capturarTecla('key-escanear')">
+        <button class="btn-voltar" onclick="fecharModalAtalhos()">⬅ VOLTAR E SALVAR</button>
+        <h2 style="text-align:center; color: var(--primary);">Configuração de Atalhos do Teclado</h2>
+        <p style="text-align: center; color: #888; margin-bottom: 30px;">Clique no campo desejado e pressione a tecla física no teclado para mapear.</p>
+        
+        <div class="atalhos-grid">
+            <div class="linha-atalho">
+                <span>Escanear Produtos:</span>
+                <input type="text" class="input-tecla" id="key-escanear" readonly onclick="capturarTecla('key-escanear')">
+            </div>
+            <div class="linha-atalho">
+                <span>Histórico de Vendas:</span>
+                <input type="text" class="input-tecla" id="key-historico" readonly onclick="capturarTecla('key-historico')">
+            </div>
+            <div class="linha-atalho">
+                <span>Cadastrar Produtos:</span>
+                <input type="text" class="input-tecla" id="key-cadastro" readonly onclick="capturarTecla('key-cadastro')">
+            </div>
+            <div class="linha-atalho">
+                <span>Baixa Geral (no PDV):</span>
+                <input type="text" class="input-tecla" id="key-baixa" readonly onclick="capturarTecla('key-baixa')">
+            </div>
+            <div class="linha-atalho">
+                <span>Cupom não Fiscal:</span>
+                <input type="text" class="input-tecla" id="key-cupom" readonly onclick="capturarTecla('key-cupom')">
+            </div>
+            <div class="linha-atalho">
+                <span>Criar QR/BARRA:</span>
+                <input type="text" class="input-tecla" id="key-qrbarra" readonly onclick="capturarTecla('key-qrbarra')">
+            </div>
+            <div class="linha-atalho">
+                <span>Alterar Site (Admin):</span>
+                <input type="text" class="input-tecla" id="key-admin" readonly onclick="capturarTecla('key-admin')">
+            </div>
+            <div class="linha-atalho">
+                <span>Tutorial:</span>
+                <input type="text" class="input-tecla" id="key-tutorial" readonly onclick="capturarTecla('key-tutorial')">
+            </div>
         </div>
-        <div class="linha-atalho">
-            <span>Abrir Histórico:</span>
-            <input type="text" class="input-tecla" id="key-historico" readonly onclick="capturarTecla('key-historico')">
+        
+        <div style="text-align: center; margin-top: 40px;">
+            <button class="btn-main btn-green" style="width: 100%; max-width: 400px; margin: 0 auto;" onclick="fecharModalAtalhos()">SALVAR CONFIGURAÇÕES</button>
         </div>
-        <div class="linha-atalho">
-            <span>Abrir Cadastro:</span>
-            <input type="text" class="input-tecla" id="key-cadastro" readonly onclick="capturarTecla('key-cadastro')">
-        </div>
-        <div class="linha-atalho">
-            <span>Baixa Geral (no PDV):</span>
-            <input type="text" class="input-tecla" id="key-baixa" readonly onclick="capturarTecla('key-baixa')">
-        </div>
-        <button class="btn-main btn-green" style="width:100%; margin-top:10px;" onclick="fecharModalAtalhos()">SALVAR ATALHOS</button>
     </div>
 
     <div class="container-topo" id="home">
@@ -770,14 +805,14 @@
             </div>
 
             <div class="menu-principal">
-                <button class="btn-main btn-blue" onclick="abrirSist()"><img src="scan-code.png" alt="imagem escanear" style="padding: 10px; width: 20px; height: 20px; border-radius: 50%;"> Escanear Produtos</button>
-                <button class="btn-main btn-green" onclick="abrirHistoricoVendas()">📊 HISTÓRICO de VENDA</button>
-                <button class="btn-main btn-orange" onclick="abrirCadastro()">🛍️ CADASTRAR PRODUTOS</button>
-                <a class="btn-main btn-laranja" href="Nota-fiscal-por-lei.html" target="_self">Cupom de novo Fiscal</a>
-                <a class="btn-main btn-vermelho" href="Codigo-Barra-QR.html" target="_self">Criar QR/BARRA</a>
-                <a class="btn-main btn-vermelho" href="Botao-Admin.html" target="_self">ALTERAR SITE</a>
+                <button id="btn-home-scan" class="btn-main btn-blue" onclick="abrirSist()"><img src="scan-code.png" alt="imagem escanear" style="padding: 10px; width: 20px; height: 20px; border-radius: 50%;"> Escanear Produtos</button>
+                <button id="btn-home-hist" class="btn-main btn-green" onclick="abrirHistoricoVendas()">📊 HISTÓRICO de VENDA</button>
+                <button id="btn-home-cad" class="btn-main btn-orange" onclick="abrirCadastro()">🛍️ CADASTRAR PRODUTOS</button>
+                <a id="btn-home-cupom" class="btn-main btn-laranja" href="Nota-fiscal-por-lei.html" target="_self">Cupom de novo Fiscal</a>
+                <a id="btn-home-qr" class="btn-main btn-vermelho" href="Codigo-Barra-QR.html" target="_self">Criar QR/BARRA</a>
+                <a id="btn-home-admin" class="btn-main btn-vermelho" href="Botao-Admin.html" target="_self">ALTERAR SITE</a>
                 <button class="btn-main btn-black" onclick="abrirModalAtalhos()">⌨️ CONFIGURAR TECLAS</button>
-                <a class="btn-main btn-black" href="Tutorial-Sistema.html" target="_self">Tutorial do Sistema</a>
+                <a id="btn-home-tuto" class="btn-main btn-black" href="Tutorial-Sistema.html" target="_self">Tutorial do Sistema</a>
             </div>
 
             <div class="divisor"></div>
@@ -811,7 +846,7 @@
 
             <div class="carrinho-lado-direito">
                 <div id="container-baixa-geral">
-                    <button class="btn-baixa-geral" onclick="baixaGeral()">DAR BAIXA EM TUDO</button>
+                    <button id="btn-pdv-baixa" class="btn-baixa-geral" onclick="baixaGeral()">DAR BAIXA EM TUDO</button>
                     <div id="valor-total" class="campo-total">Total: R$ 0,00</div>
                     <div class="container-pagamento">
                         <select id="metodo-pagamento" class="select-metodo">
@@ -1064,7 +1099,11 @@
             escanear: 'F2',
             historico: 'F4',
             cadastro: 'F8',
-            baixa: 'F9'
+            baixa: 'F9',
+            cupom: 'F6',
+            qrbarra: 'F7',
+            admin: 'F10',
+            tutorial: 'F1'
         };
 
         // --- FUNÇÕES DE IDENTIFICAÇÃO DE DISPOSITIVO AVANÇADA ---
@@ -1227,6 +1266,10 @@
                 if (e.key === configTeclas.escanear) { e.preventDefault(); abrirSist(); }
                 if (e.key === configTeclas.historico) { e.preventDefault(); abrirHistoricoVendas(); }
                 if (e.key === configTeclas.cadastro) { e.preventDefault(); abrirCadastro(); }
+                if (e.key === configTeclas.cupom) { e.preventDefault(); document.getElementById('btn-home-cupom').click(); }
+                if (e.key === configTeclas.qrbarra) { e.preventDefault(); document.getElementById('btn-home-qr').click(); }
+                if (e.key === configTeclas.admin) { e.preventDefault(); document.getElementById('btn-home-admin').click(); }
+                if (e.key === configTeclas.tutorial) { e.preventDefault(); document.getElementById('btn-home-tuto').click(); }
                 
                 // Atalho de baixa geral apenas se o modal de PDV estiver aberto
                 if (e.key === configTeclas.baixa && document.getElementById('modalSist').style.display === 'flex') {
@@ -1872,7 +1915,7 @@
 
         // --- NOVAS FUNÇÕES DE ATALHOS ---
         function abrirModalAtalhos() {
-            document.getElementById('modalAtalhos').style.display = 'block';
+            document.getElementById('modalAtalhos').style.display = 'flex';
         }
 
         function fecharModalAtalhos() {
@@ -1885,22 +1928,35 @@
             document.getElementById('key-historico').value = configTeclas.historico;
             document.getElementById('key-cadastro').value = configTeclas.cadastro;
             document.getElementById('key-baixa').value = configTeclas.baixa;
+            document.getElementById('key-cupom').value = configTeclas.cupom;
+            document.getElementById('key-qrbarra').value = configTeclas.qrbarra;
+            document.getElementById('key-admin').value = configTeclas.admin;
+            document.getElementById('key-tutorial').value = configTeclas.tutorial;
         }
 
         function capturarTecla(inputId) {
             const input = document.getElementById(inputId);
-            input.value = "Pressione...";
+            const originalValue = input.value;
+            input.value = "Aguardando...";
+            input.style.borderColor = "var(--success)";
             
             const listener = (e) => {
                 e.preventDefault();
                 const tecla = e.key;
                 input.value = tecla;
+                input.style.borderColor = "var(--primary)";
                 
-                // Mapeia para o objeto de config
-                if(inputId === 'key-escanear') configTeclas.escanear = tecla;
-                if(inputId === 'key-historico') configTeclas.historico = tecla;
-                if(inputId === 'key-cadastro') configTeclas.cadastro = tecla;
-                if(inputId === 'key-baixa') configTeclas.baixa = tecla;
+                // Mapeia para o objeto de config baseado no inputId
+                switch(inputId) {
+                    case 'key-escanear': configTeclas.escanear = tecla; break;
+                    case 'key-historico': configTeclas.historico = tecla; break;
+                    case 'key-cadastro': configTeclas.cadastro = tecla; break;
+                    case 'key-baixa': configTeclas.baixa = tecla; break;
+                    case 'key-cupom': configTeclas.cupom = tecla; break;
+                    case 'key-qrbarra': configTeclas.qrbarra = tecla; break;
+                    case 'key-admin': configTeclas.admin = tecla; break;
+                    case 'key-tutorial': configTeclas.tutorial = tecla; break;
+                }
                 
                 window.removeEventListener('keydown', listener);
             };
@@ -1910,4 +1966,3 @@
     </script>
 </body>
 </html>
-
