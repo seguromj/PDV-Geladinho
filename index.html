@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -759,26 +757,11 @@
             font-weight: bold;
         }
 
-                /* Estilo para item cancelado no carrinho */
-        .item-cancelado {
-            opacity: 0.5;
-            filter: grayscale(1);
-            position: relative;
-            background: #f8d7da !important; /* Fundo levemente rosado para indicar erro/cancelamento */
+        /* ESTILO PARA VENDA CANCELADA */
+        .venda-cancelada {
+            opacity: 0.4;
+            text-decoration: line-through red 2px;
         }
-
-        .item-cancelado .id-text, 
-        .item-cancelado small {
-            text-decoration: line-through;
-            text-decoration-color: var(--danger);
-            text-decoration-thickness: 3px;
-        }
-
-        .item-cancelado .baixa-container,
-        .item-cancelado .btn-baixa-individual {
-            display: none !important; /* Esconde controles de baixa se cancelado */
-        }
-        
     </style>
 </head>
 <body onclick="resetarInatividade()" onkeydown="resetarInatividade()">
@@ -1581,7 +1564,7 @@
             calcularTroco();
         }
 
-                function atualizarLista() {
+        function atualizarLista() {
             const container = document.getElementById('lista');
             const btnGeral = document.getElementById('container-baixa-geral');
             const campoTotal = document.getElementById('valor-total');
@@ -1590,26 +1573,26 @@
             btnGeral.style.display = historico.length > 0 ? 'block' : 'none';
 
             historico.forEach((item, index) => {
-                const valorItem = item.cancelado ? 0 : (parseFloat(item.valor) || 0);
+                const valorItem = parseFloat(item.valor) || 0;
                 const qtd = item.qtdBaixa || 1;
                 somaTotal += (valorItem * qtd);
                 
                 const div = document.createElement('div');
-                div.className = 'item-lista' + (item.cancelado ? ' item-cancelado' : '');
+                div.className = 'item-lista';
                 div.innerHTML = `
                     <div style="display:flex; align-items:center; gap:8px">
                         <img src="${item.img}" style="width:40px; height:40px; border-radius:4px; object-fit:cover">
                         <div>
                             <span class="id-text">${item.id}</span><br>
-                            <small style="font-size:12px; color:#555; font-weight:bold;">${item.nome} | R$ ${item.cancelado ? '0.00' : valorItem.toFixed(2)}</small>
+                            <small style="font-size:12px; color:#555; font-weight:bold;">${item.nome} | R$ ${valorItem.toFixed(2)}</small>
                         </div>
                     </div>
                     <div style="display:flex; align-items:center; gap:5px">
                         <div class="baixa-container">
                             <input type="number" class="baixa-input" value="${qtd}" oninput="atualizarQtdNoHistorico(${index}, this.value)">
-                            <button class="btn-delete btn-baixa-individual" style="background:var(--warning); color:black;" onclick="darBaixa('${item.id}', ${index})">BAIXA</button>
+                            <button class="btn-delete" style="background:var(--warning); color:black;" onclick="darBaixa('${item.id}', ${index})">BAIXA</button>
                         </div>
-                        <button class="btn-delete" onclick="removerItem(${index})">${item.cancelado ? 'RESTAURAR' : 'X'}</button>
+                        <button class="btn-delete" onclick="removerItem(${index})">X</button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -1618,20 +1601,6 @@
             campoTotal.innerText = `Total: R$ ${somaTotal.toFixed(2)}`;
             calcularTroco();
         }
-
-        function removerItem(index) {
-            // Se já estiver cancelado, ele restaura (opcional), se não, cancela
-            if (!historico[index].cancelado) {
-                historico[index].cancelado = true;
-                // O valor original permanece no objeto, mas a função atualizarLista o tratará como 0 no cálculo
-            } else {
-                historico[index].cancelado = false;
-            }
-            
-            localStorage.setItem('meu_historico', JSON.stringify(historico));
-            atualizarLista();
-        }
-
 
         function calcularTroco() {
             const recebido = parseFloat(document.getElementById('valor-recebido').value) || 0;
@@ -1846,50 +1815,59 @@
             const timestampReset = parseInt(localStorage.getItem('timestamp_reset_ganhos')) || 0;
 
             vendasRealizadas.forEach((v, index) => {
+                const isCancelada = v.cancelada === true;
                 const bruto = parseFloat(v.valorTotal);
                 const taxaMaq = v.taxa || 0;
                 const descReais = v.desconto || 0;
                 
                 let valorDaTaxaMaq = bruto * (taxaMaq / 100);
                 let liquido = bruto - valorDaTaxaMaq - descReais;
+
+                // SE CANCELADA, O LÍQUIDO É ZERO PARA O CÁLCULO
+                const liquidoCalculo = isCancelada ? 0 : liquido;
+                const brutoCalculo = isCancelada ? 0 : bruto;
                 
-                brutoTotalGeralAcumulado += bruto;
-                lucroTotal += liquido;
-                taxaTotalAcumulada += valorDaTaxaMaq;
-                descontoTotalAcumulado += descReais;
+                brutoTotalGeralAcumulado += brutoCalculo;
+                lucroTotal += liquidoCalculo;
+                taxaTotalAcumulada += isCancelada ? 0 : valorDaTaxaMaq;
+                descontoTotalAcumulado += isCancelada ? 0 : descReais;
                 
                 if (agora - v.timestamp < vinteQuatroHoras && v.timestamp > timestampReset) {
-                    brutoDia += bruto;
-                    lucroDia += liquido;
-                    taxaDiaAcumulada += valorDaTaxaMaq;
-                    descontoDiaAcumulado += descReais;
-                    if(v.tipo === "Pix") totPix += liquido;
-                    else if(v.tipo === "Dinheiro") totDinheiro += liquido;
-                    else if(v.tipo === "Cartão" || v.tipo.includes("Cartão")) totCartao += liquido;
+                    brutoDia += brutoCalculo;
+                    lucroDia += liquidoCalculo;
+                    taxaDiaAcumulada += isCancelada ? 0 : valorDaTaxaMaq;
+                    descontoDiaAcumulado += isCancelada ? 0 : descReais;
+                    if(!isCancelada) {
+                        if(v.tipo === "Pix") totPix += liquido;
+                        else if(v.tipo === "Dinheiro") totDinheiro += liquido;
+                        else if(v.tipo === "Cartão" || v.tipo.includes("Cartão")) totCartao += liquido;
+                    }
                 }
                 
-                if(v.itens) {
-                    v.itens.forEach(item => {
-                        contagemProdutos[item.nome] = (contagemProdutos[item.nome] || 0) + item.qtd;
-                    });
-                } else if(v.nome) {
-                     contagemProdutos[v.nome] = (contagemProdutos[v.nome] || 0) + v.qtd;
+                if(!isCancelada) {
+                    if(v.itens) {
+                        v.itens.forEach(item => {
+                            contagemProdutos[item.nome] = (contagemProdutos[item.nome] || 0) + item.qtd;
+                        });
+                    } else if(v.nome) {
+                         contagemProdutos[v.nome] = (contagemProdutos[v.nome] || 0) + v.qtd;
+                    }
                 }
 
                 corpoTabela.innerHTML += `
-                    <tr>
+                    <tr class="${isCancelada ? 'venda-cancelada' : ''}">
                         <td>${v.data}</td>
                         <td>
                             <div style="display:flex; flex-direction:column; gap:2px">
                                 <div style="display:flex; gap:2px">
                                     <button onclick="visualizarItensVenda(${index})" style="font-size:11px; cursor:pointer; background: var(--primary); color: white; border:none; padding: 6px; border-radius:4px; font-weight:bold; flex:1">VER NOTA</button>
-                                    <button onclick="excluirVendaIndividual(${index})" style="background:var(--danger); color:white; border:none; border-radius:4px; padding:6px; font-weight:bold; cursor:pointer">❌</button>
+                                    <button onclick="cancelarVendaIndividual(${index})" style="background:var(--danger); color:white; border:none; border-radius:4px; padding:6px; font-weight:bold; cursor:pointer">❌</button>
                                 </div>
                                 <span style="font-size:10px; color:#aaa">Bruto: R$ ${bruto.toFixed(2)}</span>
                             </div>
                         </td>
                         <td>${v.tipo}</td>
-                        <td>R$ ${bruto.toFixed(2)}</td>
+                        <td>R$ ${isCancelada ? '0.00' : bruto.toFixed(2)}</td>
                         <td>
                             <input type="number" value="${taxaMaq}" style="width:55px; font-size:11px; padding: 2px; border: 1px solid #444; background: #222; color: white;" onchange="atualizarTaxaVenda(${index}, this.value)">
                             <br><small style="color:var(--danger)">- R$ ${valorDaTaxaMaq.toFixed(2)}</small>
@@ -1898,7 +1876,7 @@
                             <input type="number" value="${descReais}" style="width:55px; font-size:11px; padding: 2px; border: 1px solid #444; background: #222; color: white;" onchange="atualizarDescontoVenda(${index}, this.value)">
                             <br><small style="color:var(--danger)">- R$ ${descReais.toFixed(2)}</small>
                         </td>
-                        <td style="color:var(--success); font-weight:bold">R$ ${liquido.toFixed(2)}</td>
+                        <td style="color:var(--success); font-weight:bold">R$ ${isCancelada ? '0.00' : liquido.toFixed(2)}</td>
                         <td style="font-size:10px">${v.aparelho || 'N/A'}</td>
                     </tr>`;
             });
@@ -1921,10 +1899,10 @@
             displayDescontoTotal.innerText = `Descontos: R$ ${descontoTotalAcumulado.toFixed(2)}`;
         }
 
-        // NOVA FUNÇÃO PARA EXCLUIR VENDA INDIVIDUAL
-        function excluirVendaIndividual(index) {
-            if(confirm("Deseja realmente excluir esta venda do histórico?")) {
-                vendasRealizadas.splice(index, 1);
+        // NOVA FUNÇÃO PARA CANCELAR VENDA INDIVIDUAL (ESTILO VISUAL)
+        function cancelarVendaIndividual(index) {
+            if(confirm("Deseja realmente CANCELAR esta venda? Ela continuará na lista, mas com valor zerado.")) {
+                vendasRealizadas[index].cancelada = true;
                 localStorage.setItem('historico_vendas', JSON.stringify(vendasRealizadas));
                 renderizarHistoricoVendas();
             }
@@ -2201,5 +2179,4 @@
     </script>
 </body>
 </html>
-
 
