@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -867,6 +866,7 @@
                 <a class="btn-main btn-vermelho" href="Botao-Admin.html" target="_self">ALTERAR SITE</a>
                 <button class="btn-main btn-black" onclick="abrirModalAtalhos()">⌨️ CONFIGURAR TECLAS</button>
                 <a class="btn-main btn-black" href="Tutorial-Sistema.html" target="_self">Tutorial do Sistema</a>
+                <a class="btn-main btn-black" href="I-index.html" target="_self">#</a>
             </div>
 
             <div class="divisor"></div>
@@ -977,8 +977,9 @@
                 <span style="font-size: 16px; color: #aaa; margin-top: 10px; display: inline-block;">Ganhos Líquidos Hoje:</span><br>
                 <span id="valor-lucro-dia" style="font-size: 32px; font-weight: bold; color: var(--warning);">R$ 0,00</span><br>
                 
-                <div style="display: flex; justify-content: center; gap: 15px; margin-top: 10px;">
-                    <span id="taxa-maquina-dia" style="font-size: 14px; color: var(--danger);">Perda p/ Máquina: R$ 0,00</span>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; margin-top: 10px;">
+                    <span id="taxa-maquina-dia" style="font-size: 14px; color: var(--danger);">Taxa da máquina: R$ 0,00</span>
+                    <span id="desconto-dia" style="font-size: 14px; color: var(--danger);">Descontos: R$ 0,00</span>
                 </div>
             </div>
 
@@ -988,7 +989,10 @@
                 <hr style="border: 0.5px solid #333; width: 50%; margin: 10px auto;">
                 <span style="font-size: 14px; color: #aaa;">Lucro Acumulado (Líquido)</span><br>
                 <span id="valor-lucro-total" style="font-size: 20px; font-weight: bold; color: var(--success);">R$ 0,00</span><br>
-                <span id="taxa-maquina-total" style="font-size: 13px; color: var(--danger);">Taxa Máquina Total: R$ 0,00</span>
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <span id="taxa-maquina-total" style="font-size: 13px; color: var(--danger);">Taxa da máquina: R$ 0,00</span>
+                    <span id="desconto-total" style="font-size: 13px; color: var(--danger);">Descontos: R$ 0,00</span>
+                </div>
             </div>
             <div style="width: 100%; overflow-x: auto;">
                 <table class="tabela-vendas">
@@ -998,8 +1002,9 @@
                             <th>Itens</th>
                             <th>Metodo</th>
                             <th>Total Bruto</th>
-                            <th>Taxa/Desc %</th>
-                            <th>Líquido (Bruto)</th>
+                            <th>Taxa % (Maq)</th>
+                            <th>Desconto R$</th>
+                            <th>Líquido</th>
                             <th>Aparelho</th>
                         </tr>
                     </thead>
@@ -1637,6 +1642,7 @@
                     valorTotal: produtos[pIndex].valor * qtdBaixa,
                     itens: [{nome: produtos[pIndex].nome, qtd: qtdBaixa, valor: produtos[pIndex].valor}],
                     taxa: 0,
+                    desconto: 0, // Campo Novo
                     aparelho: obterInfoTecnicaAparelho()
                 });
                 localStorage.setItem('historico_vendas', JSON.stringify(vendasRealizadas));
@@ -1677,6 +1683,7 @@
                     valorTotal: totalGeralVenda,
                     itens: itensVendidos,
                     taxa: 0,
+                    desconto: 0, // Campo Novo
                     aparelho: obterInfoTecnicaAparelho()
                 });
                 localStorage.setItem('historico_vendas', JSON.stringify(vendasRealizadas));
@@ -1720,7 +1727,9 @@
             const displayLucroTotal = document.getElementById('valor-lucro-total');
             const displayBrutoTotalAcumulado = document.getElementById('valor-bruto-total-acumulado');
             const displayTaxaDia = document.getElementById('taxa-maquina-dia');
+            const displayDescontoDia = document.getElementById('desconto-dia');
             const displayTaxaTotal = document.getElementById('taxa-maquina-total');
+            const displayDescontoTotal = document.getElementById('desconto-total');
             corpoTabela.innerHTML = "";
             
             let brutoTotalGeralAcumulado = 0;
@@ -1730,7 +1739,10 @@
             let lucroDia = 0;
             
             let taxaTotalAcumulada = 0;
+            let descontoTotalAcumulado = 0;
             let taxaDiaAcumulada = 0;
+            let descontoDiaAcumulado = 0;
+
             let totPix = 0;
             let totDinheiro = 0;
             let totCartao = 0;
@@ -1742,18 +1754,22 @@
 
             vendasRealizadas.forEach((v, index) => {
                 const bruto = parseFloat(v.valorTotal);
-                const taxa = v.taxa || 0;
-                const valorDaTaxa = bruto * (taxa / 100);
-                const liquido = bruto - valorDaTaxa;
+                const taxaMaq = v.taxa || 0;
+                const descReais = v.desconto || 0;
+                
+                let valorDaTaxaMaq = bruto * (taxaMaq / 100);
+                let liquido = bruto - valorDaTaxaMaq - descReais;
                 
                 brutoTotalGeralAcumulado += bruto;
                 lucroTotal += liquido;
-                taxaTotalAcumulada += valorDaTaxa;
+                taxaTotalAcumulada += valorDaTaxaMaq;
+                descontoTotalAcumulado += descReais;
                 
                 if (agora - v.timestamp < vinteQuatroHoras && v.timestamp > timestampReset) {
                     brutoDia += bruto;
                     lucroDia += liquido;
-                    taxaDiaAcumulada += valorDaTaxa;
+                    taxaDiaAcumulada += valorDaTaxaMaq;
+                    descontoDiaAcumulado += descReais;
                     if(v.tipo === "Pix") totPix += liquido;
                     else if(v.tipo === "Dinheiro") totDinheiro += liquido;
                     else if(v.tipo === "Cartão" || v.tipo.includes("Cartão")) totCartao += liquido;
@@ -1771,19 +1787,22 @@
                     <tr>
                         <td>${v.data}</td>
                         <td>
-                            <div style="display:flex; gap:2px">
+                            <div style="display:flex; flex-direction:column; gap:2px">
                                 <button onclick="visualizarItensVenda(${index})" style="font-size:11px; cursor:pointer; background: var(--primary); color: white; border:none; padding: 6px; border-radius:4px; font-weight:bold;">VER NOTA</button>
+                                <span style="font-size:10px; color:#aaa">Bruto: R$ ${bruto.toFixed(2)}</span>
                             </div>
                         </td>
                         <td>${v.tipo}</td>
                         <td>R$ ${bruto.toFixed(2)}</td>
                         <td>
-                            <input type="number" value="${taxa}" style="width:45px; font-size:11px; padding: 2px; border: 1px solid #444; background: #222; color: white;" onchange="atualizarTaxaVenda(${index}, this.value)">
+                            <input type="number" value="${taxaMaq}" style="width:55px; font-size:11px; padding: 2px; border: 1px solid #444; background: #222; color: white;" onchange="atualizarTaxaVenda(${index}, this.value)">
+                            <br><small style="color:var(--danger)">- R$ ${valorDaTaxaMaq.toFixed(2)}</small>
                         </td>
-                        <td style="color:var(--success); font-weight:bold">
-                            R$ ${liquido.toFixed(2)}<br>
-                            <small style="color:#666; font-weight:normal;">(R$ ${bruto.toFixed(2)})</small>
+                        <td>
+                            <input type="number" value="${descReais}" style="width:55px; font-size:11px; padding: 2px; border: 1px solid #444; background: #222; color: white;" onchange="atualizarDescontoVenda(${index}, this.value)">
+                            <br><small style="color:var(--danger)">- R$ ${descReais.toFixed(2)}</small>
                         </td>
+                        <td style="color:var(--success); font-weight:bold">R$ ${liquido.toFixed(2)}</td>
                         <td style="font-size:10px">${v.aparelho || 'N/A'}</td>
                     </tr>`;
             });
@@ -1798,8 +1817,12 @@
             displayLucroDia.innerText = `R$ ${lucroDia.toFixed(2)}`;
             displayLucroTotal.innerText = `R$ ${lucroTotal.toFixed(2)}`;
             displayBrutoTotalAcumulado.innerText = `R$ ${brutoTotalGeralAcumulado.toFixed(2)}`;
-            displayTaxaDia.innerText = `Perda p/ Máquina: R$ ${taxaDiaAcumulada.toFixed(2)}`;
-            displayTaxaTotal.innerText = `Taxa Máquina Total: R$ ${taxaTotalAcumulada.toFixed(2)}`;
+            
+            displayTaxaDia.innerText = `Taxa da máquina: R$ ${taxaDiaAcumulada.toFixed(2)}`;
+            displayDescontoDia.innerText = `Descontos: R$ ${descontoDiaAcumulado.toFixed(2)}`;
+            
+            displayTaxaTotal.innerText = `Taxa da máquina: R$ ${taxaTotalAcumulada.toFixed(2)}`;
+            displayDescontoTotal.innerText = `Descontos: R$ ${descontoTotalAcumulado.toFixed(2)}`;
         }
 
         // NOVAS FUNÇÕES ADICIONADAS
@@ -1856,6 +1879,8 @@
 
             mudarMetodoCupom(seletorMetodo.value);
             
+            // No cupom mostrar o líquido se for dinheiro e houver desconto? Ou bruto? 
+            // Mantendo bruto conforme padrão de cupons e o cálculo de troco usa o campo total.
             document.getElementById('cupom-total-bruto').innerText = `R$ ${parseFloat(venda.valorTotal).toFixed(2)}`;
             
             const corpo = document.getElementById('cupom-corpo-itens');
@@ -1939,6 +1964,12 @@
 
         function atualizarTaxaVenda(index, valor) {
             vendasRealizadas[index].taxa = parseFloat(valor) || 0;
+            localStorage.setItem('historico_vendas', JSON.stringify(vendasRealizadas));
+            renderizarHistoricoVendas();
+        }
+
+        function atualizarDescontoVenda(index, valor) {
+            vendasRealizadas[index].desconto = parseFloat(valor) || 0;
             localStorage.setItem('historico_vendas', JSON.stringify(vendasRealizadas));
             renderizarHistoricoVendas();
         }
@@ -2064,3 +2095,4 @@
     </script>
 </body>
 </html>
+
