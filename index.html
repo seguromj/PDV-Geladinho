@@ -886,15 +886,13 @@
     </div>
 
     <div id="modalSist" class="modal">
-        <button class="btn-voltar" onclick="fecharTudo()">⬅ VOLTAR PARA HOME</button>
-        
+        <button class="btn-voltar" onclick="window.location.hash = 'escanear-produto'; window.location.reload();">⬅ VOLTAR PARA HOME</button>
+                    
         <div class="layout-scan-pc">
             <div class="camera-lado-esquerdo">
                 <div class="camera-controls">
                     <div id="status-leitura">Pronto para escanear</div>
                     <button class="btn-circle" onclick="girarCamera()">🔁</button>
-                    
-                    <button onclick="window.location.hash = 'escanear-produto'; window.location.reload();">LIBERAR 🛒</button>
                     
                 </div>
                 <div id="reader"></div>
@@ -2110,6 +2108,7 @@
     </script>
 </body>
 </html>
+
 
 
 
