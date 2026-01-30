@@ -893,7 +893,9 @@
                 <div class="camera-controls">
                     <div id="status-leitura">Pronto para escanear</div>
                     <button class="btn-circle" onclick="girarCamera()">🔁</button>
-                    <button onclick="window.location.href = window.location.href;">LIBERAR 🛒</button>
+                    
+                    <button onclick="window.location.hash = 'escanear-produto'; window.location.reload();">LIBERAR 🛒</button>
+                    
                 </div>
                 <div id="reader"></div>
             </div>
@@ -2108,5 +2110,6 @@
     </script>
 </body>
 </html>
+
 
 
