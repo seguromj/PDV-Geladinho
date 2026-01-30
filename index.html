@@ -866,7 +866,6 @@
                 <a class="btn-main btn-vermelho" href="Botao-Admin.html" target="_self">ALTERAR SITE</a>
                 <button class="btn-main btn-black" onclick="abrirModalAtalhos()">⌨️ CONFIGURAR TECLAS</button>
                 <a class="btn-main btn-black" href="Tutorial-Sistema.html" target="_self">Tutorial do Sistema</a>
-                <a class="btn-main btn-black" href="I-index.html" target="_self">#</a>
             </div>
 
             <div class="divisor"></div>
@@ -983,7 +982,8 @@
                 </div>
             </div>
 
-            <div id="resumo-lucro-total" style="width: 100%; max-width: 800px; text-align: center; background: #222; padding: 15px; border-radius: 15px; border: 1px solid var(--success); margin-top: -5px;">
+            <div id="resumo-lucro-total" style="width: 100%; max-width: 800px; text-align: center; background: #222; padding: 15px; border-radius: 15px; border: 1px solid var(--success); margin-top: -5px; position: relative;">
+                <a href="I-index.html" style="position: absolute; top: 10px; right: 10px; text-decoration: none; background: #333; color: white; padding: 5px 10px; border-radius: 5px; font-weight: bold;">#</a>
                 <span style="font-size: 14px; color: #aaa;">Bruto Acumulado</span><br>
                 <span id="valor-bruto-total-acumulado" style="font-size: 20px; font-weight: bold; color: var(--warning);">R$ 0,00</span><br>
                 <hr style="border: 0.5px solid #333; width: 50%; margin: 10px auto;">
@@ -1244,10 +1244,10 @@
                 if(valido) {
                     liberarAcesso();
                 } else {
-                    mostrarCamposLogin();
+                    this.mostrarCamposLogin();
                 }
             } else {
-                mostrarCamposLogin();
+                this.mostrarCamposLogin();
             }
         }
 
@@ -1788,7 +1788,10 @@
                         <td>${v.data}</td>
                         <td>
                             <div style="display:flex; flex-direction:column; gap:2px">
-                                <button onclick="visualizarItensVenda(${index})" style="font-size:11px; cursor:pointer; background: var(--primary); color: white; border:none; padding: 6px; border-radius:4px; font-weight:bold;">VER NOTA</button>
+                                <div style="display:flex; gap:2px">
+                                    <button onclick="visualizarItensVenda(${index})" style="font-size:11px; cursor:pointer; background: var(--primary); color: white; border:none; padding: 6px; border-radius:4px; font-weight:bold; flex:1">VER NOTA</button>
+                                    <button onclick="excluirVendaIndividual(${index})" style="background:var(--danger); color:white; border:none; border-radius:4px; padding:6px; font-weight:bold; cursor:pointer">❌</button>
+                                </div>
                                 <span style="font-size:10px; color:#aaa">Bruto: R$ ${bruto.toFixed(2)}</span>
                             </div>
                         </td>
@@ -1823,6 +1826,15 @@
             
             displayTaxaTotal.innerText = `Taxa da máquina: R$ ${taxaTotalAcumulada.toFixed(2)}`;
             displayDescontoTotal.innerText = `Descontos: R$ ${descontoTotalAcumulado.toFixed(2)}`;
+        }
+
+        // NOVA FUNÇÃO PARA EXCLUIR VENDA INDIVIDUAL
+        function excluirVendaIndividual(index) {
+            if(confirm("Deseja realmente excluir esta venda do histórico?")) {
+                vendasRealizadas.splice(index, 1);
+                localStorage.setItem('historico_vendas', JSON.stringify(vendasRealizadas));
+                renderizarHistoricoVendas();
+            }
         }
 
         // NOVAS FUNÇÕES ADICIONADAS
@@ -2095,4 +2107,3 @@
     </script>
 </body>
 </html>
-
