@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -756,6 +758,27 @@
             text-align: center;
             font-weight: bold;
         }
+
+                /* Estilo para item cancelado no carrinho */
+        .item-cancelado {
+            opacity: 0.5;
+            filter: grayscale(1);
+            position: relative;
+            background: #f8d7da !important; /* Fundo levemente rosado para indicar erro/cancelamento */
+        }
+
+        .item-cancelado .id-text, 
+        .item-cancelado small {
+            text-decoration: line-through;
+            text-decoration-color: var(--danger);
+            text-decoration-thickness: 3px;
+        }
+
+        .item-cancelado .baixa-container,
+        .item-cancelado .btn-baixa-individual {
+            display: none !important; /* Esconde controles de baixa se cancelado */
+        }
+        
     </style>
 </head>
 <body onclick="resetarInatividade()" onkeydown="resetarInatividade()">
@@ -1558,7 +1581,7 @@
             calcularTroco();
         }
 
-        function atualizarLista() {
+                function atualizarLista() {
             const container = document.getElementById('lista');
             const btnGeral = document.getElementById('container-baixa-geral');
             const campoTotal = document.getElementById('valor-total');
@@ -1567,26 +1590,26 @@
             btnGeral.style.display = historico.length > 0 ? 'block' : 'none';
 
             historico.forEach((item, index) => {
-                const valorItem = parseFloat(item.valor) || 0;
+                const valorItem = item.cancelado ? 0 : (parseFloat(item.valor) || 0);
                 const qtd = item.qtdBaixa || 1;
                 somaTotal += (valorItem * qtd);
                 
                 const div = document.createElement('div');
-                div.className = 'item-lista';
+                div.className = 'item-lista' + (item.cancelado ? ' item-cancelado' : '');
                 div.innerHTML = `
                     <div style="display:flex; align-items:center; gap:8px">
                         <img src="${item.img}" style="width:40px; height:40px; border-radius:4px; object-fit:cover">
                         <div>
                             <span class="id-text">${item.id}</span><br>
-                            <small style="font-size:12px; color:#555; font-weight:bold;">${item.nome} | R$ ${valorItem.toFixed(2)}</small>
+                            <small style="font-size:12px; color:#555; font-weight:bold;">${item.nome} | R$ ${item.cancelado ? '0.00' : valorItem.toFixed(2)}</small>
                         </div>
                     </div>
                     <div style="display:flex; align-items:center; gap:5px">
                         <div class="baixa-container">
                             <input type="number" class="baixa-input" value="${qtd}" oninput="atualizarQtdNoHistorico(${index}, this.value)">
-                            <button class="btn-delete" style="background:var(--warning); color:black;" onclick="darBaixa('${item.id}', ${index})">BAIXA</button>
+                            <button class="btn-delete btn-baixa-individual" style="background:var(--warning); color:black;" onclick="darBaixa('${item.id}', ${index})">BAIXA</button>
                         </div>
-                        <button class="btn-delete" onclick="removerItem(${index})">X</button>
+                        <button class="btn-delete" onclick="removerItem(${index})">${item.cancelado ? 'RESTAURAR' : 'X'}</button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -1595,6 +1618,20 @@
             campoTotal.innerText = `Total: R$ ${somaTotal.toFixed(2)}`;
             calcularTroco();
         }
+
+        function removerItem(index) {
+            // Se já estiver cancelado, ele restaura (opcional), se não, cancela
+            if (!historico[index].cancelado) {
+                historico[index].cancelado = true;
+                // O valor original permanece no objeto, mas a função atualizarLista o tratará como 0 no cálculo
+            } else {
+                historico[index].cancelado = false;
+            }
+            
+            localStorage.setItem('meu_historico', JSON.stringify(historico));
+            atualizarLista();
+        }
+
 
         function calcularTroco() {
             const recebido = parseFloat(document.getElementById('valor-recebido').value) || 0;
@@ -2164,4 +2201,5 @@
     </script>
 </body>
 </html>
+
 
