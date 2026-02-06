@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -420,6 +419,31 @@
             color: white;
             font-size: 18px;
             box-sizing: border-box;
+        }
+
+        /* ESTILO PARA O CAMPO DE ID MANUAL */
+        .container-id-manual {
+            display: flex;
+            gap: 5px;
+            width: 100%;
+        }
+        .input-id-manual {
+            flex: 1;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--warning);
+            background: #111;
+            color: var(--warning);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .btn-id-manual {
+            background: var(--warning);
+            border: none;
+            border-radius: 6px;
+            padding: 0 15px;
+            cursor: pointer;
+            font-weight: bold;
         }
 
         .texto-troco {
@@ -959,7 +983,12 @@
                             <option value="Cartão">💳 Cartão</option>
                         </select>
                         <input type="number" id="valor-recebido" class="input-pagamento" placeholder="Valor recebido" oninput="calcularTroco()">
-                        <input type="text" id="id-manual" class="input-pagamento" style="border-color: var(--warning); margin-top: 5px;" placeholder="Digitar ID/Barras manual" onkeydown="if(event.key === 'Enter') { adicionarNaLista(this.value); this.value = ''; }">
+                        
+                        <div class="container-id-manual">
+                            <input type="text" id="id-manual-pdv" class="input-id-manual" placeholder="ID ou Código de Barra" onkeydown="if(event.key==='Enter') processarIdManual()">
+                            <button class="btn-id-manual" onclick="processarIdManual()">🔍</button>
+                        </div>
+
                         <div id="texto-troco" class="texto-troco">Troco: R$ 0,00</div>
                     </div>
                 </div>
@@ -1417,7 +1446,7 @@
             // Verifica se o modal de escaneamento está aberto
             if (document.getElementById('modalSist').style.display === 'flex') {
                 // Se o foco estiver em um input de valor ou quantidade, deixamos o sistema agir normalmente
-                if (document.activeElement.id === 'valor-recebido' || document.activeElement.id === 'id-manual' || document.activeElement.className.includes('baixa-input') || document.activeElement.id === 'qtd-multiplicadora') return;
+                if (document.activeElement.id === 'valor-recebido' || document.activeElement.className.includes('baixa-input') || document.activeElement.id === 'qtd-multiplicadora' || document.activeElement.id === 'id-manual-pdv') return;
                 
                 if (e.key === "Enter") {
                     if (barcodeBuffer.length > 0) {
@@ -1540,27 +1569,40 @@
             // PEGA A QUANTIDADE MULTIPLICADORA DO INPUT NO TOPO
             const qtdPadrao = parseFloat(document.getElementById('qtd-multiplicadora').value) || 1;
             
-            if (produtoEncontrado) {
-                const itemObj = {
-                    id: id,
-                    nome: produtoEncontrado ? (produtoEncontrado.nome || "Produto Localizado") : "ID Não Cadastrado",
-                    img: produtoEncontrado ? produtoEncontrado.img : "https://via.placeholder.com/50",
-                    valor: produtoEncontrado ? produtoEncontrado.valor : 0,
-                    qtdBaixa: qtdPadrao, // Usa a quantidade definida no topo (suporta decimais)
-                    timestamp: new Date().getTime()
-                };
-                historico.unshift(itemObj);
-                localStorage.setItem('meu_historico', JSON.stringify(historico));
-                atualizarLista();
-            } else {
-                mostrarAvisoErro();
-            }
+            const itemObj = {
+                id: id,
+                nome: produtoEncontrado ? (produtoEncontrado.nome || "Produto Localizado") : "ID Não Cadastrado",
+                img: produtoEncontrado ? produtoEncontrado.img : "https://via.placeholder.com/50",
+                valor: produtoEncontrado ? produtoEncontrado.valor : 0,
+                qtdBaixa: qtdPadrao, // Usa a quantidade definida no topo (suporta decimais)
+                timestamp: new Date().getTime()
+            };
+            historico.unshift(itemObj);
+            localStorage.setItem('meu_historico', JSON.stringify(historico));
+            atualizarLista();
         }
 
         function girarCamera() {
             if (cameras.length > 1) {
                 currentCamIndex = (currentCamIndex + 1) % cameras.length;
                 startCamera(cameras[currentCamIndex].id);
+            }
+        }
+
+        // NOVO: PROCESSAR ID DIGITADO MANUALMENTE NO PDV
+        function processarIdManual() {
+            const campo = document.getElementById('id-manual-pdv');
+            const id = campo.value.trim();
+            if (id === "") return;
+
+            const existe = produtos.some(p => p.id === id);
+            if (existe) {
+                document.getElementById('beep').play();
+                adicionarNaLista(id);
+                campo.value = "";
+                campo.focus();
+            } else {
+                mostrarAvisoErro();
             }
         }
 
