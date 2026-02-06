@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -958,6 +959,7 @@
                             <option value="Cartão">💳 Cartão</option>
                         </select>
                         <input type="number" id="valor-recebido" class="input-pagamento" placeholder="Valor recebido" oninput="calcularTroco()">
+                        <input type="text" id="id-manual" class="input-pagamento" style="border-color: var(--warning); margin-top: 5px;" placeholder="Digitar ID/Barras manual" onkeydown="if(event.key === 'Enter') { adicionarNaLista(this.value); this.value = ''; }">
                         <div id="texto-troco" class="texto-troco">Troco: R$ 0,00</div>
                     </div>
                 </div>
@@ -1415,7 +1417,7 @@
             // Verifica se o modal de escaneamento está aberto
             if (document.getElementById('modalSist').style.display === 'flex') {
                 // Se o foco estiver em um input de valor ou quantidade, deixamos o sistema agir normalmente
-                if (document.activeElement.id === 'valor-recebido' || document.activeElement.className.includes('baixa-input') || document.activeElement.id === 'qtd-multiplicadora') return;
+                if (document.activeElement.id === 'valor-recebido' || document.activeElement.id === 'id-manual' || document.activeElement.className.includes('baixa-input') || document.activeElement.id === 'qtd-multiplicadora') return;
                 
                 if (e.key === "Enter") {
                     if (barcodeBuffer.length > 0) {
@@ -1538,17 +1540,21 @@
             // PEGA A QUANTIDADE MULTIPLICADORA DO INPUT NO TOPO
             const qtdPadrao = parseFloat(document.getElementById('qtd-multiplicadora').value) || 1;
             
-            const itemObj = {
-                id: id,
-                nome: produtoEncontrado ? (produtoEncontrado.nome || "Produto Localizado") : "ID Não Cadastrado",
-                img: produtoEncontrado ? produtoEncontrado.img : "https://via.placeholder.com/50",
-                valor: produtoEncontrado ? produtoEncontrado.valor : 0,
-                qtdBaixa: qtdPadrao, // Usa a quantidade definida no topo (suporta decimais)
-                timestamp: new Date().getTime()
-            };
-            historico.unshift(itemObj);
-            localStorage.setItem('meu_historico', JSON.stringify(historico));
-            atualizarLista();
+            if (produtoEncontrado) {
+                const itemObj = {
+                    id: id,
+                    nome: produtoEncontrado ? (produtoEncontrado.nome || "Produto Localizado") : "ID Não Cadastrado",
+                    img: produtoEncontrado ? produtoEncontrado.img : "https://via.placeholder.com/50",
+                    valor: produtoEncontrado ? produtoEncontrado.valor : 0,
+                    qtdBaixa: qtdPadrao, // Usa a quantidade definida no topo (suporta decimais)
+                    timestamp: new Date().getTime()
+                };
+                historico.unshift(itemObj);
+                localStorage.setItem('meu_historico', JSON.stringify(historico));
+                atualizarLista();
+            } else {
+                mostrarAvisoErro();
+            }
         }
 
         function girarCamera() {
